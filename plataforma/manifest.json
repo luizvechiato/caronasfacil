@@ -1,0 +1,35 @@
+{
+  "name": "Caronas Fácil",
+  "short_name": "Caronas",
+  "description": "Organize caronas para seus eventos de forma simples e rápida.",
+  "id": "https://caronasfacil.com.br/",
+  "start_url": "https://caronasfacil.com.br/index.html",
+  "scope": "https://caronasfacil.com.br/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#4f46e5",
+  "background_color": "#f8fafc",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["travel", "utilities", "lifestyle"]
+}

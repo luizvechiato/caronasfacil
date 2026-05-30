@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🚗 Caronas Fácil – Organize caronas para seus eventos</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#4f46e5"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Caronas"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <style>
+    :root {
+      --primary:       #4f46e5;
+      --primary-dark:  #3730a3;
+      --primary-light: #eef2ff;
+      --accent:        #dc2626;
+      --success:       #16a34a;
+      --bg:            #f8fafc;
+      --surface:       #ffffff;
+      --surface2:      #f1f5f9;
+      --text:          #0f172a;
+      --muted:         #64748b;
+      --border:        #e2e8f0;
+      --r:             12px;
+      --r-sm:          8px;
+      --shadow:        0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+    }
+    [data-theme="dark"] {
+      --primary:       #818cf8;
+      --primary-dark:  #c7d2fe;
+      --primary-light: #1e1b4b;
+      --accent:        #f87171;
+      --success:       #4ade80;
+      --bg:            #0f172a;
+      --surface:       #1e293b;
+      --surface2:      #293548;
+      --text:          #f1f5f9;
+      --muted:         #94a3b8;
+      --border:        #334155;
+      --shadow:        0 1px 4px rgba(0,0,0,.4);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --primary:       #818cf8;
+        --primary-dark:  #c7d2fe;
+        --primary-light: #1e1b4b;
+        --accent:        #f87171;
+        --success:       #4ade80;
+        --bg:            #0f172a;
+        --surface:       #1e293b;
+        --surface2:      #293548;
+        --text:          #f1f5f9;
+        --muted:         #94a3b8;
+        --border:        #334155;
+        --shadow:        0 1px 4px rgba(0,0,0,.4);
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+    }
+
+    /* ── PÁGINAS ── */
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: flex; flex-direction: column; }
+
+    /* ── LANDING ── */
+    .landing-hero {
+      background: #0f172a;
+      color: #fff; padding: 60px 24px 48px; text-align: center;
+    }
+    .landing-logo { font-size: 44px; margin-bottom: 14px; }
+    .landing-title { font-size: 30px; font-weight: 800; margin-bottom: 8px; letter-spacing: -.5px; }
+    .landing-sub { font-size: 15px; opacity: .65; margin-bottom: 32px; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto; }
+    .landing-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    .landing-features { padding: 36px 20px; max-width: 640px; margin: 0 auto; }
+    .feature-card {
+      background: var(--surface); border-radius: var(--r); padding: 18px 20px;
+      margin-bottom: 10px; border: 1px solid var(--border); box-shadow: var(--shadow);
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .feature-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+    .feature-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+    .feature-desc  { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    .landing-footer {
+      text-align: center; padding: 24px; font-size: 12px; color: var(--muted);
+      border-top: 1px solid var(--border); margin-top: auto;
+    }
+
+    /* ── AUTH CARD ── */
+    .auth-wrap {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 24px;
+      background: var(--bg);
+    }
+    .auth-card {
+      background: var(--surface); border-radius: var(--r);
+      padding: 32px 28px; width: 100%; max-width: 420px;
+      border: 1px solid var(--border); box-shadow: var(--shadow);
+    }
+    .auth-logo { font-size: 32px; text-align: center; margin-bottom: 6px; }
+    .auth-title { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .auth-sub   { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 22px; line-height: 1.5; }
+
+    .fg { margin-bottom: 14px; }
+    .fl { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: .5px; color: var(--muted); margin-bottom: 5px; }
+    .fi {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); font-size: 14px; color: var(--text);
+      background: var(--surface); transition: border-color .2s; font-family: inherit;
+    }
+    .fi:focus { outline: none; border-color: var(--primary); }
+
+    .btn {
+      width: 100%; padding: 12px; border-radius: var(--r-sm); border: none;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: filter .15s;
+      font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn:hover { filter: brightness(.93); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; filter: none; }
+    .btn-primary   { background: var(--primary); color: #fff; }
+    .btn-secondary { background: var(--surface2); color: var(--text); }
+    .btn-outline   { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
+    .btn-sm        { padding: 8px 18px; font-size: 13px; width: auto; }
+    .btn-white     { background: #fff; color: var(--primary); }
+
+    .auth-divider {
+      text-align: center; font-size: 13px; color: var(--muted);
+      margin: 18px 0; position: relative;
+    }
+    .auth-divider::before {
+      content: ''; position: absolute; top: 50%; left: 0; right: 0;
+      height: 1px; background: var(--border);
+    }
+    .auth-divider span { background: var(--surface); padding: 0 12px; position: relative; }
+
+    .auth-link {
+      text-align: center; font-size: 14px; color: var(--muted); margin-top: 18px;
+    }
+    .auth-link a { color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: none; }
+
+    .forgot-link {
+      text-align: right; font-size: 13px; margin-top: -10px; margin-bottom: 16px;
+    }
+    .forgot-link a { color: var(--primary); cursor: pointer; font-weight: 600; }
+
+    /* ── FORGOT SENT STATE ── */
+    .forgot-sent-box {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 20px 18px; margin-bottom: 8px;
+      display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center;
+    }
+    .forgot-sent-icon { font-size: 36px; }
+    .forgot-sent-title { font-size: 17px; font-weight: 700; }
+    .forgot-sent-desc { font-size: 14px; color: var(--muted); line-height: 1.5; }
+    .forgot-spam-tip {
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--r-sm);
+      padding: 10px 12px; font-size: 13px; color: #78350f; line-height: 1.5;
+      text-align: left; width: 100%;
+    }
+    .resend-countdown {
+      font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px;
+    }
+
+    .error-box {
+      background: #fff1f1; border: 1px solid #fca5a5; border-radius: var(--r-sm);
+      padding: 11px 14px; font-size: 13px; color: #991b1b;
+      margin-bottom: 16px; display: none; line-height: 1.5;
+    }
+    .error-box.show { display: block; }
+    .success-box {
+      background: #f0fdf4; border: 1px solid #86efac; border-radius: var(--r-sm);
+      padding: 11px 14px; font-size: 13px; color: #166534;
+      margin-bottom: 16px; display: none; line-height: 1.5;
+    }
+    .success-box.show { display: block; }
+
+    /* ── DASHBOARD ── */
+    .dash-header {
+      background: #0f172a;
+      color: #fff; padding: 16px 20px 18px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .dash-logo-area { display: flex; align-items: center; gap: 10px; }
+    .dash-logo-txt  { font-size: 20px; font-weight: 800; letter-spacing: -.3px; }
+    .dash-user      { font-size: 12px; opacity: .5; margin-top: 2px; }
+    .dash-logout    {
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.75);
+      padding: 6px 12px; border-radius: 6px; font-size: 12px;
+      font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .dash-content { padding: 20px; max-width: 680px; margin: 0 auto; }
+    .dash-section-title {
+      font-size: 18px; font-weight: 700; margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    /* Event card */
+    .event-card {
+      background: var(--surface); border-radius: var(--r); padding: 16px 18px;
+      margin-bottom: 10px; border: 1px solid var(--border); box-shadow: var(--shadow);
+      cursor: pointer; transition: border-color .15s,box-shadow .15s;
+    }
+    .event-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(79,70,229,.1); }
+    .event-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .event-card-name { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+    .event-card-dest { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .event-card-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+    .event-card { cursor: default; }
+    .meta-chip {
+      background: var(--primary-light); color: var(--primary-dark);
+      font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 5px;
+    }
+    .event-status-active { background: #f0fdf4; color: #15803d; }
+    .event-status-ended  { background: var(--surface2); color: var(--muted); }
+    .event-card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .btn-card { padding: 7px 14px; border-radius: var(--r-sm); font-size: 12px; font-weight: 600;
+      cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 5px;
+      transition: filter .15s; font-family: inherit; }
+    .btn-card:hover { filter: brightness(.93); }
+    .btn-card-primary { background: var(--primary); color: #fff; }
+    .btn-card-outline { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── EVENTO CRIADO (sucesso) ── */
+    .success-page { display: flex; flex-direction: column; align-items: center;
+      padding: 48px 24px 40px; max-width: 480px; margin: 0 auto; text-align: center; gap: 0; }
+    .success-icon { font-size: 56px; margin-bottom: 16px; }
+    .success-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+    .success-sub { font-size: 15px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+    .link-box {
+      width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: var(--r); padding: 14px 16px; margin-bottom: 14px; text-align: left;
+    }
+    .link-box-label { font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .5px; color: var(--muted); margin-bottom: 6px; }
+    .link-box-url { font-size: 13px; color: var(--text); word-break: break-all;
+      font-family: monospace; line-height: 1.5; }
+    .link-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 20px; }
+    .btn-copy-link { padding: 13px; border-radius: var(--r-sm); font-size: 15px; font-weight: 700;
+      cursor: pointer; border: none; background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: filter .15s; font-family: inherit; }
+    .btn-copy-link:hover { filter: brightness(.9); }
+    .btn-copy-link.copied { background: var(--success); }
+
+    .empty-state {
+      text-align: center; padding: 48px 24px;
+    }
+    .empty-ico   { font-size: 56px; margin-bottom: 14px; }
+    .empty-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .empty-sub   { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+
+    /* ── CRIAR EVENTO ── */
+    .create-header {
+      background: #0f172a; color: #fff; padding: 16px 20px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .back-btn {
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.8);
+      width: 34px; height: 34px; border-radius: 8px; font-size: 16px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .create-content { padding: 20px; max-width: 620px; margin: 0 auto; }
+    .section-card {
+      background: var(--surface); border-radius: var(--r);
+      padding: 18px 20px; margin-bottom: 14px;
+      border: 1px solid var(--border); box-shadow: var(--shadow);
+    }
+    .section-card-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; color: var(--primary); text-transform: uppercase; letter-spacing: .4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ── PIN field with eye toggle ── */
+    .fi-password-wrap { position: relative; }
+    .fi-password-wrap .fi { padding-right: 42px; }
+    .btn-eye {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 4px;
+      color: var(--muted); font-size: 17px; line-height: 1;
+      transition: color .15s;
+    }
+    .btn-eye:hover { color: var(--text); }
+
+    /* ── Date picker label ── */
+    .trip-date-preview {
+      font-size: 12px; color: var(--primary-dark); font-weight: 600;
+      margin-top: 4px; min-height: 16px;
+    }
+    .fi-hint { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    /* Trips builder */
+    .trip-item {
+      background: var(--surface2); border-radius: var(--r-sm);
+      padding: 14px; margin-bottom: 10px; position: relative;
+    }
+    .trip-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .trip-label { font-weight: 700; font-size: 14px; }
+    .btn-del-trip {
+      background: none; border: none; color: var(--accent);
+      font-size: 20px; cursor: pointer; line-height: 1; padding: 0;
+    }
+    .btn-add-trip {
+      width: 100%; padding: 11px; border: 2px dashed var(--border);
+      border-radius: var(--r-sm); background: none; color: var(--primary);
+      font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: border-color .2s;
+    }
+    .btn-add-trip:hover { border-color: var(--primary); background: var(--primary-light); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; top: 18px; left: 50%; z-index: 999;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--text); color: #fff; padding: 12px 22px;
+      border-radius: var(--r-sm); font-size: 14px; font-weight: 600;
+      max-width: 340px; text-align: center; transition: transform .3s ease;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.ok   { background: var(--success); }
+    .toast.err  { background: var(--accent); }
+
+    /* ── LOADING ── */
+    .page-loading {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 16px; z-index: 900;
+    }
+    .spin { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESPONSIVO ── */
+    @media (max-width: 480px) {
+      .auth-card { padding: 24px 18px; }
+      .form-row  { grid-template-columns: 1fr; }
+    }
+
+    /* ── AUTOCOMPLETE ── */
+    .ac-wrap { position: relative; }
+    .ac-list {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
+      background: var(--surface); border: 1px solid var(--border);
+      border-top: none; border-radius: 0 0 var(--r-sm) var(--r-sm);
+      box-shadow: 0 4px 12px rgba(0,0,0,.12); max-height: 240px; overflow-y: auto;
+    }
+    .ac-item {
+      padding: 10px 14px; font-size: 13px; cursor: pointer; line-height: 1.4;
+      border-bottom: 1px solid var(--border);
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover, .ac-item.focused { background: var(--primary-light); color: var(--primary-dark); }
+    .ac-item-main { font-weight: 600; }
+    .ac-item-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .ac-geo-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: 1px solid var(--border); border-radius: var(--r-sm);
+      padding: 5px 10px; font-size: 12px; font-weight: 600; color: var(--primary);
+      cursor: pointer; margin-top: 6px; width: fit-content;
+    }
+    .ac-geo-btn:hover { background: var(--primary-light); }
+  </style>
+</head>
+<body>
+
+<!-- ══ TOAST ══ -->
+<div id="toast" class="toast"></div>
+
+<!-- ══ MODAL: Alterar PIN ══ -->
+<div id="overlayChangePin" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:16px 16px 0 0;padding:24px 20px 36px;width:100%;max-width:480px">
+    <div style="width:36px;height:4px;background:#e2e8f0;border-radius:2px;margin:0 auto 20px"></div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:4px">🔑 Alterar PIN do evento</div>
+    <div style="font-size:13px;color:#64748b;margin-bottom:20px">Defina um novo PIN de acesso admin. Você já está autenticado como organizador.</div>
+
+    <div style="margin-bottom:13px">
+      <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:5px">Novo PIN *</label>
+      <input id="newPinInput" type="password" inputmode="numeric" maxlength="20"
+        style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:16px;font-family:inherit;letter-spacing:4px"
+        placeholder="••••" oninput="clearPinError()"/>
+    </div>
+    <div style="margin-bottom:13px">
+      <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:5px">Confirmar novo PIN *</label>
+      <input id="newPinConfirm" type="password" inputmode="numeric" maxlength="20"
+        style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:16px;font-family:inherit;letter-spacing:4px"
+        placeholder="••••" oninput="clearPinError()" onkeydown="if(event.key==='Enter')saveNewPin()"/>
+    </div>
+    <div id="pinChangeError" style="background:#fff1f1;border:1px solid #fecaca;border-radius:8px;padding:9px 12px;font-size:13px;color:#b91c1c;margin-bottom:13px;display:none"></div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button id="btnSavePin" onclick="saveNewPin()"
+        style="padding:12px;border-radius:8px;border:none;background:#4f46e5;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+        Salvar novo PIN
+      </button>
+      <button onclick="closeChangePinModal()"
+        style="padding:11px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;color:#0f172a;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOADING INICIAL ══ -->
+<div id="pageLoading" class="page-loading">
+  <div style="font-size:42px">🚗</div>
+  <div class="spin"></div>
+  <div style="color:var(--muted);font-size:14px">Carregando…</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PÁGINA: LANDING
+════════════════════════════════════════ -->
+<div id="pageLanding" class="page">
+  <div class="landing-hero">
+    <div class="landing-logo">🚗</div>
+    <div class="landing-title">Caronas Fácil</div>
+    <div class="landing-sub">Organize caronas para seus eventos em minutos. Sem complicação, sem custo.</div>
+    <div class="landing-btns">
+      <button class="btn btn-white btn-sm" onclick="showPage('pageLogin')" style="min-width:140px">Entrar</button>
+      <button class="btn btn-outline btn-sm" onclick="showPage('pageRegister')" style="min-width:140px;border-color:#fff;color:#fff">Criar conta grátis</button>
+    </div>
+  </div>
+
+  <div class="landing-features">
+    <div class="feature-card">
+      <div class="feature-icon">🎉</div>
+      <div>
+        <div class="feature-title">Crie seu evento em 2 minutos</div>
+        <div class="feature-desc">Dê um nome, defina o destino e configure quantos dias de ida e volta precisar — sem limite.</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📲</div>
+      <div>
+        <div class="feature-title">Compartilhe um link no WhatsApp</div>
+        <div class="feature-desc">Cada evento tem seu próprio link. Todos do grupo acessam, se cadastram e escolhem suas caronas.</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🚙</div>
+      <div>
+        <div class="feature-title">Controle total de vagas</div>
+        <div class="feature-desc">Motoristas oferecem vagas, passageiros entram. Tudo atualizado em tempo real para todo o grupo.</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div>
+        <div class="feature-title">Você é o admin do seu evento</div>
+        <div class="feature-desc">Quem cria o evento tem controle total: editar qualquer carro, adicionar ou remover pessoas, ajustar detalhes.</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <div>
+        <div class="feature-title">Conta segura com reset de senha</div>
+        <div class="feature-desc">Cadastro com e-mail e senha. Se esquecer a senha, basta clicar em "Esqueci minha senha" e redefinir pelo e-mail.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="landing-footer">
+    Caronas Fácil · 100% gratuito · Dados protegidos pelo Firebase/Google
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PÁGINA: LOGIN
+════════════════════════════════════════ -->
+<div id="pageLogin" class="page">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">🚗</div>
+      <div class="auth-title">Entrar</div>
+      <div class="auth-sub">Bem-vindo de volta ao Caronas Fácil</div>
+
+      <div id="loginError" class="error-box"></div>
+
+      <div class="fg">
+        <label class="fl">E-mail</label>
+        <input type="email" id="loginEmail" class="fi" placeholder="seu@email.com"
+          onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+      </div>
+      <div class="fg">
+        <label class="fl">Senha</label>
+        <input type="password" id="loginPass" class="fi" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="forgot-link">
+        <a onclick="showPage('pageForgot')">Esqueci minha senha</a>
+      </div>
+
+      <button class="btn btn-primary" onclick="doLogin()" id="btnLogin">Entrar</button>
+
+      <div class="auth-divider"><span>ou</span></div>
+
+      <div class="auth-link">
+        Não tem conta? <a onclick="showPage('pageRegister')">Criar conta grátis</a>
+      </div>
+      <div class="auth-link" style="margin-top:10px">
+        <a onclick="showPage('pageLanding')" style="color:var(--muted);font-weight:400">← Voltar ao início</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PÁGINA: CADASTRO
+════════════════════════════════════════ -->
+<div id="pageRegister" class="page">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">🚗</div>
+      <div class="auth-title">Criar conta</div>
+      <div class="auth-sub">Grátis para sempre. Comece a organizar caronas agora.</div>
+
+      <div id="regError" class="error-box"></div>
+      <div id="regSuccess" class="success-box"></div>
+
+      <div class="fg">
+        <label class="fl">Seu nome completo</label>
+        <input type="text" id="regName" class="fi" placeholder="Ex: Maria Silva"
+          onkeydown="if(event.key==='Enter')document.getElementById('regEmail').focus()">
+      </div>
+      <div class="fg">
+        <label class="fl">E-mail</label>
+        <input type="email" id="regEmail" class="fi" placeholder="seu@email.com"
+          onkeydown="if(event.key==='Enter')document.getElementById('regPass').focus()">
+      </div>
+      <div class="fg">
+        <label class="fl">Senha <span style="font-weight:400;text-transform:none;letter-spacing:0">(mín. 6 caracteres)</span></label>
+        <input type="password" id="regPass" class="fi" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')document.getElementById('regPass2').focus()">
+      </div>
+      <div class="fg">
+        <label class="fl">Confirmar senha</label>
+        <input type="password" id="regPass2" class="fi" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')doRegister()">
+      </div>
+
+      <button class="btn btn-primary" onclick="doRegister()" id="btnRegister">Criar minha conta</button>
+
+      <div class="auth-link">
+        Já tem conta? <a onclick="showPage('pageLogin')">Entrar</a>
+      </div>
+      <div class="auth-link" style="margin-top:10px">
+        <a onclick="showPage('pageLanding')" style="color:var(--muted);font-weight:400">← Voltar ao início</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PÁGINA: ESQUECI A SENHA
+════════════════════════════════════════ -->
+<div id="pageForgot" class="page">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">🔑</div>
+      <div class="auth-title">Redefinir senha</div>
+      <div class="auth-sub">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div>
+
+      <div id="forgotError" class="error-box"></div>
+
+      <!-- ESTADO 1: formulário -->
+      <div id="forgotForm">
+        <div class="fg">
+          <label class="fl">E-mail cadastrado</label>
+          <input type="email" id="forgotEmail" class="fi" placeholder="seu@email.com"
+            onkeydown="if(event.key==='Enter')doForgot()">
+        </div>
+        <button class="btn btn-primary" onclick="doForgot()" id="btnForgot">Enviar link de redefinição</button>
+      </div>
+
+      <!-- ESTADO 2: e-mail enviado -->
+      <div id="forgotSent" style="display:none">
+        <div class="forgot-sent-box">
+          <div class="forgot-sent-icon">📬</div>
+          <div class="forgot-sent-title">Link enviado!</div>
+          <div class="forgot-sent-desc">Enviamos um e-mail para <strong id="forgotSentEmail"></strong> com o link para redefinir sua senha.</div>
+          <div class="forgot-spam-tip">
+            💡 <strong>Não encontrou?</strong> Verifique também a caixa de <strong>spam</strong> ou <strong>lixo eletrônico</strong> — o e-mail pode ter sido filtrado automaticamente.
+          </div>
+          <button class="btn btn-outline" id="btnResend" onclick="doResend()" style="width:100%;margin-top:4px">
+            Não recebi o e-mail — Reenviar
+          </button>
+          <div id="resendCountdown" class="resend-countdown" style="display:none"></div>
+        </div>
+        <button class="btn btn-secondary" onclick="resetForgotForm()" style="width:100%;margin-top:8px">
+          Usar outro e-mail
+        </button>
+      </div>
+
+      <div class="auth-link" style="margin-top:18px">
+        <a onclick="showPage('pageLogin')">← Voltar para o login</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PÁGINA: EVENTO CRIADO (SUCESSO)
+════════════════════════════════════════ -->
+<div id="pageEventCreated" class="page">
+  <div class="success-page">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Evento criado!</div>
+    <div class="success-sub">Compartilhe o link abaixo com os participantes para que eles possam se inscrever nas caronas.</div>
+
+    <div class="link-box">
+      <div class="link-box-label">🔗 Link do evento</div>
+      <div class="link-box-url" id="createdEventUrl"></div>
+    </div>
+
+    <div class="link-actions">
+      <button class="btn-copy-link" id="btnCopyCreated" onclick="copyCreatedLink()">
+        📋 Copiar link
+      </button>
+      <a id="btnOpenCreated" href="#" target="_blank"
+        style="padding:13px;border-radius:8px;font-size:15px;font-weight:700;
+               background:var(--surface2);color:var(--text);text-decoration:none;
+               display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border)">
+        ↗ Abrir evento
+      </a>
+    </div>
+
+    <button class="btn btn-outline" onclick="showPage('pageDashboard')" style="width:100%">
+      ← Ir para o dashboard
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PÁGINA: DASHBOARD
+════════════════════════════════════════ -->
+<div id="pageDashboard" class="page">
+  <div class="dash-header">
+    <div class="dash-logo-area">
+      <div style="font-size:28px">🚗</div>
+      <div>
+        <div class="dash-logo-txt">Caronas Fácil</div>
+        <div class="dash-user" id="dashUserName">Olá!</div>
+      </div>
+    </div>
+    <button id="btnInstallApp" onclick="installApp()" style="display:none;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">⬇️ Instalar app</button>
+    <button id="btnThemeIdx" onclick="window.toggleThemeIdx()" title="Modo claro/escuro"
+      style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;
+             padding:6px 10px;border-radius:6px;font-size:13px;letter-spacing:1px;cursor:pointer;">☀️🌙</button>
+    <button class="dash-logout" onclick="doLogout()">Sair</button>
+  </div>
+
+  <div class="dash-content">
+    <div class="dash-section-title">
+      Meus eventos
+      <button class="btn btn-primary btn-sm" onclick="showPage('pageCreateEvent')" style="font-size:13px">+ Novo evento</button>
+    </div>
+
+    <div id="eventsList">
+      <div class="empty-state">
+        <div class="empty-ico">🎉</div>
+        <div class="empty-title">Nenhum evento ainda</div>
+        <div class="empty-sub">Crie seu primeiro evento e compartilhe o link com o grupo!</div>
+        <button class="btn btn-primary" onclick="showPage('pageCreateEvent')" style="max-width:220px;margin:0 auto">+ Criar primeiro evento</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PÁGINA: CRIAR EVENTO
+════════════════════════════════════════ -->
+<div id="pageCreateEvent" class="page">
+  <div class="create-header">
+    <button class="back-btn" onclick="showPage('pageDashboard')">←</button>
+    <div>
+      <div style="font-size:17px;font-weight:800">Criar novo evento</div>
+      <div style="font-size:13px;opacity:.8">Configure os detalhes da sua carona</div>
+    </div>
+  </div>
+
+  <div class="create-content">
+    <div id="createError" class="error-box" style="display:none"></div>
+
+    <!-- Informações básicas -->
+    <div class="section-card">
+      <div class="section-card-title">📋 Informações básicas</div>
+      <div class="fg">
+        <label class="fl">Nome do evento *</label>
+        <input type="text" id="evName" class="fi" placeholder="Ex: Aniversário na Fazenda – Mai/25">
+      </div>
+      <div class="fg">
+        <label class="fl">Local de destino *</label>
+        <div class="ac-wrap">
+          <input type="text" id="evDest" class="fi" placeholder="Ex: Sítio FMB Recanto dos Duendes"
+                 autocomplete="off" oninput="acSearch(this,'evDestList')">
+          <div class="ac-list" id="evDestList" style="display:none"></div>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Endereço completo do destino</label>
+        <div class="ac-wrap">
+          <input type="text" id="evDestAddr" class="fi" placeholder="Ex: Av. Dr. Sérgio Machado Brauner, 2090 – Mairiporã"
+                 autocomplete="off" oninput="acSearch(this,'evDestAddrList')">
+          <div class="ac-list" id="evDestAddrList" style="display:none"></div>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Endereço de saída principal (opcional)</label>
+        <div class="ac-wrap">
+          <input type="text" id="evOrigin" class="fi" placeholder="Ex: R. Martim Buchard, 187 – São Paulo"
+                 autocomplete="off" oninput="acSearch(this,'evOriginList')">
+          <div class="ac-list" id="evOriginList" style="display:none"></div>
+        </div>
+        <button type="button" class="ac-geo-btn" onclick="geoFill('evOrigin','evOriginList')">
+          📍 Usar minha localização atual
+        </button>
+      </div>
+    </div>
+
+    <!-- PIN do admin -->
+    <div class="section-card">
+      <div class="section-card-title">🔐 Senha de administrador do evento</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5">
+        Esta senha dá acesso total ao evento (editar qualquer carro, adicionar/remover pessoas). Compartilhe apenas com co-organizadores.
+      </p>
+      <div class="form-row">
+        <div class="fg">
+          <label class="fl">PIN do admin *</label>
+          <div class="fi-password-wrap">
+            <input type="password" id="evAdminPin" class="fi" placeholder="Ex: festa2025" maxlength="30">
+            <button type="button" class="btn-eye" onclick="togglePin('evAdminPin',this)" title="Mostrar/ocultar">👁</button>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Confirmar PIN</label>
+          <div class="fi-password-wrap">
+            <input type="password" id="evAdminPin2" class="fi" placeholder="Repetir PIN">
+            <button type="button" class="btn-eye" onclick="togglePin('evAdminPin2',this)" title="Mostrar/ocultar">👁</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trajetos -->
+    <div class="section-card">
+      <div class="section-card-title">🗓️ Trajetos</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5">
+        Adicione quantos trajetos precisar — ida, volta, dias diferentes. Cada um terá seus próprios carros.
+      </p>
+      <div id="tripsList"></div>
+      <button class="btn-add-trip" onclick="addTrip()">+ Adicionar trajeto</button>
+    </div>
+
+    <button class="btn btn-primary" onclick="createEvent()" id="btnCreateEvent" style="margin-bottom:32px">
+      🎉 Criar evento e gerar link
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     FIREBASE SDK
+════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp }                                    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword,
+         signInWithEmailAndPassword, sendPasswordResetEmail,
+         updateProfile, onAuthStateChanged, signOut }       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getDatabase, ref, set, push, get, onValue, query,
+         orderByChild, equalTo, serverTimestamp }          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+/* ════════════════════════════════════════
+   🔧 COLE AQUI SUA CONFIGURAÇÃO DO FIREBASE
+   (Project Settings → Your apps → Config)
+════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBLiObW7HniFnJGcGt5xPFQNdtSXuZxQjw",
+  authDomain:        "caronas-lhpv.firebaseapp.com",
+  databaseURL:       "https://caronas-lhpv-default-rtdb.firebaseio.com",
+  projectId:         "caronas-lhpv",
+  storageBucket:     "caronas-lhpv.firebasestorage.app",
+  messagingSenderId: "159548357201",
+  appId:             "1:159548357201:web:91b8a892071daef103d670",
+  measurementId:     "G-QNNJN6WTCW"
+};
+
+/* ── INICIALIZAÇÃO ── */
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getDatabase(app);
+
+/* ── ESTADO GLOBAL ── */
+let currentUser = null;
+let tripCount   = 0;
+let userEvents  = {};
+
+/* ════════════════════════════════════════
+   ROTEAMENTO DE PÁGINAS
+════════════════════════════════════════ */
+window.showPage = function(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  window.scrollTo(0, 0);
+};
+
+/* ════════════════════════════════════════
+   AUTH STATE — decide qual página mostrar
+════════════════════════════════════════ */
+onAuthStateChanged(auth, user => {
+  document.getElementById('pageLoading').style.display = 'none';
+  currentUser = user;
+  if (user) {
+    document.getElementById('dashUserName').textContent = `Olá, ${user.displayName || user.email}!`;
+    loadUserEvents();
+    showPage('pageDashboard');
+  } else {
+    showPage('pageLanding');
+  }
+});
+
+/* ════════════════════════════════════════
+   LOGIN
+════════════════════════════════════════ */
+window.doLogin = async function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  const btn   = document.getElementById('btnLogin');
+
+  errEl.classList.remove('show');
+  if (!email || !pass) { showErr(errEl, 'Preencha e-mail e senha.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    // onAuthStateChanged cuida do redirecionamento
+  } catch(e) {
+    showErr(errEl, friendlyError(e.code));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+};
+
+/* ════════════════════════════════════════
+   CADASTRO
+════════════════════════════════════════ */
+window.doRegister = async function() {
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  const errEl = document.getElementById('regError');
+  const sucEl = document.getElementById('regSuccess');
+  const btn   = document.getElementById('btnRegister');
+
+  errEl.classList.remove('show'); sucEl.classList.remove('show');
+  if (!name)            { showErr(errEl, 'Informe seu nome.'); return; }
+  if (!email)           { showErr(errEl, 'Informe seu e-mail.'); return; }
+  if (pass.length < 6)  { showErr(errEl, 'A senha deve ter pelo menos 6 caracteres.'); return; }
+  if (pass !== pass2)   { showErr(errEl, 'As senhas não conferem.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Criando conta…';
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    // Salvar perfil no banco
+    await set(ref(db, `users/${cred.user.uid}`), {
+      name, email, createdAt: serverTimestamp()
+    });
+    toast('✅ Conta criada com sucesso! Bem-vindo(a)!', 'ok');
+    // onAuthStateChanged cuida do redirecionamento
+  } catch(e) {
+    showErr(errEl, friendlyError(e.code));
+    btn.disabled = false; btn.textContent = 'Criar minha conta';
+  }
+};
+
+/* ════════════════════════════════════════
+   ESQUECI A SENHA
+════════════════════════════════════════ */
+let resendTimer = null;
+let lastForgotEmail = '';
+
+function startResendCountdown(seconds = 60) {
+  const btn      = document.getElementById('btnResend');
+  const countdown= document.getElementById('resendCountdown');
+  btn.disabled   = true;
+  countdown.style.display = 'block';
+  let remaining  = seconds;
+  countdown.textContent = `Você poderá reenviar em ${remaining}s`;
+  resendTimer = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(resendTimer);
+      btn.disabled = false;
+      countdown.style.display = 'none';
+      countdown.textContent = '';
+    } else {
+      countdown.textContent = `Você poderá reenviar em ${remaining}s`;
+    }
+  }, 1000);
+}
+
+window.doResend = async function() {
+  if (!lastForgotEmail) return;
+  const errEl = document.getElementById('forgotError');
+  errEl.classList.remove('show');
+  try {
+    await sendPasswordResetEmail(auth, lastForgotEmail);
+    toast('📬 E-mail reenviado! Verifique também o spam.', 'ok');
+    startResendCountdown(60);
+  } catch(e) {
+    showErr(errEl, friendlyError(e.code));
+  }
+};
+
+window.resetForgotForm = function() {
+  clearInterval(resendTimer);
+  document.getElementById('forgotForm').style.display = 'block';
+  document.getElementById('forgotSent').style.display = 'none';
+  document.getElementById('forgotEmail').value = '';
+  document.getElementById('forgotError').classList.remove('show');
+  document.getElementById('btnForgot').disabled = false;
+  document.getElementById('btnForgot').textContent = 'Enviar link de redefinição';
+};
+
+window.doForgot = async function() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  const errEl = document.getElementById('forgotError');
+  const btn   = document.getElementById('btnForgot');
+
+  errEl.classList.remove('show');
+  if (!email) { showErr(errEl, 'Informe seu e-mail cadastrado.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  try {
+    await sendPasswordResetEmail(auth, email);
+    lastForgotEmail = email;
+    document.getElementById('forgotSentEmail').textContent = email;
+    document.getElementById('forgotForm').style.display = 'none';
+    document.getElementById('forgotSent').style.display = 'block';
+    startResendCountdown(60);
+  } catch(e) {
+    showErr(errEl, friendlyError(e.code));
+    btn.disabled = false;
+    btn.textContent = 'Enviar link de redefinição';
+  }
+};
+
+/* ════════════════════════════════════════
+   LOGOUT
+════════════════════════════════════════ */
+window.doLogout = async function() {
+  await signOut(auth);
+};
+
+/* ════════════════════════════════════════
+   CARREGAR EVENTOS DO USUÁRIO
+════════════════════════════════════════ */
+async function loadUserEvents() {
+  if (!currentUser) return;
+  try {
+    const q    = query(ref(db, 'events'), orderByChild('createdBy'), equalTo(currentUser.uid));
+    const snap = await get(q);
+    userEvents = snap.val() || {};
+  } catch(e) {
+    // Fallback: ler tudo e filtrar localmente (caso não haja índice no Firebase)
+    try {
+      const snap = await get(ref(db, 'events'));
+      const all  = snap.val() || {};
+      userEvents = {};
+      Object.entries(all).forEach(([id, ev]) => {
+        if (ev.createdBy === currentUser.uid) userEvents[id] = ev;
+      });
+    } catch(e2) {
+      console.error('loadUserEvents error:', e2);
+      userEvents = {};
+    }
+  }
+  renderEventsList();
+}
+
+let showArchived = false;
+
+function renderEventsList() {
+  const container = document.getElementById('eventsList');
+  const all     = Object.entries(userEvents);
+  const active  = all.filter(([,ev]) => !ev.archived);
+  const archived= all.filter(([,ev]) =>  ev.archived);
+  const list    = showArchived ? archived : active;
+
+  // Barra de navegação (voltar / ver arquivados)
+  const toggleBtn = showArchived
+    ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+         <button onclick="window.toggleArchived()" class="btn btn-outline btn-sm" style="font-size:12px">← Voltar para ativos</button>
+         <span style="font-size:13px;font-weight:600;color:var(--muted)">📦 Arquivados</span>
+       </div>`
+    : (archived.length > 0
+        ? `<button onclick="window.toggleArchived()" class="btn btn-outline btn-sm"
+             style="margin-bottom:12px;font-size:12px">📦 Arquivados (${archived.length})</button>`
+        : '');
+
+  if (!list.length && !showArchived) {
+    container.innerHTML = toggleBtn + `
+      <div class="empty-state">
+        <div class="empty-ico">🎉</div>
+        <div class="empty-title">Nenhum evento ainda</div>
+        <div class="empty-sub">Crie seu primeiro evento e compartilhe o link com o grupo!</div>
+        <button class="btn btn-primary" onclick="showPage('pageCreateEvent')" style="max-width:220px;margin:0 auto">+ Criar primeiro evento</button>
+      </div>`;
+    return;
+  }
+
+  if (!list.length && showArchived) {
+    container.innerHTML = toggleBtn + `<div class="empty-state"><div class="empty-title">Nenhum evento arquivado</div></div>`;
+    return;
+  }
+
+  const cards = list.map(([id, ev]) => {
+    const trips = Object.keys(ev.trips||{}).length;
+    const isArch = !!ev.archived;
+    return `
+    <div class="event-card">
+      <div class="event-card-top">
+        <div>
+          <div class="event-card-name">${ev.name}</div>
+          <div class="event-card-dest">📍 ${ev.destination}</div>
+        </div>
+        <span class="meta-chip ${isArch?'':'event-status-active'}">${isArch?'📦 Arquivado':'Ativo'}</span>
+      </div>
+      <div class="event-card-meta">
+        <span class="meta-chip">${trips} trajeto${trips !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="event-card-actions">
+        <button class="btn-card btn-card-primary" onclick="openEvent('${id}')">↗ Abrir evento</button>
+        <button class="btn-card btn-card-outline" onclick="copyEventLink('${id}', this)">🔗 Copiar link</button>
+      </div>
+      <div class="event-card-actions" style="margin-top:4px;gap:6px">
+        ${isArch
+          ? `<button class="btn-card" style="flex:1;color:var(--primary);border-color:var(--primary)" onclick="window.archiveEvent('${id}',false)">↩ Reativar</button>`
+          : `<button class="btn-card" style="flex:1;color:var(--muted)" onclick="window.archiveEvent('${id}',true)">📦 Arquivar</button>`
+        }
+        <button class="btn-card" style="flex:1;color:var(--accent)" onclick="window.confirmDeleteEvent('${id}','${ev.name.replace(/'/g,"\\'")}')">🗑 Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = toggleBtn + cards;
+}
+
+window.toggleArchived = function() {
+  showArchived = !showArchived;
+  renderEventsList();
+};
+
+window.archiveEvent = async function(id, archive) {
+  try {
+    await set(ref(db, `events/${id}/archived`), archive ? true : null);
+    if (userEvents[id]) userEvents[id].archived = archive ? true : undefined;
+    if (!archive) delete userEvents[id].archived;
+    renderEventsList();
+    showToast(archive ? '📦 Evento arquivado' : '✅ Evento reativado', 'ok');
+  } catch(e) { showToast('Erro ao arquivar', 'err'); }
+};
+
+window.confirmDeleteEvent = function(id, name) {
+  const modal = document.getElementById('overlayDeleteConfirm');
+  document.getElementById('deleteEventName').textContent = name;
+  document.getElementById('btnConfirmDelete').onclick = () => window.deleteEventConfirmed(id);
+  modal.style.display = 'flex';
+};
+
+window.closeDeleteConfirm = function() {
+  document.getElementById('overlayDeleteConfirm').style.display = 'none';
+};
+
+window.deleteEventConfirmed = async function(id) {
+  window.closeDeleteConfirm();
+  try {
+    await set(ref(db, `events/${id}`), null);
+    delete userEvents[id];
+    renderEventsList();
+    showToast('🗑 Evento excluído permanentemente', 'ok');
+  } catch(e) { showToast('Erro ao excluir', 'err'); }
+};
+
+window.openEvent = function(id) {
+  // Salva UID do dono para que event.html possa identificar sem precisar de PIN
+  if (currentUser?.uid) sessionStorage.setItem(`owner_${id}`, currentUser.uid);
+  window.location.href = `event.html?id=${id}`;
+};
+
+window.copyEventLink = function(id, btn) {
+  const link = `${window.location.origin}/event.html?id=${id}`;
+  navigator.clipboard?.writeText(link).then(() => {
+    btn.textContent = '✅ Copiado!';
+    setTimeout(() => btn.textContent = '🔗 Copiar link', 2000);
+  }).catch(() => {
+    // fallback: selecionar texto
+    prompt('Copie o link abaixo:', link);
+  });
+};
+
+window.copyCreatedLink = function() {
+  const link = document.getElementById('createdEventUrl').textContent;
+  const btn  = document.getElementById('btnCopyCreated');
+  navigator.clipboard?.writeText(link).then(() => {
+    btn.textContent = '✅ Link copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copiar link';
+      btn.classList.remove('copied');
+    }, 3000);
+  }).catch(() => {
+    prompt('Copie o link abaixo:', link);
+  });
+};
+
+/* ════════════════════════════════════════
+   HELPERS DE DATA / PIN
+════════════════════════════════════════ */
+const PT_DAYS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+
+function formatTripDate(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  return `${PT_DAYS[dt.getDay()]} - ${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+}
+
+window.onTripDateChange = function(input) {
+  const preview = input.closest('.fg').querySelector('.trip-date-preview');
+  if (preview) preview.textContent = formatTripDate(input.value);
+};
+
+window.togglePin = function(fieldId, btn) {
+  const fi = document.getElementById(fieldId);
+  const show = fi.type === 'password';
+  fi.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+};
+
+/* ════════════════════════════════════════
+   BUILDER DE TRAJETOS
+════════════════════════════════════════ */
+window.addTrip = function() {
+  tripCount++;
+  const id    = `trip_${tripCount}`;
+  const today = new Date().toISOString().split('T')[0];
+  const div   = document.createElement('div');
+  div.className = 'trip-item'; div.id = id;
+  div.innerHTML = `
+    <div class="trip-item-header">
+      <div class="trip-label">Trajeto ${tripCount}</div>
+      <button class="btn-del-trip" onclick="removeTrip('${id}')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label class="fl">Data do trajeto *</label>
+        <input type="date" class="fi trip-date" min="${today}"
+          onchange="window.onTripDateChange(this)">
+        <div class="trip-date-preview"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Direção</label>
+        <select class="fi trip-dir">
+          <option value="ida">Ida (→ Destino)</option>
+          <option value="volta">Volta (← Origem)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label class="fl">Ponto de saída</label>
+        <div class="ac-wrap">
+          <input type="text" class="fi trip-point" placeholder="(usa o padrão do evento)"
+                 autocomplete="off" oninput="acSearch(this, 'ac_${id}')">
+          <div class="ac-list" id="ac_${id}" style="display:none"></div>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Horário padrão <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(formato 24h)</span></label>
+        <input type="time" class="fi trip-time">
+        <div class="fi-hint">Ex: 14:30 = 2:30 da tarde</div>
+      </div>
+    </div>`;
+  document.getElementById('tripsList').appendChild(div);
+};
+
+window.removeTrip = function(id) {
+  document.getElementById(id)?.remove();
+};
+
+/* ════════════════════════════════════════
+   CRIAR EVENTO
+════════════════════════════════════════ */
+window.createEvent = async function() {
+  const name      = document.getElementById('evName').value.trim();
+  const destEl    = document.getElementById('evDest');
+  const destAddrEl= document.getElementById('evDestAddr');
+  const originEl  = document.getElementById('evOrigin');
+  const dest      = destEl.value.trim();
+  const destAddr  = destAddrEl.value.trim();
+  const origin    = originEl.value.trim();
+  // Coordenadas pré-salvas do autocomplete
+  const destLat   = parseFloat(destAddrEl.dataset.lat || destEl.dataset.lat) || null;
+  const destLon   = parseFloat(destAddrEl.dataset.lon || destEl.dataset.lon) || null;
+  const pin      = document.getElementById('evAdminPin').value.trim();
+  const pin2     = document.getElementById('evAdminPin2').value.trim();
+  const errEl    = document.getElementById('createError');
+  const btn      = document.getElementById('btnCreateEvent');
+
+  function showValidationErr(msg) {
+    showErr(errEl, msg);
+    errEl.style.display = 'block';
+    errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  errEl.style.display = 'none';
+  if (!name)              { showValidationErr('Informe o nome do evento.'); return; }
+  if (!dest)              { showValidationErr('Informe o local de destino.'); return; }
+  if (!pin)               { showValidationErr('Defina um PIN de administrador.'); return; }
+  if (pin.length < 4)     { showValidationErr('O PIN deve ter pelo menos 4 caracteres.'); return; }
+  if (pin !== pin2)       { showValidationErr('Os PINs de admin não conferem.'); return; }
+
+  // Coletar trajetos
+  const tripEls = document.querySelectorAll('.trip-item');
+  if (!tripEls.length) { showValidationErr('Adicione pelo menos 1 trajeto.'); return; }
+  const trips = [];
+  let valid = true;
+  tripEls.forEach((el, i) => {
+    const dateVal = el.querySelector('.trip-date')?.value;
+    const tName   = formatTripDate(dateVal);
+    if (!tName) { valid = false; return; }
+    trips.push({
+      id: `t${i+1}`,
+      label: tName,
+      direction: el.querySelector('.trip-dir')?.value || 'ida',
+      defaultPoint: el.querySelector('.trip-point')?.value.trim() || '',
+      defaultTime:  el.querySelector('.trip-time')?.value || ''
+    });
+  });
+  if (!valid) { showValidationErr('Selecione a data de todos os trajetos.'); return; }
+
+  // Converter array de trips para objeto (Firebase não suporta arrays nativamente)
+  const tripsObj = {};
+  trips.forEach((t, i) => { tripsObj[t.id] = t; });
+
+  btn.disabled = true; btn.textContent = '⏳ Criando evento…';
+  try {
+    const eventData = {
+      name, destination: dest, destinationAddress: destAddr,
+      defaultOrigin: origin, adminPin: pin,
+      trips: tripsObj, cars: {},
+      createdBy: currentUser.uid,
+      createdAt: serverTimestamp()
+    };
+    if (destLat && destLon) { eventData.destLat = destLat; eventData.destLon = destLon; }
+    const newRef = await push(ref(db, 'events'), eventData);
+    const eventId = newRef.key;
+
+    // Limpar formulário
+    document.getElementById('evName').value = '';
+    document.getElementById('evDest').value = '';
+    document.getElementById('evDestAddr').value = '';
+    document.getElementById('evOrigin').value = '';
+    document.getElementById('evAdminPin').value = '';
+    document.getElementById('evAdminPin2').value = '';
+    document.getElementById('tripsList').innerHTML = '';
+    tripCount = 0;
+
+    const link = `${window.location.origin}/event.html?id=${eventId}`;
+    await loadUserEvents();
+
+    // Mostrar página de sucesso com o link em destaque
+    document.getElementById('createdEventUrl').textContent = link;
+    document.getElementById('btnOpenCreated').href = link;
+    document.getElementById('btnCopyCreated').textContent = '📋 Copiar link';
+    document.getElementById('btnCopyCreated').classList.remove('copied');
+    showPage('pageEventCreated');
+
+  } catch(e) {
+    console.error('createEvent error:', e);
+    const msg = e?.code === 'PERMISSION_DENIED'
+      ? 'Sem permissão no banco de dados. Verifique as regras do Firebase.'
+      : `Erro ao criar evento: ${e?.message || e?.code || 'tente novamente'}`;
+    showErr(errEl, msg);
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = '🎉 Criar evento e gerar link';
+  }
+};
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+function showErr(el, msg) {
+  el.textContent = msg; el.classList.add('show');
+}
+
+let _toastTimer;
+function showToast(msg, type) {
+  let t = document.getElementById('_idxToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_idxToast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);' +
+      'background:#1e293b;color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;' +
+      'z-index:9999;transition:transform .25s;white-space:nowrap;pointer-events:none';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.background = type === 'ok' ? '#16a34a' : type === 'err' ? '#dc2626' : '#1e293b';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 2800);
+}
+
+function friendlyError(code) {
+  const map = {
+    'auth/user-not-found':       'E-mail não cadastrado.',
+    'auth/wrong-password':       'Senha incorreta.',
+    'auth/invalid-credential':   'E-mail ou senha incorretos.',
+    'auth/email-already-in-use': 'Este e-mail já está cadastrado. Faça login.',
+    'auth/weak-password':        'Senha muito fraca. Use pelo menos 6 caracteres.',
+    'auth/invalid-email':        'E-mail inválido.',
+    'auth/too-many-requests':    'Muitas tentativas. Aguarde alguns minutos.',
+    'auth/network-request-failed': 'Sem conexão. Verifique sua internet.'
+  };
+  return map[code] || 'Ocorreu um erro. Tente novamente.';
+}
+
+let toastT = null;
+window.toast = function(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast show ' + type;
+  if (toastT) clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 4000);
+};
+
+/* ══ ALTERAR PIN ══ */
+let changePinEventId = null;
+
+window.openChangePinModal = function(eventId) {
+  changePinEventId = eventId;
+  document.getElementById('newPinInput').value  = '';
+  document.getElementById('newPinConfirm').value = '';
+  document.getElementById('pinChangeError').style.display = 'none';
+  document.getElementById('btnSavePin').disabled = false;
+  document.getElementById('btnSavePin').textContent = 'Salvar novo PIN';
+  const overlay = document.getElementById('overlayChangePin');
+  overlay.style.display = 'flex';
+  setTimeout(() => document.getElementById('newPinInput').focus(), 100);
+};
+
+window.closeChangePinModal = function() {
+  document.getElementById('overlayChangePin').style.display = 'none';
+  changePinEventId = null;
+};
+
+window.clearPinError = function() {
+  document.getElementById('pinChangeError').style.display = 'none';
+};
+
+window.saveNewPin = async function() {
+  const pin1  = document.getElementById('newPinInput').value.trim();
+  const pin2  = document.getElementById('newPinConfirm').value.trim();
+  const errEl = document.getElementById('pinChangeError');
+  const btn   = document.getElementById('btnSavePin');
+
+  errEl.style.display = 'none';
+
+  if (!pin1) {
+    errEl.textContent = 'Informe o novo PIN.';
+    errEl.style.display = 'block'; return;
+  }
+  if (pin1.length < 4) {
+    errEl.textContent = 'O PIN deve ter pelo menos 4 caracteres.';
+    errEl.style.display = 'block'; return;
+  }
+  if (pin1 !== pin2) {
+    errEl.textContent = 'Os PINs não coincidem. Verifique e tente novamente.';
+    errEl.style.display = 'block';
+    document.getElementById('newPinConfirm').value = '';
+    document.getElementById('newPinConfirm').focus();
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = '⏳ Salvando…';
+  try {
+    await set(ref(db, `events/${changePinEventId}/adminPin`), pin1);
+    window.closeChangePinModal();
+    toast('🔑 PIN alterado com sucesso!', 'ok');
+  } catch(e) {
+    errEl.textContent = 'Erro ao salvar. Verifique sua conexão.';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Salvar novo PIN';
+  }
+};
+
+/* ════════════════════════════════════════
+   AUTOCOMPLETE DE ENDEREÇO (Nominatim/OSM)
+════════════════════════════════════════ */
+let acTimers = {};
+
+window.acSearch = function(input, listId) {
+  const val = input.value.trim();
+  const listEl = document.getElementById(listId);
+  if (!listEl) return;
+  clearTimeout(acTimers[listId]);
+  if (val.length < 3) { listEl.style.display = 'none'; return; }
+  acTimers[listId] = setTimeout(async () => {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(val)}&countrycodes=br`;
+      const res  = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+      const data = await res.json();
+      if (!data.length) { listEl.style.display = 'none'; return; }
+      listEl.innerHTML = data.map((r, i) => {
+        const parts  = r.display_name.split(', ');
+        const main   = parts.slice(0, 2).join(', ');
+        const sub    = parts.slice(2).join(', ');
+        return `<div class="ac-item" tabindex="-1"
+          onmousedown="acPick(event,'${listId}')"
+          data-full="${escHtmlAttr(r.display_name)}"
+          data-lat="${r.lat}" data-lon="${r.lon}">
+          <div class="ac-item-main">${escHtml(main)}</div>
+          ${sub ? `<div class="ac-item-sub">${escHtml(sub)}</div>` : ''}
+        </div>`;
+      }).join('');
+      listEl.style.display = 'block';
+    } catch(e) { listEl.style.display = 'none'; }
+  }, 350);
+
+  // Fechar ao perder foco
+  input.onblur = () => setTimeout(() => { if(listEl) listEl.style.display = 'none'; }, 200);
+};
+
+window.acPick = function(e, listId) {
+  e.preventDefault();
+  const listEl = document.getElementById(listId);
+  const item   = e.currentTarget;
+  const full   = item.getAttribute('data-full');
+  const lat    = item.getAttribute('data-lat');
+  const lon    = item.getAttribute('data-lon');
+  const input  = listEl?.previousElementSibling;
+  if (input) {
+    input.value = full;
+    if (lat) input.dataset.lat = lat;
+    if (lon) input.dataset.lon = lon;
+  }
+  if (listEl) listEl.style.display = 'none';
+};
+
+window.geoFill = function(inputId, listId) {
+  const input  = document.getElementById(inputId);
+  const listEl = document.getElementById(listId);
+  if (!input) return;
+  if (!navigator.geolocation) { alert('Geolocalização não suportada neste dispositivo.'); return; }
+  input.placeholder = '⏳ Obtendo localização…';
+  navigator.geolocation.getCurrentPosition(async pos => {
+    try {
+      const { latitude: lat, longitude: lon } = pos.coords;
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`;
+      const res  = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+      const data = await res.json();
+      input.value = data.display_name || `${lat}, ${lon}`;
+      input.placeholder = 'Ex: R. Martim Buchard, 187 – São Paulo';
+      if (listEl) listEl.style.display = 'none';
+    } catch(e) {
+      input.placeholder = 'Ex: R. Martim Buchard, 187 – São Paulo';
+      alert('Não foi possível obter o endereço. Tente digitar manualmente.');
+    }
+  }, () => {
+    input.placeholder = 'Ex: R. Martim Buchard, 187 – São Paulo';
+    alert('Permissão de localização negada. Ative nas configurações do navegador.');
+  });
+};
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escHtmlAttr(str) {
+  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+</script>
+<script>
+  // ── Service Worker (PWA) ──
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+
+  // ── Dark mode ──
+  (function() {
+    const THEME_KEY = 'caronaTheme';
+    const root = document.documentElement;
+    const btn  = document.getElementById('btnThemeIdx');
+
+    function applyTheme(theme) {
+      if (theme === 'dark')  root.setAttribute('data-theme','dark');
+      else if(theme==='light') root.setAttribute('data-theme','light');
+      else                     root.removeAttribute('data-theme');
+      if(theme) localStorage.setItem(THEME_KEY, theme);
+      else localStorage.removeItem(THEME_KEY);
+    }
+
+    const saved = localStorage.getItem(THEME_KEY);
+    applyTheme(saved || null);
+
+    window.toggleThemeIdx = function() {
+      const cur = root.getAttribute('data-theme');
+      const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (!cur) { applyTheme(sys === 'dark' ? 'light' : 'dark'); }
+      else if (cur === 'dark')  { applyTheme('light'); }
+      else                      { applyTheme('dark');  }
+    };
+  })();
+
+  // ── Prompt de instalação ──
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const btn = document.getElementById('btnInstallApp');
+    if (btn) btn.style.display = 'flex';
+  });
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    const btn = document.getElementById('btnInstallApp');
+    if (btn) btn.style.display = 'none';
+  });
+  window.installApp = function() {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(() => { deferredInstallPrompt = null; });
+  };
+</script>
+
+<!-- Modal: Confirmar exclusão de evento -->
+<div id="overlayDeleteConfirm" style="display:none;position:fixed;inset:0;z-index:500;
+     background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border-radius:var(--r);padding:24px;max-width:360px;width:100%;
+              box-shadow:0 8px 32px rgba(0,0,0,.25)">
+    <div style="font-size:22px;margin-bottom:8px">🗑️</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:6px">Excluir evento?</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:6px">
+      <strong id="deleteEventName"></strong>
+    </div>
+    <div style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:20px">
+      Seu evento será excluído permanentemente. Esta ação não pode ser desfeita.
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="window.closeDeleteConfirm()"
+        style="flex:1;padding:12px;border-radius:var(--r-sm);border:1px solid var(--border);
+               background:var(--surface);font-size:14px;font-weight:600;cursor:pointer">
+        Cancelar
+      </button>
+      <button id="btnConfirmDelete"
+        style="flex:1;padding:12px;border-radius:var(--r-sm);border:none;
+               background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer">
+        Confirmar exclusão
+      </button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

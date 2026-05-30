@@ -1,0 +1,3361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Caronas Fácil</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#4f46e5"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Caronas"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <!-- Leaflet (mapa) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    :root {
+      --primary:       #4f46e5;
+      --primary-dark:  #3730a3;
+      --primary-light: #eef2ff;
+      --accent:        #dc2626;
+      --success:       #16a34a;
+      --bg:            #f8fafc;
+      --surface:       #ffffff;
+      --surface2:      #f1f5f9;
+      --text:          #0f172a;
+      --muted:         #64748b;
+      --border:        #e2e8f0;
+      --r:             12px;
+      --r-sm:          8px;
+      --shadow:        0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+      --header-bg:     #0f172a;
+    }
+    /* Dark mode — via toggle manual */
+    [data-theme="dark"] {
+      --primary:       #818cf8;
+      --primary-dark:  #c7d2fe;
+      --primary-light: #1e1b4b;
+      --accent:        #f87171;
+      --success:       #4ade80;
+      --bg:            #0f172a;
+      --surface:       #1e293b;
+      --surface2:      #293548;
+      --text:          #f1f5f9;
+      --muted:         #94a3b8;
+      --border:        #334155;
+      --shadow:        0 1px 4px rgba(0,0,0,.4);
+      --header-bg:     #020617;
+    }
+    /* Dark mode — automático pelo SO (se usuário não escolheu manualmente) */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --primary:       #818cf8;
+        --primary-dark:  #c7d2fe;
+        --primary-light: #1e1b4b;
+        --accent:        #f87171;
+        --success:       #4ade80;
+        --bg:            #0f172a;
+        --surface:       #1e293b;
+        --surface2:      #293548;
+        --text:          #f1f5f9;
+        --muted:         #94a3b8;
+        --border:        #334155;
+        --shadow:        0 1px 4px rgba(0,0,0,.4);
+        --header-bg:     #020617;
+      }
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+      background:var(--bg);color:var(--text);min-height:100vh;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* ── STICKY WRAPPER (header + tabs juntos) ── */
+    .sticky-top{position:sticky;top:0;z-index:100;}
+
+    /* ── HEADER ── */
+    .header{
+      background:var(--header-bg);color:#fff;
+      padding:14px 20px 0;
+      box-shadow:0 2px 10px rgba(0,0,0,.3);
+    }
+    .header-row1{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding-bottom:12px;
+    }
+    .header-appname{
+      font-size:22px;font-weight:800;letter-spacing:-.3px;
+      cursor:pointer;user-select:none;line-height:1;
+    }
+    /* Bloco de info do evento — colapsável */
+    .header-event-block{
+      border-top:1px solid rgba(255,255,255,.12);
+      overflow:hidden;
+      max-height:200px;
+      opacity:1;
+      transition:max-height .3s ease, opacity .25s ease, padding .3s ease;
+      padding:12px 0 14px;
+      display:flex;flex-direction:column;gap:0;
+    }
+    .header.header-collapsed .header-event-block{
+      max-height:0;
+      opacity:0;
+      padding:0;
+      pointer-events:none;
+    }
+    .header-event-section{
+      flex:1;
+    }
+    .header-event-section + .header-event-section{
+      margin-top:14px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.1);
+    }
+    .header-event-label{
+      font-size:10px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.8px;color:rgba(255,255,255,.4);margin-bottom:5px;
+    }
+    .header-event-name{font-size:15px;font-weight:700;opacity:.95;line-height:1.3;}
+    .header-event-dest{font-size:13px;font-weight:600;opacity:.75;line-height:1.4;}
+    .header-event-addr{font-size:11px;opacity:.45;margin-top:3px;line-height:1.4;}
+    .btn-admin-small{
+      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+      color:rgba(255,255,255,.75);padding:5px 12px;border-radius:6px;
+      font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;
+      transition:background .15s;flex-shrink:0;
+    }
+    .btn-admin-small:hover{background:rgba(255,255,255,.18);}
+    .admin-badge{
+      background:#fbbf24;color:#78350f;
+      padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;flex-shrink:0;
+    }
+
+    /* ── TABS ── */
+    .tabs{
+      display:flex;overflow-x:auto;padding:10px 12px;gap:6px;
+      background:#fff;border-bottom:1px solid var(--border);
+      scrollbar-width:none;
+    }
+    .tabs::-webkit-scrollbar{display:none;}
+    .tab{
+      padding:7px 16px;font-size:13px;font-weight:600;
+      color:var(--muted);cursor:pointer;white-space:nowrap;
+      border:1.5px solid var(--border);border-radius:8px;
+      background:var(--surface);
+      transition:color .15s,border-color .15s,background .15s;
+      flex-shrink:0;
+    }
+    .tab.active{
+      color:var(--primary);border-color:var(--primary);
+      background:var(--primary-light);
+    }
+    .tab:hover:not(.active){color:var(--text);border-color:#94a3b8;background:var(--surface2);}
+
+    /* ── CONTENT ── */
+    .content{padding:16px;max-width:620px;margin:0 auto;padding-bottom:90px;}
+
+    /* ── CAR CARD ── */
+    .car-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r);box-shadow:var(--shadow);
+      margin-bottom:12px;overflow:hidden;
+    }
+    @media(min-width:740px){
+      .content{ display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start; }
+      .car-card{ margin-bottom:0; }
+      .empty,.change-alert{ grid-column:1/-1; }
+    }
+    .status-bar{ max-width:620px;margin:0 auto; }
+    .my-car-banner{
+      background:var(--primary-light);padding:6px 16px;
+      font-size:12px;font-weight:600;color:var(--primary-dark);
+      border-bottom:1px solid #c7d2fe;display:flex;align-items:center;gap:6px;
+    }
+    .car-header{padding:14px 16px 12px;}
+    .driver-row{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+    }
+    .driver-left{display:flex;align-items:flex-start;gap:10px;flex:1;}
+    .driver-section{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;}
+    .car-driver-name{font-size:16px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .car-driver-desc{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:18px;}
+    .badge-motorista{
+      display:inline-flex;align-items:center;gap:5px;
+      background:#0f172a;color:#fff;
+      font-size:11px;font-weight:700;
+      padding:4px 10px;border-radius:6px;white-space:nowrap;
+      align-self:flex-start;margin-bottom:4px;
+    }
+    .car-meta{display:flex;flex-wrap:nowrap;gap:6px;overflow:hidden;align-items:center;}
+    .badge-origin{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1;}
+    .badge-vagas{flex-shrink:0;margin-left:auto;}
+    .badge{
+      display:inline-flex;align-items:center;gap:4px;
+      font-size:12px;padding:3px 9px;border-radius:5px;font-weight:500;
+    }
+    .badge-neutral{background:var(--surface2);color:var(--muted);}
+    .badge-green{background:#f0fdf4;color:#15803d;}
+    .badge-red{background:#fff1f1;color:#b91c1c;}
+    .badge-ended{background:#f1f5f9;color:#64748b;}
+    /* Card encerrado: só o header fica mais suave, botões mantêm 100% de visibilidade */
+    .car-card.car-ended .car-header,
+    .car-card.car-ended .pax-unified,
+    .car-card.car-ended .car-obs { opacity:.55; }
+    .car-card.car-ended { border-left:3px solid #94a3b8; }
+    /* Botão de pagamento: vermelho escuro com texto branco */
+    .btn-payment-vibrant{
+      background:#7f1d1d !important;
+      border-color:#7f1d1d !important;
+      color:#fff !important;
+      box-shadow:0 2px 8px rgba(127,29,29,.35) !important;
+      font-size:14px !important;
+    }
+
+    /* ── MODAL PAGAMENTO ── */
+    .pay-modal{ padding:0; }
+    .pay-header{
+      background:#0f172a;color:#fff;
+      padding:16px 20px;
+      display:flex;align-items:center;gap:12px;
+      position:relative;
+    }
+    .pay-header-back{
+      background:rgba(255,255,255,.12);border:none;color:#fff;
+      border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;
+      cursor:pointer;flex-shrink:0;
+    }
+    .pay-header-title{ font-size:16px;font-weight:700;flex:1; }
+    .pay-header-close{
+      background:rgba(255,255,255,.12);border:none;color:#fff;
+      border-radius:50%;width:30px;height:30px;font-size:18px;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .pay-tabs{
+      display:flex;border-bottom:2px solid var(--border);
+      background:var(--surface);
+    }
+    .pay-tab{
+      flex:1;padding:12px;text-align:center;font-size:14px;font-weight:600;
+      color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
+      transition:color .15s, border-color .15s;
+    }
+    .pay-tab.active{ color:var(--primary);border-bottom-color:var(--primary); }
+    .pay-body{ padding:20px; }
+    .pay-amount-box{
+      background:var(--primary-light);border:1px solid #c7d2fe;
+      border-radius:var(--r);padding:16px;margin-bottom:20px;text-align:center;
+    }
+    .pay-amount-label{ font-size:12px;color:var(--primary-dark);font-weight:600;margin-bottom:6px; }
+    .pay-amount-value{ font-size:32px;font-weight:800;color:var(--primary-dark);line-height:1; }
+    .pay-amount-edit{
+      font-size:12px;color:var(--primary);margin-top:8px;cursor:pointer;
+      text-decoration:underline;background:none;border:none;font-family:inherit;
+    }
+    .pix-key-box{
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--r-sm);padding:14px 16px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      margin-bottom:12px;
+    }
+    .pix-key-info{ flex:1;min-width:0; }
+    .pix-key-label{ font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px; }
+    .pix-key-value{ font-size:14px;font-weight:700;color:var(--text);margin-top:3px;word-break:break-all; }
+    .btn-copy-pix{
+      background:var(--primary);color:#fff;border:none;border-radius:var(--r-sm);
+      padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;
+      transition:background .15s;
+    }
+    .btn-copy-pix:hover{ background:var(--primary-dark); }
+    .btn-copy-pix.copied{ background:var(--success); }
+    .pax-pay-list{ margin-top:16px; }
+    .pax-pay-row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 0;border-bottom:1px solid var(--border);gap:12px;
+    }
+    .pax-pay-row:last-child{ border-bottom:none; }
+    .pax-pay-name{ font-size:14px;font-weight:600;flex:1; }
+    .pax-pay-amt{  font-size:13px;color:var(--muted); }
+    .pax-paid-badge{
+      background:#f0fdf4;color:#15803d;border:1px solid #86efac;
+      border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;
+    }
+    .btn-mark-paid{
+      background:none;border:1px solid var(--border);border-radius:6px;
+      padding:4px 10px;font-size:12px;color:var(--muted);cursor:pointer;
+    }
+    .btn-mark-paid:hover{ border-color:var(--success);color:var(--success); }
+    .coming-soon-box{
+      text-align:center;padding:40px 20px;
+      color:var(--muted);
+    }
+    .coming-soon-box .cs-icon{ font-size:48px;margin-bottom:12px; }
+    .coming-soon-box .cs-title{ font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px; }
+    .coming-soon-box .cs-sub{ font-size:14px;line-height:1.5; }
+    .badge-primary{background:var(--primary-light);color:var(--primary-dark);}
+
+    /* ── SEAT SLOTS ── */
+    .seat-slots{display:flex;flex-direction:column;gap:5px;margin-top:12px;}
+    .seat-slot{
+      display:flex;align-items:center;gap:10px;
+      padding:7px 12px;border-radius:8px;border:1.5px solid;font-size:13px;
+    }
+    .seat-slot-label{
+      font-size:10px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.4px;white-space:nowrap;min-width:88px;
+    }
+    .seat-slot-name{font-weight:600;flex:1;}
+    .seat-slot.slot-filled{
+      border-color:#c7d2fe;background:var(--primary-light);
+    }
+    .seat-slot.slot-filled .seat-slot-name{color:var(--primary-dark);}
+    .seat-slot.slot-filled .seat-slot-label{color:#818cf8;}
+    .seat-slot.slot-me{border-color:#86efac;background:#f0fdf4;}
+    .seat-slot.slot-me .seat-slot-name{color:#15803d;font-weight:700;}
+    .seat-slot.slot-me .seat-slot-label{color:#4ade80;}
+    .seat-slot.slot-empty{border-color:var(--border);background:var(--surface);border-style:dashed;}
+    .seat-slot.slot-empty .seat-slot-name{color:var(--muted);font-weight:500;}
+    .seat-slot.slot-empty .seat-slot-label{color:var(--border);}
+    .seat-slot.slot-inactive{border-color:transparent;background:var(--surface2);border-style:dashed;opacity:.2;pointer-events:none;}
+    .seat-slot.slot-inactive .seat-slot-name{color:var(--muted);font-weight:400;}
+    .seat-slot.slot-inactive .seat-slot-label{color:var(--muted);}
+
+    /* ── CAR OBS ── */
+    .car-obs-wrap{
+      margin:10px 16px 0;
+      overflow:hidden;
+      max-height:78px; /* 3 linhas × 19.5px + 16px padding + 2px buffer = 78px */
+    }
+    .car-obs{
+      background:#fffbeb;border-left:3px solid #fcd34d;
+      padding:8px 12px;border-radius:0 6px 6px 0;
+      font-size:13px;color:#78350f;line-height:1.5;
+      display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;
+      overflow:hidden;
+    }
+
+    /* ── SORT BAR ── */
+    .sort-bar{
+      display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+      padding:6px 16px 8px;max-width:620px;margin:0 auto;
+    }
+    .sort-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);}
+    .sort-btn{
+      padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;
+      border:1.5px solid var(--border);background:var(--surface);color:var(--muted);
+      cursor:pointer;transition:all .15s;font-family:inherit;
+    }
+    .sort-btn.active{background:var(--primary-light);border-color:var(--primary);color:var(--primary-dark);}
+    .sort-btn:hover:not(.active){border-color:#94a3b8;color:var(--text);}
+
+    /* ── STATUS BAR ── */
+    .status-bar{
+      display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+      padding:8px 16px;background:#f8fafc;
+      border-bottom:1px solid var(--border);
+      font-size:12px;color:var(--muted);
+    }
+    .status-pill{
+      display:inline-flex;align-items:center;gap:4px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:20px;padding:3px 10px;font-weight:600;color:var(--text);
+      font-size:12px;
+    }
+    .status-pill.green{background:#f0fdf4;border-color:#bbf7d0;color:#15803d;}
+    .status-pill.red{background:#fff1f1;border-color:#fecaca;color:#b91c1c;font-weight:700;}
+    .status-sep{color:var(--border);margin:0 2px;}
+
+    /* ── CAR BODY ── */
+    .car-body{padding:12px 16px 8px;}
+    .pax-section-label{
+      font-size:11px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.6px;color:var(--muted);margin-bottom:8px;
+    }
+    .pax-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+    .pax-item{
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--surface2);border-radius:var(--r-sm);padding:7px 10px;
+    }
+    .pax-item.pax-me{border:1.5px solid var(--primary);}
+    .pax-name{font-size:13px;font-weight:600;}
+    .pax-phone{font-size:11px;color:var(--muted);}
+    .btn-remove-pax{
+      background:none;border:none;color:var(--muted);cursor:pointer;
+      font-size:16px;padding:2px 4px;line-height:1;border-radius:4px;
+      transition:color .15s,background .15s;
+    }
+    .btn-remove-pax:hover{color:var(--accent);background:#fff1f1;}
+
+    /* ── ACTION PLACEHOLDER ── */
+    .action-placeholder{
+      display:inline-flex;align-items:center;gap:5px;
+      font-size:12px;font-weight:600;color:var(--muted);
+      padding:7px 12px;opacity:.5;
+    }
+
+    /* ── BTN VER MEU CARRO ── */
+    .btn-my-car{
+      display:flex;align-items:center;justify-content:center;gap:7px;
+      width:100%;padding:10px;border-radius:var(--r-sm);border:none;
+      background:var(--primary);color:#fff;
+      font-size:13px;font-weight:700;cursor:pointer;
+      transition:filter .15s;margin-bottom:10px;font-family:inherit;
+    }
+    .btn-my-car:hover{filter:brightness(.9);}
+    .btn-my-car-locked{
+      background:var(--surface2);color:var(--muted);
+      opacity:.35;cursor:default;user-select:none;
+    }
+
+    /* ── MODAL DETALHE CARRO ── */
+    .detail-modal{
+      padding:0;border-radius:16px 16px 0 0;
+      max-height:92dvh;overflow-y:auto;
+      position:relative;
+    }
+    @media(min-width:540px){.detail-modal{border-radius:16px;max-height:88dvh;}}
+    .detail-hero{
+      background:#0f172a;color:#fff;
+      padding:20px 20px 16px;
+    }
+    .detail-hero-badge{
+      display:inline-flex;align-items:center;gap:5px;
+      background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);
+      font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;
+      margin-bottom:10px;
+    }
+    .detail-hero-name{font-size:20px;font-weight:800;line-height:1.2;margin-bottom:2px;}
+    .detail-hero-desc{font-size:14px;opacity:.65;}
+    .detail-hero-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+    .detail-hero-badge-sm{
+      display:inline-flex;align-items:center;gap:4px;
+      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+      font-size:12px;padding:4px 10px;border-radius:5px;font-weight:500;
+    }
+    .detail-section{padding:16px 20px;border-bottom:1px solid var(--border);}
+    .detail-section:last-child{border-bottom:none;}
+    .detail-section-title{
+      font-size:11px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.6px;color:var(--muted);margin-bottom:10px;
+    }
+    .detail-obs{
+      background:#fffbeb;border-left:3px solid #fcd34d;
+      padding:10px 14px;border-radius:0 6px 6px 0;
+      font-size:13px;color:#78350f;line-height:1.6;
+    }
+    .detail-actions{
+      display:flex;flex-direction:column;gap:8px;
+      padding:16px 20px 28px;
+    }
+
+    /* ── CALCULADORA DE CUSTO ── */
+    .cost-bar{
+      display:flex;align-items:center;justify-content:space-between;
+      background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+      border:1px solid #86efac;border-radius:var(--r-sm);
+      padding:8px 12px;margin:8px 0 4px;gap:8px;
+    }
+    .cost-bar-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#15803d;}
+    .cost-bar-value{font-size:18px;font-weight:800;color:#15803d;line-height:1;}
+    .cost-bar-sub{font-size:11px;color:#16a34a;margin-top:1px;}
+    .cost-bar-btn{
+      background:#15803d;color:#fff;border:none;border-radius:6px;
+      padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;
+      font-family:inherit;white-space:nowrap;flex-shrink:0;
+    }
+    .cost-bar-btn:hover{filter:brightness(1.1);}
+    .cost-bar-pending{
+      background:var(--surface2);border:1px dashed var(--border);border-radius:var(--r-sm);
+      padding:8px 12px;margin:8px 0 4px;
+      font-size:12px;color:var(--muted);
+    }
+    /* fuel type selector */
+    .fuel-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
+    .fuel-tab{
+      padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;
+      border:1.5px solid var(--border);background:var(--surface);color:var(--muted);
+      cursor:pointer;transition:all .15s;font-family:inherit;
+    }
+    .fuel-tab.active{background:var(--primary-light);border-color:var(--primary);color:var(--primary-dark);}
+    .fuel-tab:hover:not(.active){border-color:#94a3b8;color:var(--text);}
+    /* calc summary */
+    .calc-summary{
+      background:var(--surface2);border-radius:var(--r-sm);
+      padding:14px;margin-top:12px;
+    }
+    .calc-row{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:4px 0;border-bottom:1px solid var(--border);font-size:13px;
+    }
+    .calc-row:last-child{border-bottom:none;}
+    .calc-row.total{
+      font-weight:800;font-size:16px;color:var(--text);
+      padding-top:10px;margin-top:4px;
+    }
+    .calc-row.per-person{
+      background:var(--primary-light);border-radius:8px;
+      padding:10px 12px;margin-top:8px;
+      font-weight:800;font-size:15px;color:var(--primary-dark);
+      border-bottom:none;
+    }
+    .calc-row-label{color:var(--muted);}
+    .calc-row-val{font-weight:600;}
+    /* split toggle */
+    .split-toggle{display:flex;gap:6px;margin-top:4px;}
+    .split-opt{
+      flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:600;
+      border:1.5px solid var(--border);background:var(--surface);color:var(--muted);
+      cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;
+    }
+    .split-opt.active{background:var(--primary-light);border-color:var(--primary);color:var(--primary-dark);}
+
+    /* ── BOTÃO VOLTAR ── */
+    .btn-back{
+      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+      color:rgba(255,255,255,.8);padding:5px 10px;border-radius:6px;
+      font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;
+      transition:background .15s;flex-shrink:0;text-decoration:none;
+      display:inline-flex;align-items:center;gap:4px;
+    }
+    .btn-back:hover{background:rgba(255,255,255,.2);}
+
+    /* ── PAX UNIFICADO (cards) ── */
+    .card-section{padding:12px 16px;border-top:1px solid var(--border);}
+    .card-section-title{
+      font-size:10px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.7px;color:var(--muted);margin-bottom:8px;
+    }
+    .pax-unified{display:flex;flex-direction:column;gap:4px;}
+    .pax-row{
+      display:flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:8px;
+      border:1.5px solid var(--border);background:var(--surface);
+    }
+    .pax-row.pax-row-driver{background:var(--primary-light);border-color:#c7d2fe;}
+    .pax-row.pax-row-me{border-color:#86efac;background:#f0fdf4;}
+    .pax-row.pax-row-empty{border-style:dashed;background:transparent;opacity:.6;}
+    .pax-row.pax-row-blocked{border-style:dashed;background:#fff1f1;border-color:#fecaca;opacity:.55;}
+    .pax-row-icon{font-size:14px;flex-shrink:0;line-height:1;}
+    .pax-row-info{flex:1;min-width:0;}
+    .pax-row-name{
+      font-size:13px;font-weight:600;
+      display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .pax-row.pax-row-driver .pax-row-name{color:var(--primary-dark);}
+    .pax-row.pax-row-me .pax-row-name{color:#15803d;}
+    .pax-row.pax-row-empty .pax-row-name{color:#16a34a;font-weight:400;font-style:italic;}
+    .pax-row.pax-row-blocked .pax-row-name{color:#b91c1c;font-weight:400;font-style:italic;}
+    .pax-you-tag{
+      background:var(--primary);color:#fff;
+      font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;
+      padding:1px 5px;border-radius:4px;vertical-align:middle;margin-left:4px;
+    }
+    .pax-row.pax-row-me .pax-you-tag{background:#16a34a;}
+    a.pax-row-phone{
+      font-size:11px;color:var(--primary);text-decoration:none;
+      display:block;margin-top:1px;
+    }
+    a.pax-row-phone:hover{text-decoration:underline;}
+    .pax-row-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+    .pax-cost-tag{
+      background:#f0fdf4;border:1px solid #86efac;color:#15803d;
+      font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;white-space:nowrap;
+    }
+    .card-pax-action{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+    .card-member-section{background:var(--primary-light);}
+    .member-btns{display:flex;flex-direction:column;gap:7px;}
+    .card-locked-msg{
+      font-size:12px;color:var(--muted);text-align:center;padding:4px 0;
+      opacity:.6;display:flex;align-items:center;justify-content:center;gap:6px;
+    }
+
+    /* ── CHAT TRIGGER ── */
+    .chat-trigger{
+      display:flex;align-items:center;gap:8px;
+      background:none;border:1px solid var(--border);
+      border-radius:var(--r-sm);padding:8px 14px;
+      font-size:13px;font-weight:600;color:var(--text);
+      cursor:pointer;width:100%;transition:background .15s,border-color .15s;
+      margin-top:6px;
+    }
+    .chat-trigger:hover{background:var(--surface2);border-color:var(--primary);}
+    .chat-trigger-locked{
+      display:flex;align-items:center;gap:8px;
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--r-sm);padding:8px 14px;
+      font-size:13px;font-weight:600;color:var(--muted);
+      width:100%;margin-top:6px;opacity:.5;cursor:default;
+      user-select:none;
+    }
+    .chat-badge{
+      background:var(--primary);color:#fff;
+      font-size:10px;font-weight:700;
+      padding:1px 6px;border-radius:10px;margin-left:auto;
+    }
+
+    /* ── CAR ACTIONS ── */
+    .car-actions{
+      display:flex;flex-wrap:wrap;gap:7px;
+      padding:10px 16px;border-top:1px solid var(--border);
+    }
+
+    /* ── BUTTONS ── */
+    .btn{
+      padding:9px 16px;border-radius:var(--r-sm);border:none;
+      font-size:13px;font-weight:600;cursor:pointer;
+      transition:filter .15s;font-family:inherit;
+      display:inline-flex;align-items:center;gap:6px;line-height:1.2;
+    }
+    .btn:hover{filter:brightness(.93);}
+    .btn:disabled{opacity:.45;cursor:not-allowed;filter:none;}
+    .btn-primary{background:var(--primary);color:#fff;}
+    .btn-secondary{background:var(--surface2);color:var(--text);}
+    .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+    .btn-outline:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-danger{background:#fff1f1;color:var(--accent);border:1px solid #fecaca;}
+    .btn-success{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
+    .btn-whatsapp{background:#22c55e;color:#fff;}
+    .btn-sm{padding:7px 12px;font-size:12px;}
+    .btn-full{width:100%;justify-content:center;}
+
+    /* ── FAB ── */
+    .fab{
+      position:fixed;bottom:24px;right:18px;
+      background:var(--primary);color:#fff;
+      border:none;border-radius:10px;
+      padding:13px 20px;font-size:14px;font-weight:700;cursor:pointer;
+      box-shadow:0 4px 16px rgba(79,70,229,.4);
+      display:flex;align-items:center;gap:8px;
+      transition:transform .15s,box-shadow .15s;z-index:50;
+    }
+    .fab:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(79,70,229,.5);}
+
+    /* ── OVERLAY / MODAL ── */
+    .overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;
+      display:flex;align-items:flex-end;justify-content:center;
+    }
+    .overlay.hidden{display:none;}
+    .modal{
+      background:var(--surface);border-radius:16px 16px 0 0;
+      padding:24px 20px 32px;
+      width:100%;max-width:540px;max-height:90dvh;overflow-y:auto;
+    }
+    @media(min-width:540px){
+      .overlay{align-items:center;}
+      .modal{border-radius:16px;margin:20px;max-height:85dvh;}
+    }
+    .modal-handle{
+      width:36px;height:4px;background:var(--border);
+      border-radius:2px;margin:0 auto 20px;
+    }
+    .modal-title{font-size:17px;font-weight:700;margin-bottom:3px;}
+    .modal-sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+    .fg{margin-bottom:13px;}
+    .fl{
+      display:block;font-size:11px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.5px;color:var(--muted);margin-bottom:5px;
+    }
+    .fi{
+      width:100%;padding:10px 12px;border:1.5px solid var(--border);
+      border-radius:var(--r-sm);font-size:14px;color:var(--text);
+      background:var(--surface);transition:border-color .15s;font-family:inherit;
+    }
+    .fi:focus{outline:none;border-color:var(--primary);}
+    textarea.fi{resize:vertical;min-height:70px;line-height:1.5;}
+    .fi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .char-count{font-size:11px;color:var(--muted);text-align:right;margin-top:3px;}
+    .modal-actions{display:flex;flex-direction:column;gap:9px;margin-top:6px;}
+    .error-box{
+      background:#fff1f1;border:1px solid #fecaca;border-radius:var(--r-sm);
+      padding:9px 12px;font-size:13px;color:#b91c1c;
+      margin-bottom:13px;display:none;line-height:1.5;
+    }
+    .error-box.show{display:block;}
+
+    /* ── CHAT MODAL ── */
+    .chat-modal{
+      display:flex;flex-direction:column;
+      padding:0;border-radius:16px 16px 0 0;
+      height:85dvh;max-height:85dvh;
+    }
+    @media(min-width:540px){.chat-modal{border-radius:16px;height:80dvh;}}
+    .chat-header{
+      padding:14px 16px;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+    }
+    .chat-header-title{font-size:15px;font-weight:700;}
+    .chat-header-sub{font-size:12px;color:var(--muted);margin-top:1px;}
+    .btn-close{
+      background:var(--surface2);border:none;border-radius:50%;
+      width:30px;height:30px;cursor:pointer;font-size:15px;
+      display:flex;align-items:center;justify-content:center;
+      color:var(--muted);transition:background .15s;flex-shrink:0;
+    }
+    .btn-close:hover{background:var(--border);}
+    .chat-messages{
+      flex:1;overflow-y:auto;padding:16px;
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .chat-empty{
+      text-align:center;color:var(--muted);font-size:13px;
+      padding:32px 16px;margin:auto;line-height:1.6;
+    }
+    .chat-msg{display:flex;flex-direction:column;gap:2px;max-width:78%;}
+    .chat-msg-me{align-self:flex-end;align-items:flex-end;}
+    .chat-msg-other{align-self:flex-start;align-items:flex-start;}
+    .chat-msg-name{font-size:11px;font-weight:600;color:var(--muted);padding:0 4px;}
+    .chat-msg-bubble{
+      background:var(--surface2);padding:8px 12px;
+      border-radius:12px 12px 12px 3px;
+      font-size:14px;line-height:1.5;word-break:break-word;
+    }
+    .chat-msg-me .chat-msg-bubble{
+      background:var(--primary);color:#fff;
+      border-radius:12px 12px 3px 12px;
+    }
+    .chat-msg-time{font-size:10px;color:var(--muted);padding:0 4px;}
+    .chat-input-area{
+      padding:10px 12px calc(env(safe-area-inset-bottom,0px)+10px);
+      border-top:1px solid var(--border);
+      display:flex;gap:8px;align-items:flex-end;flex-shrink:0;
+      background:var(--surface);
+    }
+    .chat-input{
+      flex:1;resize:none;min-height:40px;max-height:100px;
+      padding:9px 12px;border:1.5px solid var(--border);
+      border-radius:var(--r-sm);font-size:14px;font-family:inherit;
+      line-height:1.4;transition:border-color .15s;color:var(--text);background:var(--surface);
+    }
+    .chat-input:focus{outline:none;border-color:var(--primary);}
+    .btn-send{
+      background:var(--primary);color:#fff;border:none;
+      border-radius:var(--r-sm);padding:0 16px;cursor:pointer;
+      font-size:13px;font-weight:700;flex-shrink:0;
+      transition:filter .15s;height:40px;align-self:flex-end;
+    }
+    .btn-send:hover{filter:brightness(.9);}
+    .btn-send:disabled{opacity:.4;cursor:not-allowed;}
+
+    /* ── EMPTY / LOADING ── */
+    .empty{text-align:center;padding:52px 24px;color:var(--muted);}
+    .empty-icon{font-size:40px;margin-bottom:12px;}
+    .empty-title{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text);}
+    .empty-sub{font-size:13px;line-height:1.6;}
+    .loading{text-align:center;padding:60px 24px;color:var(--muted);}
+    .spinner{
+      width:36px;height:36px;border:3px solid var(--border);
+      border-top-color:var(--primary);border-radius:50%;
+      animation:spin .7s linear infinite;margin:0 auto 14px;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── TOAST ── */
+    .toast{
+      position:fixed;bottom:80px;left:50%;
+      transform:translateX(-50%) translateY(10px);
+      background:#0f172a;color:#fff;padding:10px 18px;
+      border-radius:8px;font-size:13px;font-weight:600;
+      opacity:0;transition:all .25s;z-index:400;
+      max-width:300px;text-align:center;pointer-events:none;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .toast.ok{background:var(--success);}
+
+    /* ── CHANGE ALERT ── */
+    .change-alert{
+      display:none;align-items:center;gap:10px;
+      background:#fffbeb;border:1px solid #fde68a;
+      border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;
+      font-size:13px;color:#92400e;font-weight:500;
+    }
+    .change-alert.show{display:flex;}
+
+    /* ── AUTOCOMPLETE ── */
+    .ac-list{
+      position:absolute;top:100%;left:0;right:0;z-index:400;
+      background:var(--surface);border:1px solid var(--border);
+      border-top:none;border-radius:0 0 var(--r-sm) var(--r-sm);
+      box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:220px;overflow-y:auto;
+    }
+    .ac-item{
+      padding:9px 12px;font-size:13px;cursor:pointer;line-height:1.4;
+      border-bottom:1px solid var(--border);
+    }
+    .ac-item:last-child{border-bottom:none;}
+    .ac-item:hover,.ac-item.focused{background:var(--primary-light);color:var(--primary-dark);}
+    .ac-item-main{font-weight:600;}
+    .ac-item-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+    .ac-geo-btn{
+      display:inline-flex;align-items:center;gap:5px;
+      background:none;border:1px solid var(--border);border-radius:var(--r-sm);
+      padding:5px 10px;font-size:12px;font-weight:600;color:var(--primary);
+      cursor:pointer;margin-top:6px;
+    }
+    .ac-geo-btn:hover{background:var(--primary-light);}
+  </style>
+</head>
+<body>
+
+<!-- STICKY WRAPPER -->
+<div class="sticky-top">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-row1">
+    <div style="display:flex;align-items:center;gap:10px">
+      <a class="btn-back" href="index.html">← Viagens</a>
+      <div class="header-appname" id="headerAppname" onclick="adminTap()">Caronas Fácil</div>
+    </div>
+    <div>
+      <div id="adminControls" style="display:none;align-items:center;gap:8px">
+        <span class="admin-badge">Admin</span>
+        <button class="btn-admin-small" onclick="window.openIdentAdmin()" title="Definir minha identidade de motorista">👤 Sou motorista</button>
+        <button class="btn-admin-small" onclick="window.openEditEvent()" title="Editar dados do evento">✏️ Editar</button>
+      </div>
+      <!-- Botão editar visível para o dono mesmo sem modo admin -->
+      <button class="btn-admin-small" id="btnEditEvent" onclick="window.openEditEvent()"
+              style="display:none" title="Editar evento">✏️ Editar evento</button>
+      <!-- Toggle dark/light mode -->
+      <button class="btn-admin-small" id="btnThemeToggle" onclick="window.toggleTheme()"
+              title="Alternar modo claro/escuro" style="font-size:13px;padding:5px 9px;letter-spacing:1px">☀️🌙</button>
+      <button class="btn-admin-small" id="btnAdminLogin" onclick="openAdminModal()" style="display:none">
+        Acesso admin
+      </button>
+    </div>
+  </div>
+  <div class="header-event-block" id="headerEventBlock" style="display:none">
+    <div class="header-event-section">
+      <div class="header-event-label">Evento</div>
+      <div class="header-event-name" id="eventName"></div>
+    </div>
+    <div class="header-event-section" id="headerDestSection" style="display:none">
+      <div class="header-event-label">Endereço</div>
+      <div class="header-event-dest" id="eventDest"></div>
+      <div class="header-event-addr" id="eventAddr"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="tabs"></div>
+
+</div><!-- /sticky-top -->
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+  <div class="loading"><div class="spinner"></div><div>Carregando caronas…</div></div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fabAddCar" onclick="openCarModal()" style="display:none">
+  + Oferecer carona
+</button>
+
+<!-- ── MODAL: Identificação ── -->
+<div class="overlay hidden" id="overlayIdent">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="identModalTitle">Como você quer ser identificado?</div>
+    <div class="modal-sub" id="identModalSub">Seu nome aparecerá para os outros participantes.</div>
+    <div class="fg">
+      <label class="fl">Nome *</label>
+      <input class="fi" id="identName" type="text" placeholder="Ex: João Silva" autocomplete="name"/>
+    </div>
+    <div class="fg">
+      <label class="fl">WhatsApp (com DDD) *</label>
+      <input class="fi" id="identPhone" type="tel" placeholder="11 99999-0000" autocomplete="tel"/>
+    </div>
+    <div id="identError" class="error-box"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-full" onclick="saveIdent()">Confirmar</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('overlayIdent')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Adicionar / Editar carro ── -->
+<div class="overlay hidden" id="overlayCar">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="carModalTitle">Oferecer carona</div>
+    <div class="modal-sub" id="carModalSub">Informe os detalhes do seu carro</div>
+    <div id="carError" class="error-box"></div>
+    <div class="fg">
+      <label class="fl">Seu nome *</label>
+      <input class="fi" id="carDriver" type="text" placeholder="Ex: João Silva"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Seu WhatsApp *</label>
+      <input class="fi" id="carPhone" type="tel" placeholder="11 99999-0000"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Carro (modelo, cor, placa)</label>
+      <input class="fi" id="carDesc" type="text" placeholder="Ex: Prata · Onix · ABC-1234"/>
+    </div>
+    <div class="fi-row">
+      <div class="fg">
+        <label class="fl">Ponto de saída</label>
+        <div style="position:relative">
+          <input class="fi" id="carOrigin" type="text" placeholder="Ex: R. Martim Buchard"
+                 autocomplete="off" oninput="window.acSearchEv(this,'carOriginList')"/>
+          <div id="carOriginList" class="ac-list" style="display:none"></div>
+        </div>
+        <button type="button" class="ac-geo-btn" onclick="window.geoFillEv('carOrigin','carOriginList')">
+          📍 Usar minha localização
+        </button>
+      </div>
+      <div class="fg">
+        <label class="fl">Horário</label>
+        <input class="fi" id="carTime" type="time"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Vagas disponíveis *</label>
+      <input class="fi" id="carSeats" type="number" min="1" max="10" value="3"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Chave PIX para recebimento <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+      <input class="fi" id="carPixKey" type="text" placeholder="CPF, e-mail, telefone ou chave aleatória"/>
+      <div class="fi-hint">Passageiros poderão copiar e pagar via PIX após o encerramento da viagem.</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Observação <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+      <textarea class="fi" id="carObs" rows="3" maxlength="250"
+        placeholder="Ex: Venham com malas pequenas, porta-malas é compacto"
+        oninput="window.updateObsCount()"></textarea>
+      <div class="char-count" id="obsCount">0 / 250</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-full" id="btnSaveCar" onclick="saveCar()">Salvar carona</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('overlayCar')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Entrar como passageiro ── -->
+<div class="overlay hidden" id="overlayJoin">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Entrar nesta carona</div>
+    <div class="modal-sub" id="joinCarName">Carona de…</div>
+    <div id="joinError" class="error-box"></div>
+    <div class="fg">
+      <label class="fl">Seu nome *</label>
+      <input class="fi" id="joinName" type="text" placeholder="Ex: Maria Silva"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Seu WhatsApp *</label>
+      <input class="fi" id="joinPhone" type="tel" placeholder="11 99999-0000"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-full" onclick="confirmJoin()">Confirmar entrada</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('overlayJoin')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Adicionar passageiro ── -->
+<div class="overlay hidden" id="overlayAddPax">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Adicionar passageiro</div>
+    <div class="modal-sub">Adicione alguém diretamente nesta carona</div>
+    <div id="addPaxError" class="error-box"></div>
+    <div class="fg">
+      <label class="fl">Nome *</label>
+      <input class="fi" id="addPaxName" type="text" placeholder="Ex: Pedro Costa"/>
+    </div>
+    <div class="fg">
+      <label class="fl">WhatsApp</label>
+      <input class="fi" id="addPaxPhone" type="tel" placeholder="11 99999-0000"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-full" onclick="confirmAddPax()">Adicionar</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('overlayAddPax')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Admin ── -->
+<div class="overlay hidden" id="overlayAdmin">
+  <div class="modal">
+    <div class="modal-handle"></div>
+
+    <!-- Seção: Login com PIN -->
+    <div id="adminLoginSection">
+      <div class="modal-title">Acesso de administrador</div>
+      <div class="modal-sub">Digite o PIN do organizador para ativar o modo admin.</div>
+      <div id="adminError" class="error-box"></div>
+      <div class="fg">
+        <input class="fi" id="adminPinInput" type="password" placeholder="PIN do admin"
+               onkeydown="if(event.key==='Enter')confirmAdmin()"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary btn-full" onclick="confirmAdmin()">Entrar como admin</button>
+        <button class="btn btn-outline btn-full" onclick="closeModal('overlayAdmin')">Cancelar</button>
+      </div>
+      <div style="text-align:center;margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+        <button onclick="window.showAdminChangePin()" style="background:none;border:none;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+          🔑 Alterar PIN do evento
+        </button>
+      </div>
+    </div>
+
+    <!-- Seção: Alterar PIN -->
+    <div id="adminChangePinSection" style="display:none">
+      <div class="modal-title">🔑 Alterar PIN</div>
+      <div class="modal-sub">Defina um novo PIN de acesso admin para este evento.</div>
+      <div id="adminChangePinError" class="error-box"></div>
+      <div class="fg">
+        <label class="fl">Novo PIN *</label>
+        <input class="fi" id="adminNewPin" type="password" inputmode="numeric" placeholder="Mínimo 4 caracteres"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Confirmar novo PIN *</label>
+        <input class="fi" id="adminConfirmPin" type="password" inputmode="numeric" placeholder="Repita o novo PIN"
+               onkeydown="if(event.key==='Enter')window.saveAdminPin()"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary btn-full" onclick="window.saveAdminPin()">Salvar novo PIN</button>
+        <button class="btn btn-outline btn-full" onclick="window.showAdminChangePin(false)">← Voltar para login</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── MODAL: Editar evento ── -->
+<div class="overlay hidden" id="overlayEditEvent">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Editar evento</div>
+    <div class="modal-sub">Atualize os dados gerais do evento.</div>
+    <div id="editEventError" class="error-box"></div>
+    <div class="fg">
+      <label class="fl">Nome do evento *</label>
+      <input class="fi" id="editEvName" type="text" placeholder="Ex: Aniversário FMB"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Local de destino *</label>
+      <div style="position:relative">
+        <input class="fi" id="editEvDest" type="text" autocomplete="off"
+               oninput="window.acSearchEv(this,'editEvDestList')" placeholder="Ex: Sítio FMB"/>
+        <div id="editEvDestList" class="ac-list" style="display:none"></div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Endereço completo do destino</label>
+      <div style="position:relative">
+        <input class="fi" id="editEvDestAddr" type="text" autocomplete="off"
+               oninput="window.acSearchEv(this,'editEvDestAddrList')" placeholder="Endereço completo"/>
+        <div id="editEvDestAddrList" class="ac-list" style="display:none"></div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Endereço de saída padrão</label>
+      <div style="position:relative">
+        <input class="fi" id="editEvOrigin" type="text" autocomplete="off"
+               oninput="window.acSearchEv(this,'editEvOriginList')" placeholder="Ponto de saída padrão"/>
+        <div id="editEvOriginList" class="ac-list" style="display:none"></div>
+      </div>
+      <button type="button" class="ac-geo-btn" onclick="window.geoFillEv('editEvOrigin','editEvOriginList')">
+        📍 Usar minha localização
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-full" id="btnSaveEvent" onclick="window.saveEventEdit()">✅ Atualizar evento</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('overlayEditEvent')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Detalhe do carro ── -->
+<div class="overlay hidden" id="overlayCarDetail">
+  <div class="modal detail-modal" id="carDetailContent"></div>
+</div>
+
+<!-- ── MODAL: Calculadora de Custo ── -->
+<div class="overlay hidden" id="overlayCalc">
+  <div class="modal" style="max-height:92dvh;overflow-y:auto;padding-bottom:28px;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💰 Calculadora de Custo</div>
+    <div class="modal-sub" id="calcCarName">Calcule o custo da viagem e divida entre os passageiros</div>
+
+    <!-- Tipo de combustível -->
+    <div class="fg">
+      <label class="fl">Tipo de veículo / combustível</label>
+      <div class="fuel-tabs">
+        <button class="fuel-tab active" id="fuelTabGas"     onclick="setFuelType('gasolina')">⛽ Gasolina</button>
+        <button class="fuel-tab"        id="fuelTabEtanol"  onclick="setFuelType('etanol')">🌿 Etanol</button>
+        <button class="fuel-tab"        id="fuelTabEletric" onclick="setFuelType('eletrico')">⚡ Elétrico</button>
+        <button class="fuel-tab"        id="fuelTabHibrid"  onclick="setFuelType('hibrido')">🔋 Híbrido</button>
+      </div>
+    </div>
+
+    <!-- Campos combustão (gasolina/etanol/híbrido) -->
+    <div id="calcFieldsCombust">
+      <div class="fi-row fg">
+        <div>
+          <label class="fl">Consumo médio <span id="calcConsumLabel">(km/L)</span></label>
+          <input type="number" class="fi" id="calcConsum" min="1" max="100" step="0.1" placeholder="Ex: 12" oninput="calcUpdate()"/>
+          <div class="fi-hint" id="calcConsumHint">Gasolina: ~10–15 km/L típico</div>
+        </div>
+        <div>
+          <label class="fl">Preço <span id="calcPriceLabel">(R$/litro)</span></label>
+          <input type="number" class="fi" id="calcPrice" min="0" step="0.01" placeholder="Ex: 5.89" oninput="calcUpdate()"/>
+          <div class="fi-hint" id="calcPriceHint">Preço atual do combustível</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campos elétrico (kWh) -->
+    <div id="calcFieldsEletric" style="display:none">
+      <div class="fi-row fg">
+        <div>
+          <label class="fl">Consumo médio (kWh/100km)</label>
+          <input type="number" class="fi" id="calcKwh" min="1" max="100" step="0.1" placeholder="Ex: 18" oninput="calcUpdate()"/>
+          <div class="fi-hint">Elétrico: ~15–22 kWh/100km típico</div>
+        </div>
+        <div>
+          <label class="fl">Tarifa de energia (R$/kWh)</label>
+          <input type="number" class="fi" id="calcTarifa" min="0" step="0.01" placeholder="Ex: 0.85" oninput="calcUpdate()"/>
+          <div class="fi-hint">Tarifa residencial ~R$ 0,75–1,00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campos híbrido — 2ª fonte -->
+    <div id="calcFieldsHibridExtra" style="display:none">
+      <div class="fi-row fg">
+        <div>
+          <label class="fl">Consumo elétrico (kWh/100km)</label>
+          <input type="number" class="fi" id="calcHibKwh" min="1" step="0.1" placeholder="Ex: 10" oninput="calcUpdate()"/>
+        </div>
+        <div>
+          <label class="fl">Tarifa elétrica (R$/kWh)</label>
+          <input type="number" class="fi" id="calcHibTarifa" min="0" step="0.01" placeholder="Ex: 0.85" oninput="calcUpdate()"/>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">% do trajeto em modo elétrico</label>
+        <input type="range" id="calcHibPct" min="0" max="100" step="5" value="40" oninput="calcHibPctUpdate()"/>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px">
+          <span>0% elétrico</span><span id="calcHibPctVal">40% elétrico</span><span>100% elétrico</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Distâncias -->
+    <div class="fg" style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+      <label class="fl">Distâncias da viagem</label>
+      <div class="fi-row" style="margin-bottom:8px">
+        <div>
+          <label class="fl">Trajeto de ida (km)</label>
+          <input type="number" class="fi" id="calcKmIda" min="0" step="1" placeholder="Ex: 120" oninput="calcKmVoltaSync(); calcUpdate()"/>
+        </div>
+        <div>
+          <label class="fl">Trajeto de volta (km)</label>
+          <input type="number" class="fi" id="calcKmVolta" min="0" step="1" placeholder="Ex: 120" oninput="calcUpdate()"/>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-bottom:10px;cursor:pointer">
+        <input type="checkbox" id="calcVoltaIgual" checked onchange="calcKmVoltaSync(); calcUpdate()"/> Volta = mesma distância da ida
+      </label>
+      <div>
+        <label class="fl">Rodagem local (km) <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">— deslocamentos no local do evento</span></label>
+        <input type="number" class="fi" id="calcKmLocal" min="0" step="1" placeholder="Ex: 40" oninput="calcUpdate()"/>
+        <div class="fi-hint">Km estimados de locomoção durante o evento/estadia. Consumo urbano é ~20% pior que estrada.</div>
+      </div>
+    </div>
+
+    <!-- Pedágios e extras -->
+    <div class="fg" style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+      <div>
+        <label class="fl">Pedágios — valor total (R$)</label>
+        <input type="number" class="fi" id="calcPedagios" min="0" step="0.50" placeholder="Ex: 38.00" oninput="calcUpdate()"/>
+        <div class="fi-hint">Some todos os pedágios do trajeto ida + volta</div>
+      </div>
+    </div>
+
+    <!-- Divisão do custo -->
+    <div class="fg" style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+      <label class="fl">Dividir o custo entre</label>
+      <div class="split-toggle">
+        <button class="split-opt active" id="splitOptPax"    onclick="setSplitMode('pax')">Só passageiros</button>
+        <button class="split-opt"        id="splitOptAll"    onclick="setSplitMode('all')">Todos (incl. motorista)</button>
+      </div>
+      <div class="fi-hint" style="margin-top:6px" id="calcSplitHint">Motorista não entra no rateio</div>
+    </div>
+
+    <!-- Resumo ao vivo -->
+    <div class="calc-summary">
+      <div class="calc-row">
+        <span class="calc-row-label">⛽ Combustível / energia</span>
+        <span class="calc-row-val" id="calcResCombust">R$ 0,00</span>
+      </div>
+      <div class="calc-row">
+        <span class="calc-row-label">🛣️ Pedágios</span>
+        <span class="calc-row-val" id="calcResPedagios">R$ 0,00</span>
+      </div>
+      <div class="calc-row total">
+        <span>Total da viagem</span>
+        <span id="calcResTotal">R$ 0,00</span>
+      </div>
+      <div class="calc-row per-person" id="calcResPerPerson">
+        <span>Por pessoa (<span id="calcNPeople">0</span> pessoas)</span>
+        <span id="calcResValPerPerson">R$ —</span>
+      </div>
+    </div>
+
+    <div id="calcError" class="error-box"></div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn btn-primary btn-full" onclick="saveCostCalc()">💾 Salvar e compartilhar com passageiros</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('overlayCalc')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Chat ── -->
+<div class="overlay hidden" id="overlayChat">
+  <div class="modal chat-modal">
+    <div class="chat-header">
+      <div>
+        <div class="chat-header-title" id="chatCarName">Grupo da carona</div>
+        <div class="chat-header-sub" id="chatCarSub"></div>
+      </div>
+      <button class="btn-close" onclick="closeChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-empty">Carregando…</div>
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput"
+        placeholder="Escreva uma mensagem…" rows="1" maxlength="500"
+        onkeydown="handleChatKey(event)" oninput="autoResizeChat(this)"></textarea>
+      <button class="btn-send" id="chatSendBtn" onclick="sendChatMsg()">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, get, set, push, remove, onValue, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyBLiObW7HniFnJGcGt5xPFQNdtSXuZxQjw",
+  authDomain:        "caronas-lhpv.firebaseapp.com",
+  databaseURL:       "https://caronas-lhpv-default-rtdb.firebaseio.com",
+  projectId:         "caronas-lhpv",
+  storageBucket:     "caronas-lhpv.firebasestorage.app",
+  messagingSenderId: "159548357201",
+  appId:             "1:159548357201:web:91b0a892071daef103d670",
+  measurementId:     "G-QNNJN6WTCW"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+/* ── ESTADO ── */
+const params      = new URLSearchParams(location.search);
+const eventId     = params.get('id');
+let eventData     = null;
+let trips         = [];
+let cars          = {};
+let activeTripIdx = 0;
+let isAdmin       = false;
+let isOwner       = false; // dono do evento (identificado via UID do index.html)
+
+/* ── ORDENAÇÃO ── */
+const SORT_KEY = `caronaSort_${eventId}`;
+let sortMode = localStorage.getItem(SORT_KEY) || 'alpha'; // 'alpha' | 'entry' | 'time'
+window.setSortMode = function(mode) {
+  sortMode = mode;
+  localStorage.setItem(SORT_KEY, mode);
+  renderCars();
+};
+
+/* ── IDENTIDADE ── */
+const IDENT_KEY = `caronaUser_${eventId}`;
+function getIdent() { try { return JSON.parse(localStorage.getItem(IDENT_KEY)||'null'); } catch{return null;} }
+function saveIdentLocal(n,p) { localStorage.setItem(IDENT_KEY, JSON.stringify({name:n,phone:p})); }
+
+/* ── NORMALIZAR TELEFONE (fix: comparação robusta) ── */
+function normPhone(p) { return String(p||'').replace(/\D/g,''); }
+
+/* ── SNAPSHOT ── */
+const SNAP_KEY = `caronaSnap_${eventId}`;
+function saveSnap(d) { try { localStorage.setItem(SNAP_KEY,JSON.stringify(d)); } catch{} }
+function getSnap()   { try { return JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); } catch{return null;} }
+function hasChanges(nd) {
+  const old = getSnap(); if(!old) return false;
+  return JSON.stringify(old) !== JSON.stringify(nd);
+}
+
+/* ── NOTIFICAÇÕES (Browser Push) ── */
+const NOTIF_TS_KEY = `caronaNotifTs_${eventId}`;
+function getNotifTs() { try { return JSON.parse(localStorage.getItem(NOTIF_TS_KEY)||'{}'); } catch{return {};} }
+function setNotifTs(carId, ts) {
+  const d = getNotifTs(); d[carId] = ts;
+  localStorage.setItem(NOTIF_TS_KEY, JSON.stringify(d));
+}
+let notifAsked = false;
+async function maybeAskNotif() {
+  if (notifAsked || !('Notification' in window) || Notification.permission !== 'default') return;
+  notifAsked = true;
+  const result = await Notification.requestPermission();
+  if (result === 'granted') window.dispatchEvent(new Event('notif-granted'));
+}
+function initNotifTs(carsData) {
+  const ident = getIdent(); if(!ident) return;
+  const ts = getNotifTs();
+  trips.forEach(trip => {
+    Object.entries(carsData[trip.id]||{}).forEach(([carId, car]) => {
+      if (ts[carId] !== undefined) return;
+      const mem = normPhone(car.driverPhone) === normPhone(ident.phone) ||
+        Object.values(car.passengers||{}).some(p => normPhone(p.phone) === normPhone(ident.phone));
+      if (mem) setNotifTs(carId, Date.now());
+    });
+  });
+}
+function checkNewChatMessages(newCars) {
+  const ident = getIdent();
+  if (!ident || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const ts = getNotifTs();
+  trips.forEach(trip => {
+    Object.entries(newCars[trip.id]||{}).forEach(([carId, car]) => {
+      const mem = normPhone(car.driverPhone) === normPhone(ident.phone) ||
+        Object.values(car.passengers||{}).some(p => normPhone(p.phone) === normPhone(ident.phone));
+      if (!mem) return;
+      const lastTs = ts[carId] || 0;
+      const msgs   = Object.values(car.chat||{});
+      const fresh  = msgs.filter(m => (m.ts||0) > lastTs && m.name !== ident.name);
+      if (!fresh.length) return;
+      const chatOpen = chatCarId === carId &&
+        !document.getElementById('overlayChat').classList.contains('hidden');
+      if (chatOpen) return;
+      const last = fresh[fresh.length-1];
+      try {
+        new Notification(`Mensagem nova · ${car.driverName}`, {
+          body: `${last.name}: ${last.text.slice(0,100)}`,
+          tag: `chat-${carId}`,
+        });
+      } catch(e){}
+      const maxTs = Math.max(...msgs.map(m=>m.ts||0));
+      setNotifTs(carId, maxTs);
+    });
+  });
+}
+
+/* ════════════════════════════════════════
+   NOTIFICAÇÃO: MUDANÇAS NO CARRO
+════════════════════════════════════════ */
+function pushNotif(title, body, tag) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try { new Notification(title, { body, tag, icon: 'icon-192.png' }); } catch(e){}
+}
+
+// Snapshot anterior de passageiros (para detectar mudanças)
+let _prevPaxSnap = {};
+
+function checkCarChanges(newCars) {
+  const ident = getIdent();
+  if (!ident || !('Notification' in window) || Notification.permission !== 'granted') return;
+
+  trips.forEach(trip => {
+    Object.entries(newCars[trip.id]||{}).forEach(([carId, car]) => {
+      const isMyDriver = normPhone(car.driverPhone) === normPhone(ident.phone);
+      const amIPax     = Object.values(car.passengers||{})
+                          .some(p => normPhone(p.phone) === normPhone(ident.phone));
+      const isMember   = isMyDriver || amIPax;
+
+      const prevPax = _prevPaxSnap[carId] || {};
+      const newPax  = car.passengers || {};
+      const prevIds = Object.keys(prevPax);
+      const newIds  = Object.keys(newPax);
+
+      // Passageiro entrou → notificar motorista
+      if (isMyDriver) {
+        newIds.filter(id => !prevIds.includes(id)).forEach(id => {
+          pushNotif(
+            `🎉 Nova passageira entrou!`,
+            `${newPax[id].name} entrou no seu carro · ${eventData?.name||''}`,
+            `pax-join-${carId}-${id}`
+          );
+        });
+        // Passageiro saiu → notificar motorista
+        prevIds.filter(id => !newIds.includes(id)).forEach(id => {
+          pushNotif(
+            `😕 Passageiro saiu`,
+            `${prevPax[id]?.name||'Alguém'} saiu do seu carro · ${eventData?.name||''}`,
+            `pax-leave-${carId}-${id}`
+          );
+        });
+      }
+
+      // Carro encerrado → notificar membros
+      const wasPrevEnded = !!(_prevPaxSnap[`status_${carId}`]);
+      const isNowEnded   = car.status === 'ended';
+      if (isMember && isNowEnded && !wasPrevEnded) {
+        pushNotif(
+          `🏁 Viagem encerrada`,
+          `O motorista ${car.driverName} encerrou a viagem · ${eventData?.name||''}`,
+          `ended-${carId}`
+        );
+      }
+      _prevPaxSnap[`status_${carId}`] = isNowEnded;
+      _prevPaxSnap[carId] = { ...newPax };
+    });
+  });
+}
+
+/* ════════════════════════════════════════
+   GEOFENCING — PROXIMIDADE PARTIDA / CHEGADA
+════════════════════════════════════════ */
+const GEO_RADIUS_M  = 500;   // metros para disparar alerta
+const GEO_NOTIF_KEY = `caronaGeoNotif_${eventId}`;
+let   _geoWatchId   = null;
+let   _geoFired     = (() => { try { return JSON.parse(localStorage.getItem(GEO_NOTIF_KEY)||'{}'); } catch{return {};} })();
+
+function saveGeoFired() { localStorage.setItem(GEO_NOTIF_KEY, JSON.stringify(_geoFired)); }
+
+function haversineM(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function startGeofencing() {
+  if (!navigator.geolocation) return;
+  if (_geoWatchId !== null) return; // já rodando
+
+  _geoWatchId = navigator.geolocation.watchPosition(pos => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    const ident = getIdent();
+    if (!ident) return;
+
+    trips.forEach(trip => {
+      Object.entries(cars[trip.id]||{}).forEach(([carId, car]) => {
+        const isMyDriver = normPhone(car.driverPhone) === normPhone(ident.phone);
+        const amIPax     = Object.values(car.passengers||{})
+                            .some(p => normPhone(p.phone) === normPhone(ident.phone));
+        if (!isMyDriver && !amIPax) return;
+        if (car.status === 'ended') return;
+
+        // Proximidade da ORIGEM
+        const oLat = car.originLat, oLon = car.originLon;
+        if (oLat && oLon && !_geoFired[`origin-${carId}`]) {
+          const dist = haversineM(lat, lon, oLat, oLon);
+          if (dist <= GEO_RADIUS_M) {
+            pushNotif(
+              `📍 Você está perto do ponto de partida!`,
+              `${dist < 100 ? 'Você chegou em' : Math.round(dist)+'m de'} ${car.origin||'saída'} · ${car.driverName}`,
+              `geo-origin-${carId}`
+            );
+            _geoFired[`origin-${carId}`] = true;
+            saveGeoFired();
+          }
+        }
+
+        // Proximidade do DESTINO
+        const dLat = eventData?.destLat, dLon = eventData?.destLon;
+        if (dLat && dLon && !_geoFired[`dest-${carId}`]) {
+          const dist = haversineM(lat, lon, +dLat, +dLon);
+          if (dist <= GEO_RADIUS_M) {
+            pushNotif(
+              `🏁 Chegando ao destino!`,
+              `Você está a ${dist < 100 ? 'menos de 100m' : Math.round(dist)+'m'} de ${eventData.destination||'destino'}.`,
+              `geo-dest-${carId}`
+            );
+            _geoFired[`dest-${carId}`] = true;
+            saveGeoFired();
+          }
+        }
+      });
+    });
+  }, () => {}, { enableHighAccuracy: true, maximumAge: 15000, timeout: 30000 });
+}
+
+function stopGeofencing() {
+  if (_geoWatchId !== null) { navigator.geolocation.clearWatch(_geoWatchId); _geoWatchId = null; }
+}
+
+/* ── UTIL ── */
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+window.escHtml = escHtml;
+function fmtTime(ts) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* ── INIT ── */
+if (!eventId) {
+  document.getElementById('mainContent').innerHTML =
+    '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Link inválido</div><div class="empty-sub">Este link não tem um evento associado.</div></div>';
+} else {
+  loadEvent();
+}
+
+async function loadEvent() {
+  try {
+    const snap = await get(ref(db,`events/${eventId}`));
+    if (!snap.exists()) {
+      document.getElementById('mainContent').innerHTML =
+        '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Evento não encontrado</div><div class="empty-sub">O link pode estar errado ou o evento foi removido.</div></div>';
+      return;
+    }
+    eventData = snap.val();
+    trips = Array.isArray(eventData.trips) ? eventData.trips : Object.values(eventData.trips||{});
+    cars  = eventData.cars||{};
+
+    // Header
+    document.title = `Caronas Fácil · ${eventData.name}`;
+    document.getElementById('eventName').textContent = eventData.name;
+    document.getElementById('headerEventBlock').style.display = 'block';
+    if (eventData.destination || eventData.destinationAddress) {
+      document.getElementById('eventDest').textContent = eventData.destination || '';
+      document.getElementById('eventAddr').textContent = eventData.destinationAddress || '';
+      document.getElementById('headerDestSection').style.display = 'block';
+    }
+    document.getElementById('btnAdminLogin').style.display = 'block';
+
+    // Detectar dono do evento (UID salvo pelo index.html ao abrir)
+    const ownerUid = sessionStorage.getItem(`owner_${eventId}`);
+    if (ownerUid && ownerUid === eventData.createdBy) {
+      isOwner = true;
+    }
+
+    if (sessionStorage.getItem(`admin_${eventId}`) === 'true') {
+      isAdmin = true;
+      document.getElementById('adminControls').style.display = 'flex';
+      document.getElementById('btnAdminLogin').style.display  = 'none';
+    }
+
+    // Botão de editar evento sempre visível para o dono (mesmo sem admin PIN)
+    if (isOwner && !isAdmin) {
+      document.getElementById('btnEditEvent').style.display = 'inline-flex';
+    }
+
+    renderTabs();
+    renderCars();
+    document.getElementById('fabAddCar').style.display = 'flex';
+
+    let carsFirstCall = true;
+    onValue(ref(db,`events/${eventId}/cars`), (s) => {
+      const nc = s.val()||{};
+      if (carsFirstCall) {
+        initNotifTs(nc);
+        // Inicializar snapshot de passageiros para diff
+        trips.forEach(trip => {
+          Object.entries(nc[trip.id]||{}).forEach(([carId, car]) => {
+            _prevPaxSnap[carId] = { ...(car.passengers||{}) };
+            _prevPaxSnap[`status_${carId}`] = car.status === 'ended';
+          });
+        });
+        carsFirstCall = false;
+      } else {
+        if (hasChanges(nc)) showChangeAlert();
+        checkNewChatMessages(nc);
+        checkCarChanges(nc);
+      }
+      cars = nc;
+      saveSnap(cars);
+      renderCars();
+    });
+
+    // Geofencing: inicia quando o usuário tem identidade e permissão
+    const _startGeoIfReady = () => {
+      if (getIdent() && Notification.permission === 'granted') startGeofencing();
+    };
+    _startGeoIfReady();
+    // Também tentar após pedir notificação
+    window.addEventListener('notif-granted', _startGeoIfReady);
+  } catch(e) {
+    console.error(e);
+    document.getElementById('mainContent').innerHTML =
+      '<div class="empty"><div class="empty-icon">❌</div><div class="empty-title">Erro ao carregar</div><div class="empty-sub">Verifique sua conexão e recarregue.</div></div>';
+  }
+}
+
+/* ══ TABS ══ */
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = trips.map((t,i) => `
+    <div class="tab ${i===activeTripIdx?'active':''}" onclick="window.switchTab(${i})">${escHtml(t.label)}</div>
+  `).join('');
+}
+window.switchTab = function(i) { activeTripIdx=i; renderTabs(); renderCars(); };
+
+/* ══ RENDER CARS ══ */
+function renderCars() {
+  const trip = trips[activeTripIdx];
+  if (!trip) return;
+  const ident    = getIdent();
+  const tripCars = cars[trip.id]||{};
+  const carList  = Object.entries(tripCars);
+  const content  = document.getElementById('mainContent');
+
+  const alertHtml = `<div class="change-alert" id="changeAlert">
+    ⚠️ <span>Houve atualizações nesta carona.</span>
+  </div>`;
+
+  if (!carList.length) {
+    content.innerHTML = alertHtml + `<div class="content">
+      <div class="empty">
+        <div class="empty-icon">🚗</div>
+        <div class="empty-title">Nenhum carro ainda</div>
+        <div class="empty-sub">Seja o primeiro a oferecer uma carona para este trajeto!</div>
+      </div></div>`;
+    return;
+  }
+
+  // ── Ordenação ──
+  function timeToMin(t) {
+    if (!t) return Infinity;
+    const m = String(t).match(/^(\d{1,2}):(\d{2})/);
+    return m ? parseInt(m[1])*60 + parseInt(m[2]) : Infinity;
+  }
+  const sortedCarList = [...carList].sort((a, b) => {
+    if (sortMode === 'alpha') return (a[1].driverName||'').localeCompare(b[1].driverName||'', 'pt-BR', {sensitivity:'base'});
+    if (sortMode === 'time')  return timeToMin(a[1].time) - timeToMin(b[1].time);
+    return a[0] < b[0] ? -1 : 1; // ordem de entrada via push key cronológico
+  });
+
+  const cardsHtml = sortedCarList.map(([carId, car]) => {
+    const paxList    = Object.entries(car.passengers||{});
+    const totalSeats = Number(car.seats)||0;
+    const paxCount   = paxList.length;
+    const freeSeats  = totalSeats - paxCount;
+
+    // ── Comparação normalizada (bug fix) ──
+    const isMyDriver = ident && normPhone(car.driverPhone) === normPhone(ident.phone);
+    const myPaxEntry = ident ? paxList.find(([,p]) => normPhone(p.phone) === normPhone(ident.phone)) : null;
+    const myPaxId    = myPaxEntry?.[0] || null;
+    const amIPax     = !!myPaxId;
+    const isMember   = isMyDriver || amIPax;
+    const isFull     = freeSeats <= 0;
+
+    const canEdit  = isAdmin || isMyDriver;
+    const msgCount  = Object.keys(car.chat||{}).length;
+    const chatBadge = msgCount > 0 ? `<span class="chat-badge">${msgCount}</span>` : '';
+    const cc        = car.costCalc;
+    const showContacts = isMyDriver || amIPax || isAdmin;
+
+    // ── Linha do motorista ──
+    const driverCostHtml = (cc && showContacts)
+      ? `<span class="pax-cost-tag">${fmtBRL(cc.splitMode==='all' ? cc.perPerson : cc.totalCost)}</span>` : '';
+    const driverRow = `<div class="pax-row pax-row-driver ${isMyDriver?'pax-row-me':''}">
+      <span class="pax-row-icon">🚗</span>
+      <div class="pax-row-info">
+        <span class="pax-row-name">${escHtml(car.driverName)}${isMyDriver?' <span class="pax-you-tag">você</span>':' <span style="font-size:10px;color:var(--muted);font-weight:500">(motorista)</span>'}</span>
+        ${showContacts && car.driverPhone ? `<a href="https://wa.me/55${normPhone(car.driverPhone)}" class="pax-row-phone" target="_blank">📱 ${car.driverPhone}</a>` : ''}
+      </div>
+      <div class="pax-row-right">${driverCostHtml}</div>
+    </div>`;
+
+    // ── Linhas de passageiros ──
+    const paxRowsHtml = paxList.map(([paxId, p]) => {
+      const isMe   = ident && normPhone(p.phone) === normPhone(ident.phone);
+      const canRmP = isAdmin || isMyDriver || isMe;
+      const showP  = isMe || isMyDriver || isAdmin;
+      const pCost  = (cc && cc.perPerson > 0 && showContacts)
+        ? `<span class="pax-cost-tag">${fmtBRL(cc.perPerson)}</span>` : '';
+      return `<div class="pax-row ${isMe?'pax-row-me':''}">
+        <span class="pax-row-icon">👤</span>
+        <div class="pax-row-info">
+          <span class="pax-row-name">${escHtml(p.name)}${isMe?' <span class="pax-you-tag">você</span>':''}</span>
+          ${showP && p.phone ? `<a href="https://wa.me/55${normPhone(p.phone)}" class="pax-row-phone" target="_blank">📱 ${p.phone}</a>` : ''}
+        </div>
+        <div class="pax-row-right">
+          ${pCost}
+          ${canRmP?`<button class="btn-remove-pax" onclick="window.removePax('${trip.id}','${carId}','${paxId}','${escHtml(p.name)}')" title="Remover">×</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+
+    // ── Vagas livres + bloqueadas (sempre exibe 5 slots: 1 motorista + 4 passageiros) ──
+    const DISPLAY_SLOTS = 4; // slots de passageiro (driver já aparece separado)
+    const freeRows = Array.from({length: Math.max(0, freeSeats)}, () =>
+      `<div class="pax-row pax-row-empty">
+        <span class="pax-row-icon">🟢</span>
+        <div class="pax-row-info"><span class="pax-row-name">Vaga livre</span></div>
+        <div class="pax-row-right"></div>
+      </div>`
+    ).join('');
+    const blockedCount = Math.max(0, DISPLAY_SLOTS - totalSeats);
+    const blockedRows = Array.from({length: blockedCount}, () =>
+      `<div class="pax-row pax-row-blocked">
+        <span class="pax-row-icon">🔴</span>
+        <div class="pax-row-info"><span class="pax-row-name">Vaga bloqueada</span></div>
+        <div class="pax-row-right"></div>
+      </div>`
+    ).join('');
+    const emptyRows = freeRows + blockedRows;
+
+    // ── Botão de ação ──
+    let actionBtn = '';
+    if (amIPax) {
+      actionBtn = `<button class="btn btn-danger btn-sm" onclick="window.leaveCar('${trip.id}','${carId}','${myPaxId}')">Sair do carro</button>`;
+    } else if (isMyDriver) {
+      actionBtn = `<span class="action-placeholder">🚗 Você é o motorista</span>`;
+    } else if (isAdmin) {
+      actionBtn = `<span class="action-placeholder">🛡️ Admin · acesso total</span>`;
+    } else if (!isFull) {
+      actionBtn = `<button class="btn btn-primary btn-sm" onclick="window.openJoinModal('${carId}','${escHtml(car.driverName)}')">Quero uma vaga</button>`;
+    } else {
+      actionBtn = `<button class="btn btn-outline btn-sm" disabled>Lotado</button>`;
+    }
+
+    // ── Barra de custo (visível apenas para membros/admin) ──
+    const costBarHtml = (isMember || isAdmin) ? (() => {
+      if (!cc) return isMyDriver
+        ? `<div class="cost-bar-pending">💰 Calcule o custo da viagem para dividir com os passageiros</div>`
+        : `<div class="cost-bar-pending">💰 Custo ainda não calculado pelo motorista</div>`;
+      return `<div class="cost-bar">
+        <div>
+          <div class="cost-bar-label">Custo por pessoa</div>
+          <div class="cost-bar-value">${fmtBRL(cc.perPerson)}</div>
+          <div class="cost-bar-sub">Total: ${fmtBRL(cc.totalCost)} · ${cc.nPeople} pessoa${cc.nPeople!==1?'s':''}</div>
+        </div>
+        ${isMyDriver?`<button class="cost-bar-btn" onclick="window.openCostModal('${trip.id}','${carId}')">Atualizar</button>`:''}
+      </div>`;
+    })() : '';
+
+    // ── WhatsApp share ──
+    const waMsg = encodeURIComponent(
+      `🚗 *Carona disponível!*\n\n` +
+      `*Evento:* ${eventData.name}\n*Trajeto:* ${trip.label}\n` +
+      `*Motorista:* ${car.driverName}\n*Carro:* ${car.carDesc||'–'}\n` +
+      `*Saída:* ${car.origin||eventData.defaultOrigin||'–'}${car.time?' às '+car.time:''}\n` +
+      `*Vagas livres:* ${freeSeats} de ${totalSeats}\n\nAcesse: ${location.href}`
+    );
+
+    const isEnded = car.status === 'ended';
+    return `<div class="car-card ${isEnded?'car-ended':''}" id="car_${carId}">
+      ${isMyDriver ? '<div class="my-car-banner">🚗 Este é o seu carro</div>' : ''}
+      ${isEnded ? '<div style="background:#f1f5f9;padding:6px 16px;font-size:12px;font-weight:700;color:#64748b;text-align:center">🏁 VIAGEM ENCERRADA</div>' : ''}
+
+      <!-- HEADER: motorista + badges -->
+      <div class="car-header">
+        <div class="driver-section">
+          <span class="badge-motorista">🚗 Motorista</span>
+          <div class="car-driver-name">${escHtml(car.driverName)}</div>
+          <div class="car-driver-desc">${car.carDesc ? escHtml(car.carDesc) : ''}</div>
+        </div>
+        <div class="car-meta">
+          ${car.origin?`<span class="badge badge-neutral badge-origin">📍 ${escHtml(car.origin)}</span>`:''}
+          ${car.time  ?`<span class="badge badge-neutral" style="flex-shrink:0">⏰ ${car.time}</span>`:''}
+          ${isEnded
+            ? `<span class="badge badge-ended badge-vagas">🏁 Encerrada</span>`
+            : `<span class="badge ${isFull?'badge-red':'badge-green'} badge-vagas">${freeSeats} vaga${freeSeats!==1?'s':''} livre${freeSeats!==1?'s':''}</span>`
+          }
+        </div>
+      </div>
+
+      <!-- SEÇÃO 1: Passageiros unificados -->
+      <div class="card-section">
+        <div class="card-section-title">Ocupantes do carro</div>
+        <div class="pax-unified">
+          ${driverRow}
+          ${paxRowsHtml}
+          ${emptyRows}
+        </div>
+        <div class="card-pax-action">
+          ${actionBtn}
+          ${canEdit&&!isFull?`<button class="btn btn-outline btn-sm" onclick="window.openAddPaxModal('${carId}')">+ Adicionar</button>`:''}
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: Obs (se existir) -->
+      ${car.obs?`<div class="card-section" style="padding-top:8px;padding-bottom:8px"><div class="car-obs">${escHtml(car.obs)}</div></div>`:''}
+
+      <!-- SEÇÃO 3: Área de membro (ver detalhes, chat, custo) -->
+      ${(isMember||isAdmin) ? `<div class="card-section card-member-section">
+        ${costBarHtml}
+        <div class="member-btns" style="margin-top:${cc?'8':'0'}px">
+          <button class="btn-my-car" onclick="window.openCarDetail('${trip.id}','${carId}')">🚗 Ver detalhes completos</button>
+          <button class="chat-trigger" style="margin-top:0" onclick="window.openChat('${trip.id}','${carId}')">💬 Mensagens do grupo ${chatBadge}</button>
+          ${(isMyDriver||isAdmin)?`<button class="btn btn-success btn-sm" style="width:100%;justify-content:center" onclick="window.openCostModal('${trip.id}','${carId}')">💰 ${isMyDriver?(cc?'Atualizar custo':'Calcular custo da viagem'):'Ver custo da viagem'}</button>`:''}
+          ${(isMyDriver||isAdmin) ? (isEnded
+            ? `<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;color:var(--success)" onclick="window.endTrip('${trip.id}','${carId}',false)">↩ Reabrir viagem</button>`
+            : `<button class="btn btn-danger btn-sm" style="width:100%;justify-content:center" onclick="window.endTrip('${trip.id}','${carId}',true)">🏁 Encerrar viagem</button>`
+          ) : ''}
+          ${isEnded ? `<button class="btn btn-success btn-sm btn-payment-vibrant"
+            style="width:100%;justify-content:center;margin-top:2px"
+            onclick="window.openPayment('${trip.id}','${carId}')">
+            💳 ${(isMyDriver||isAdmin) ? 'Ver pagamentos da viagem' : 'Pagar minha parte'}
+          </button>` : ''}
+        </div>
+      </div>` : `<div class="card-section">
+        <div class="card-locked-msg">🔒 Entre no carro para ver contatos, custo e mensagens</div>
+      </div>`}
+
+      <!-- RODAPÉ: Contatos + compartilhar + admin actions -->
+      <div class="car-actions">
+        <a href="https://wa.me/?text=${waMsg}" target="_blank" class="btn btn-success btn-sm">📤 Compartilhar</a>
+        ${car.driverPhone?`<a href="https://wa.me/55${normPhone(car.driverPhone)}" target="_blank" class="btn btn-whatsapp btn-sm">📞 Motorista</a>`:''}
+        ${canEdit?`<button class="btn btn-outline btn-sm" onclick="window.openEditCarModal('${carId}')">✏️ Editar</button>`:''}
+        ${canEdit?`<button class="btn btn-danger btn-sm" onclick="window.deleteCar('${trip.id}','${carId}','${escHtml(car.driverName)}')">🗑️ Excluir</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── Status bar ──
+  const totalCars  = carList.length;
+  const totalSeatsAll = carList.reduce((s,[,c]) => s + (Number(c.seats)||0), 0);
+  const totalPax   = carList.reduce((s,[,c]) => s + Object.keys(c.passengers||{}).length, 0);
+  const totalVagas = Math.max(0, totalSeatsAll - totalPax);
+  const isTudo     = totalVagas === 0 && totalCars > 0;
+
+  const vagasPill = isTudo
+    ? `<span class="status-pill red">🔴 Lotado · adicione mais carros</span>`
+    : `<span class="status-pill green">🟢 ${totalVagas} vaga${totalVagas!==1?'s':''} livre${totalVagas!==1?'s':''}</span>`;
+
+  const statusHtml = `<div class="status-bar">
+    <span class="status-pill">🚗 ${totalCars} carro${totalCars!==1?'s':''}</span>
+    <span class="status-sep">·</span>
+    <span class="status-pill">👥 ${totalPax}/${totalSeatsAll} passageiro${totalPax!==1?'s':''}</span>
+    <span class="status-sep">·</span>
+    ${vagasPill}
+  </div>`;
+
+  const sortBarHtml = `<div class="sort-bar">
+    <span class="sort-label">Ordenar:</span>
+    <button class="sort-btn ${sortMode==='alpha'?'active':''}" onclick="window.setSortMode('alpha')">A → Z</button>
+    <button class="sort-btn ${sortMode==='entry'?'active':''}" onclick="window.setSortMode('entry')">Entrada</button>
+    <button class="sort-btn ${sortMode==='time'?'active':''}" onclick="window.setSortMode('time')">⏰ Horário</button>
+  </div>`;
+
+  content.innerHTML = alertHtml + statusHtml + sortBarHtml + `<div class="content">${cardsHtml}</div>`;
+}
+
+function showChangeAlert() {
+  const el = document.getElementById('changeAlert');
+  if (el) el.classList.add('show');
+}
+
+/* ══ MODAL HELPERS ══ */
+window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); };
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+
+/* ══ IDENTIFICAÇÃO ══ */
+let pendingAction = null;
+function requireIdent(cb) {
+  const id = getIdent();
+  if (id?.name && id?.phone) { cb(id); return; }
+  document.getElementById('identModalTitle').textContent = 'Como você quer ser identificado?';
+  document.getElementById('identModalSub').textContent   = 'Seu nome aparecerá para os outros participantes.';
+  pendingAction = cb; openModal('overlayIdent');
+}
+window.saveIdent = function() {
+  const name  = document.getElementById('identName').value.trim();
+  const phone = document.getElementById('identPhone').value.trim();
+  const err   = document.getElementById('identError');
+  err.classList.remove('show');
+  if (!name)  { err.textContent='Informe seu nome.';  err.classList.add('show'); return; }
+  if (!phone) { err.textContent='Informe seu WhatsApp.'; err.classList.add('show'); return; }
+  saveIdentLocal(name, phone);
+  closeModal('overlayIdent');
+  if (pendingAction) { pendingAction({name,phone}); pendingAction=null; }
+};
+
+/* ══ MODAL CARRO ══ */
+let editingCarId = null;
+window.updateObsCount = function() {
+  const v = document.getElementById('carObs').value;
+  document.getElementById('obsCount').textContent = `${v.length} / 250`;
+};
+window.openCarModal = function() {
+  requireIdent((ident) => {
+    editingCarId = null;
+    document.getElementById('carModalTitle').textContent = 'Oferecer carona';
+    document.getElementById('carModalSub').textContent   = 'Informe os detalhes do seu carro';
+    document.getElementById('carDriver').value  = ident.name;
+    document.getElementById('carPhone').value   = ident.phone;
+    document.getElementById('carDesc').value    = '';
+    document.getElementById('carOrigin').value  = eventData?.defaultOrigin||'';
+    document.getElementById('carTime').value    = trips[activeTripIdx]?.defaultTime||'';
+    document.getElementById('carSeats').value   = '3';
+    document.getElementById('carObs').value     = '';
+    document.getElementById('carPixKey').value  = '';
+    window.updateObsCount();
+    document.getElementById('btnSaveCar').textContent = 'Salvar carona';
+    document.getElementById('carError').classList.remove('show');
+    openModal('overlayCar');
+  });
+};
+window.openEditCarModal = function(carId) {
+  const trip = trips[activeTripIdx];
+  const car  = cars[trip.id]?.[carId];
+  if (!car) return;
+  editingCarId = carId;
+  document.getElementById('carModalTitle').textContent = 'Editar carona';
+  document.getElementById('carModalSub').textContent   = '';
+  document.getElementById('carDriver').value  = car.driverName;
+  document.getElementById('carPhone').value   = car.driverPhone;
+  document.getElementById('carDesc').value    = car.carDesc||'';
+  document.getElementById('carOrigin').value  = car.origin||'';
+  document.getElementById('carTime').value    = car.time||'';
+  document.getElementById('carSeats').value   = car.seats||3;
+  document.getElementById('carObs').value     = car.obs||'';
+  document.getElementById('carPixKey').value  = car.pixKey||'';
+  window.updateObsCount();
+  document.getElementById('btnSaveCar').textContent = 'Salvar alterações';
+  document.getElementById('carError').classList.remove('show');
+  openModal('overlayCar');
+};
+window.saveCar = async function() {
+  const trip   = trips[activeTripIdx];
+  const driver = document.getElementById('carDriver').value.trim();
+  const phone  = document.getElementById('carPhone').value.trim();
+  const desc   = document.getElementById('carDesc').value.trim();
+  const originEl = document.getElementById('carOrigin');
+  const origin   = originEl.value.trim();
+  const originLat = originEl.dataset.lat || null;
+  const originLon = originEl.dataset.lon || null;
+  const time   = document.getElementById('carTime').value;
+  const seats  = Number(document.getElementById('carSeats').value)||3;
+  const obs    = document.getElementById('carObs').value.trim().slice(0,250);
+  const pixKey = document.getElementById('carPixKey').value.trim();
+  const errEl  = document.getElementById('carError');
+  const btn    = document.getElementById('btnSaveCar');
+  errEl.classList.remove('show');
+  if (!driver) { errEl.textContent='Informe o nome do motorista.'; errEl.classList.add('show'); return; }
+  if (!phone)  { errEl.textContent='Informe o WhatsApp.'; errEl.classList.add('show'); return; }
+  if (seats<1) { errEl.textContent='Informe o número de vagas.'; errEl.classList.add('show'); return; }
+
+  if (!editingCarId && !isAdmin) {
+    const myEx = Object.values(cars[trip.id]||{}).find(c => normPhone(c.driverPhone)===normPhone(phone));
+    if (myEx) { errEl.textContent='Você já tem um carro neste trajeto.'; errEl.classList.add('show'); return; }
+  }
+
+  btn.disabled=true; btn.textContent='Salvando…';
+  try {
+    const carData = { driverName:driver, driverPhone:phone, carDesc:desc, origin, time, seats, obs, updatedAt:serverTimestamp() };
+    if (originLat && originLon) { carData.originLat = +originLat; carData.originLon = +originLon; }
+    if (pixKey) carData.pixKey = pixKey;
+    if (editingCarId) {
+      const ex = cars[trip.id]?.[editingCarId];
+      if (ex?.passengers) carData.passengers = ex.passengers;
+      if (ex?.chat)       carData.chat       = ex.chat;
+      await set(ref(db,`events/${eventId}/cars/${trip.id}/${editingCarId}`), carData);
+      showToast('Carona atualizada!','ok');
+      if (ex?.passengers) notifyPax(ex.passengers, driver, 'editou');
+    } else {
+      carData.createdAt = serverTimestamp();
+      await push(ref(db,`events/${eventId}/cars/${trip.id}`), carData);
+      showToast('Carona adicionada!','ok');
+      saveIdentLocal(driver, phone);
+    }
+    closeModal('overlayCar');
+  } catch(e) {
+    errEl.textContent='Erro ao salvar. Tente novamente.'; errEl.classList.add('show');
+  } finally { btn.disabled=false; btn.textContent = editingCarId?'Salvar alterações':'Salvar carona'; }
+};
+
+/* ══ JOIN ══ */
+let joiningCarId = null;
+window.openJoinModal = function(carId, driverName) {
+  const id = getIdent(); joiningCarId = carId;
+  document.getElementById('joinCarName').textContent = `Carona de ${driverName}`;
+  document.getElementById('joinName').value  = id?.name||'';
+  document.getElementById('joinPhone').value = id?.phone||'';
+  document.getElementById('joinError').classList.remove('show');
+  openModal('overlayJoin');
+};
+window.confirmJoin = async function() {
+  const trip  = trips[activeTripIdx];
+  const name  = document.getElementById('joinName').value.trim();
+  const phone = document.getElementById('joinPhone').value.trim();
+  const errEl = document.getElementById('joinError');
+  errEl.classList.remove('show');
+  if (!name)  { errEl.textContent='Informe seu nome.';  errEl.classList.add('show'); return; }
+  if (!phone) { errEl.textContent='Informe seu WhatsApp.'; errEl.classList.add('show'); return; }
+  const car = cars[trip.id]?.[joiningCarId];
+  if (!car) { errEl.textContent='Este carro não existe mais.'; errEl.classList.add('show'); return; }
+  if (Object.keys(car.passengers||{}).length >= car.seats) {
+    errEl.textContent='Este carro já está lotado.'; errEl.classList.add('show'); return;
+  }
+  for (const c of Object.values(cars[trip.id]||{})) {
+    if (Object.values(c.passengers||{}).some(p => normPhone(p.phone)===normPhone(phone))) {
+      errEl.textContent='Você já está em um carro neste trajeto.'; errEl.classList.add('show'); return;
+    }
+  }
+  try {
+    await push(ref(db,`events/${eventId}/cars/${trip.id}/${joiningCarId}/passengers`),{name,phone});
+    saveIdentLocal(name, phone);
+    closeModal('overlayJoin');
+    showToast('Você entrou na carona!','ok');
+    if (car.driverPhone) {
+      const msg = encodeURIComponent(`🚗 *${name}* entrou na sua carona!\n\nEvento: ${eventData.name}\nTrajeto: ${trip.label}\nWhatsApp: ${phone}`);
+      setTimeout(()=>{
+        if(confirm('Notificar o motorista via WhatsApp?'))
+          window.open(`https://wa.me/55${normPhone(car.driverPhone)}?text=${msg}`,'_blank');
+      },500);
+    }
+  } catch(e) { errEl.textContent='Erro ao entrar.'; errEl.classList.add('show'); }
+};
+
+/* ══ LEAVE / REMOVE PAX ══ */
+window.leaveCar = async function(tripId, carId, paxId) {
+  if (!confirm('Sair desta carona?')) return;
+  try {
+    await remove(ref(db,`events/${eventId}/cars/${tripId}/${carId}/passengers/${paxId}`));
+    showToast('Você saiu da carona.','');
+  } catch(e) { showToast('Erro ao sair.',''); }
+};
+window.removePax = async function(tripId, carId, paxId, paxName) {
+  if (!confirm(`Remover ${paxName} desta carona?`)) return;
+  try {
+    const pax = cars[tripId]?.[carId]?.passengers?.[paxId];
+    await remove(ref(db,`events/${eventId}/cars/${tripId}/${carId}/passengers/${paxId}`));
+    showToast(`${paxName} removido(a).`,'');
+    if (pax?.phone && pax.phone!=='–') {
+      const trip = trips.find(t=>t.id===tripId);
+      const msg  = encodeURIComponent(`❌ Você foi removido(a) da carona.\n\nEvento: ${eventData.name}\nTrajeto: ${trip?.label||''}`);
+      if (confirm(`Notificar ${paxName} via WhatsApp?`))
+        window.open(`https://wa.me/55${normPhone(pax.phone)}?text=${msg}`,'_blank');
+    }
+  } catch(e) { showToast('Erro ao remover.',''); }
+};
+
+/* ══ ADD PAX ══ */
+let addPaxCarId = null;
+window.openAddPaxModal = function(carId) {
+  addPaxCarId = carId;
+  document.getElementById('addPaxName').value  = '';
+  document.getElementById('addPaxPhone').value = '';
+  document.getElementById('addPaxError').classList.remove('show');
+  openModal('overlayAddPax');
+};
+window.confirmAddPax = async function() {
+  const trip  = trips[activeTripIdx];
+  const name  = document.getElementById('addPaxName').value.trim();
+  const phone = document.getElementById('addPaxPhone').value.trim();
+  const errEl = document.getElementById('addPaxError');
+  errEl.classList.remove('show');
+  if (!name) { errEl.textContent='Informe o nome.'; errEl.classList.add('show'); return; }
+  try {
+    await push(ref(db,`events/${eventId}/cars/${trip.id}/${addPaxCarId}/passengers`),{name,phone:phone||'–'});
+    closeModal('overlayAddPax');
+    showToast(`${name} adicionado(a)!`,'ok');
+  } catch(e) { errEl.textContent='Erro ao adicionar.'; errEl.classList.add('show'); }
+};
+
+/* ══ DELETE CAR ══ */
+window.deleteCar = async function(tripId, carId, driverName) {
+  if (!confirm(`Excluir o carro de ${driverName}?`)) return;
+  try {
+    const car = cars[tripId]?.[carId];
+    await remove(ref(db,`events/${eventId}/cars/${tripId}/${carId}`));
+    showToast(`Carro de ${driverName} removido.`,'');
+    if (car?.passengers) notifyPax(car.passengers, driverName, 'cancelou');
+  } catch(e) { showToast('Erro ao excluir.',''); }
+};
+
+/* ════════════════════════════════════════
+   PAGAMENTO DA VIAGEM
+════════════════════════════════════════ */
+let _payTripId = null, _payCarId = null;
+let _payMode   = 'single'; // 'single' | 'combined'
+let _payLegs   = [];       // [{tripId, carId, car, tripLabel, amt, myPaxId, myPaxEntry}]
+
+window.switchPayTab = function(tab) {
+  document.getElementById('payTabPix').classList.toggle('active', tab === 'pix');
+  document.getElementById('payTabCard').classList.toggle('active', tab === 'card');
+  document.getElementById('payBodyPix').style.display  = tab === 'pix'  ? 'block' : 'none';
+  document.getElementById('payBodyCard').style.display = tab === 'card' ? 'block' : 'none';
+};
+
+/* Encontrar todas as corridas encerradas onde estou presente */
+function findMyEndedLegs(ident) {
+  const legs = [];
+  if (!ident) return legs;
+  trips.forEach(trip => {
+    Object.entries(cars[trip.id]||{}).forEach(([cId, c]) => {
+      if (c.status !== 'ended') return;
+      const isMyDriver = normPhone(c.driverPhone) === normPhone(ident.phone);
+      const myPaxEntry = Object.entries(c.passengers||{})
+        .find(([,p]) => normPhone(p.phone) === normPhone(ident.phone));
+      if (!isMyDriver && !myPaxEntry) return;
+      const cc  = c.costCalc;
+      const amt = myPaxEntry?.[1]?.customAmt || cc?.perPerson || 0;
+      legs.push({ tripId: trip.id, carId: cId, car: c,
+                  tripLabel: trip.label || trip.id,
+                  direction: trip.direction || '',
+                  amt, myPaxId: myPaxEntry?.[0] || null,
+                  myPaxEntry: myPaxEntry?.[1] || null,
+                  isMyDriver });
+    });
+  });
+  return legs;
+}
+
+function renderPaymentPix(legs, mode) {
+  const isDriverOrAdmin = isAdmin || legs.some(l => l.isMyDriver);
+  const activeLeg  = mode === 'single'
+    ? legs.find(l => l.tripId === _payTripId && l.carId === _payCarId) || legs[0]
+    : null;
+  const displayLegs = mode === 'combined' ? legs : [activeLeg].filter(Boolean);
+
+  // ── Seletor de modo (só aparece se houver múltiplas pernas) ──
+  const modeSelector = legs.length > 1 ? `
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button onclick="window.setPayMode('single')"
+        style="flex:1;padding:10px 8px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;
+               border:2px solid ${mode==='single'?'var(--primary)':'var(--border)'};
+               background:${mode==='single'?'var(--primary-light)':'var(--surface)'};
+               color:${mode==='single'?'var(--primary)':'var(--muted)'}">
+        🚗 Só esta viagem<br>
+        <span style="font-size:11px;font-weight:400">${fmtBRL(activeLeg?.amt||0)}</span>
+      </button>
+      <button onclick="window.setPayMode('combined')"
+        style="flex:1;padding:10px 8px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;
+               border:2px solid ${mode==='combined'?'var(--primary)':'var(--border)'};
+               background:${mode==='combined'?'var(--primary-light)':'var(--surface)'};
+               color:${mode==='combined'?'var(--primary)':'var(--muted)'}">
+        🔄 Ida + Volta<br>
+        <span style="font-size:11px;font-weight:400">${fmtBRL(legs.reduce((s,l)=>s+l.amt,0))}</span>
+      </button>
+    </div>` : '';
+
+  // ── Valor total ──
+  const totalAmt = displayLegs.reduce((s, l) => s + l.amt, 0);
+  const alreadyPaidAll = displayLegs.every(l => l.myPaxEntry?.paid);
+
+  const amountBox = alreadyPaidAll
+    ? `<div class="pay-amount-box" style="background:#f0fdf4;border-color:#86efac">
+         <div style="font-size:22px;font-weight:800;color:#15803d">✅ Pagamento confirmado!</div>
+       </div>`
+    : `<div class="pay-amount-box" id="payAmountBox">
+         <div class="pay-amount-label">
+           ${mode==='combined' ? `Ida + Volta (${displayLegs.length} viagens)` : `Viagem: ${activeLeg?.tripLabel||''}`}
+         </div>
+         <div class="pay-amount-value">${fmtBRL(totalAmt)}</div>
+         ${mode==='combined' && displayLegs.length > 1 ? `
+           <div style="font-size:11px;color:var(--primary-dark);margin-top:6px;opacity:.75">
+             ${displayLegs.map(l=>`${l.tripLabel}: ${fmtBRL(l.amt)}`).join(' · ')}
+           </div>` : ''}
+         ${!isDriverOrAdmin && !alreadyPaidAll
+           ? `<button class="pay-amount-edit" onclick="window.editPayAmount()">✏️ Ajustar valor</button>`
+           : ''}
+       </div>`;
+
+  // ── PIX — agrupar por motorista ──
+  const pixByDriver = {};
+  displayLegs.forEach(l => {
+    const key = l.car.driverPhone || l.car.driverName;
+    if (!pixByDriver[key]) pixByDriver[key] = { car: l.car, amt: 0, legs: [] };
+    pixByDriver[key].amt += l.amt;
+    pixByDriver[key].legs.push(l);
+  });
+
+  const pixBlocks = Object.values(pixByDriver).map((d, i) => {
+    const samePix = d.car.pixKey;
+    if (!samePix) {
+      return `<div class="pix-key-box" style="opacity:.6">
+        <div class="pix-key-info">
+          <div class="pix-key-label">Motorista: ${escHtml(d.car.driverName)}</div>
+          <div style="font-size:13px;color:var(--muted)">PIX não cadastrado — combine diretamente.</div>
+        </div>
+      </div>`;
+    }
+    return `<div class="pix-key-box">
+      <div class="pix-key-info">
+        <div class="pix-key-label">${d.legs.length>1?'Motorista '+d.car.driverName+' · ':''} Chave PIX${d.legs.length>1?' (ambas viagens)':''}</div>
+        <div class="pix-key-value" id="pixKey_${i}">${escHtml(samePix)}</div>
+        ${d.legs.length>1?`<div style="font-size:11px;color:var(--muted);margin-top:3px">Valor total: ${fmtBRL(d.amt)}</div>`:''}
+      </div>
+      <button class="btn-copy-pix" id="btnCopyPix_${i}"
+        onclick="window.copyPixKeyById(${i},'${escHtml(samePix)}')">Copiar</button>
+    </div>
+    <button onclick="window.copyAndOpenBank('${escHtml(samePix)}')"
+      style="width:100%;padding:13px;background:#16a34a;color:#fff;border:none;
+             border-radius:var(--r-sm);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px">
+      📱 Abrir app do banco
+    </button>`;
+  }).join('');
+
+  const pixSection = Object.values(pixByDriver).some(d => d.car.pixKey)
+    ? pixBlocks + `<div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px;line-height:1.5">
+        Copie a chave PIX, abra seu app bancário e vá em <strong>Pix → Pagar → Cole a chave</strong>.
+      </div>`
+    : `<div id="payNoPixMsg" style="text-align:center;padding:16px;color:var(--muted);font-size:14px">
+        ⚠️ Nenhum PIX cadastrado ainda.
+      </div>`;
+
+  // ── Lista de status (motorista/admin) ──
+  let paxListHtml = '';
+  if (isDriverOrAdmin) {
+    const thisCar = cars[_payTripId]?.[_payCarId];
+    const paxEntries = Object.entries(thisCar?.passengers||{});
+    if (paxEntries.length) {
+      const baseAmt = thisCar?.costCalc?.perPerson || 0;
+      paxListHtml = `<div class="pax-pay-list">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Status dos pagamentos</div>
+        ${paxEntries.map(([pid, p]) => `
+          <div class="pax-pay-row">
+            <div>
+              <div class="pax-pay-name">${escHtml(p.name)}</div>
+              <div class="pax-pay-amt">${fmtBRL(p.customAmt || baseAmt)}</div>
+            </div>
+            ${p.paid
+              ? `<span class="pax-paid-badge">✅ Pago</span>`
+              : `<button class="btn-mark-paid" onclick="window.markPaid('${_payTripId}','${_payCarId}','${pid}',true)">Marcar como pago</button>`}
+          </div>`).join('')}
+      </div>`;
+    }
+  }
+
+  document.getElementById('payBodyPix').innerHTML = `
+    <div style="padding:16px 20px 0">${modeSelector}${amountBox}</div>
+    <div style="padding:0 20px">${pixSection}</div>
+    <div style="padding:0 20px 20px">${paxListHtml}</div>`;
+}
+
+window.openPayment = function(tripId, carId) {
+  const ident = getIdent();
+  _payTripId = tripId; _payCarId = carId;
+
+  const allLegs = findMyEndedLegs(ident);
+  _payLegs = allLegs.length ? allLegs : (() => {
+    // fallback: apenas este carro mesmo sem identidade (admin)
+    const c = cars[tripId]?.[carId];
+    const trip = trips.find(t => t.id === tripId);
+    if (!c) return [];
+    return [{ tripId, carId, car:c, tripLabel:trip?.label||tripId,
+              direction:trip?.direction||'', amt:c.costCalc?.perPerson||0,
+              myPaxId:null, myPaxEntry:null, isMyDriver: isAdmin }];
+  })();
+
+  // Modo padrão: single (só a viagem clicada)
+  _payMode = 'single';
+
+  const car = cars[tripId]?.[carId];
+  const trip = trips.find(t => t.id === tripId);
+  document.getElementById('payTitle').textContent =
+    `Pagamento · ${car?.driverName||''} · ${trip?.label||''}`;
+
+  renderPaymentPix(_payLegs, _payMode);
+  window.switchPayTab('pix');
+  openModal('overlayPayment');
+};
+
+window.setPayMode = function(mode) {
+  _payMode = mode;
+  renderPaymentPix(_payLegs, _payMode);
+};
+
+window.copyPixKeyById = function(i, key) {
+  const btn = document.getElementById(`btnCopyPix_${i}`);
+  navigator.clipboard?.writeText(key).then(() => {
+    if (btn) { btn.textContent='✅ Copiado!'; btn.classList.add('copied');
+      setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2500); }
+  }).catch(() => prompt('Copie a chave PIX:', key));
+};
+
+window.copyAndOpenBank = function(key) {
+  navigator.clipboard?.writeText(key).catch(()=>{});
+  showToast('Chave PIX copiada! Cole no app bancário.','ok');
+};
+
+/* ════════════════════════════════════════
+   CARTÃO DE CRÉDITO — Mercado Pago
+════════════════════════════════════════ */
+const CARD_FEE_RATE = 0.0499; // 4,99% taxa operacional
+
+window.switchPayTab = (function(_orig) {
+  return function(tab) {
+    _orig(tab);
+    if (tab === 'card') window.renderCardTab();
+  };
+})(window.switchPayTab);
+
+window.renderCardTab = function() {
+  const leg = _payLegs.find(l => l.tripId === _payTripId && l.carId === _payCarId) || _payLegs[0];
+  if (!leg) return;
+
+  const base  = (_payMode === 'combined')
+    ? _payLegs.reduce((s, l) => s + l.amt, 0)
+    : leg.amt;
+  const fee   = parseFloat((base * CARD_FEE_RATE).toFixed(2));
+  const total = parseFloat((base + fee).toFixed(2));
+
+  const fmt = (v) => fmtBRL(v);
+  document.getElementById('cardAmountTotal').textContent = fmt(total);
+  document.getElementById('cardBaseAmt').textContent     = fmt(base);
+  document.getElementById('cardFeeAmt').textContent      = `+ ${fmt(fee)}`;
+  document.getElementById('cardTotalAmt').textContent    = fmt(total);
+  document.getElementById('cardFeeNote').textContent     =
+    `Valor da carona (${fmt(base)}) + taxa de cartão (${fmt(fee)})`;
+
+  document.getElementById('cardFeeAccept').checked = false;
+  window.updateCardBtn();
+
+  // Verificar se está em modo sandbox
+  fetch('/.netlify/functions/create-payment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ _check: true, amount: 0.01, description: 'test', eventId: '' })
+  }).then(r => r.json()).then(d => {
+    const notice = document.getElementById('sandboxNotice');
+    if (notice && d.sandbox) notice.style.display = 'block';
+  }).catch(() => {});
+};
+
+window.updateCardBtn = function() {
+  const btn      = document.getElementById('btnPayCard');
+  const accepted = document.getElementById('cardFeeAccept')?.checked;
+  if (!btn) return;
+  btn.style.opacity       = accepted ? '1'    : '.4';
+  btn.style.pointerEvents = accepted ? 'auto' : 'none';
+};
+
+window.payByCard = async function() {
+  const errEl = document.getElementById('cardError');
+  errEl.classList.remove('show');
+
+  const leg  = _payLegs.find(l => l.tripId === _payTripId && l.carId === _payCarId) || _payLegs[0];
+  if (!leg)  { errEl.textContent = 'Erro: viagem não encontrada.'; errEl.classList.add('show'); return; }
+
+  const base  = (_payMode === 'combined')
+    ? _payLegs.reduce((s, l) => s + l.amt, 0)
+    : leg.amt;
+  const total = parseFloat((base * (1 + CARD_FEE_RATE)).toFixed(2));
+
+  const ident    = getIdent();
+  const car      = leg.car;
+  const tripLabel = trips.find(t => t.id === leg.tripId)?.label || '';
+
+  const btn = document.getElementById('btnPayCard');
+  btn.textContent = '⏳ Processando…';
+  btn.style.pointerEvents = 'none';
+
+  try {
+    const res = await fetch('/.netlify/functions/create-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount:      total,
+        description: `Carona ${eventData?.name || ''} · ${tripLabel} · ${car.driverName}`,
+        eventId,
+        tripId:  leg.tripId,
+        carId:   leg.carId,
+        paxName: ident?.name || 'Passageiro',
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.checkoutUrl) {
+      throw new Error(data.error || 'Erro ao criar pagamento');
+    }
+
+    // Redirecionar para checkout do Mercado Pago
+    window.location.href = data.checkoutUrl;
+
+  } catch (err) {
+    errEl.textContent = `Erro: ${err.message}. Verifique sua conexão.`;
+    errEl.classList.add('show');
+    btn.textContent = '💳 Pagar com cartão';
+    btn.style.pointerEvents = 'auto';
+  }
+};
+
+// Detectar retorno do Mercado Pago (back_urls)
+(function checkPaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const status = params.get('payment');
+  if (!status) return;
+
+  // Limpar parâmetros da URL sem recarregar
+  const cleanUrl = window.location.origin + window.location.pathname +
+    '?id=' + (params.get('id') || '');
+  window.history.replaceState({}, '', cleanUrl);
+
+  if (status === 'success') {
+    setTimeout(() => showToast('✅ Pagamento aprovado! Obrigado.', 'ok'), 800);
+  } else if (status === 'failure') {
+    setTimeout(() => showToast('❌ Pagamento não concluído. Tente novamente.', 'err'), 800);
+  } else if (status === 'pending') {
+    setTimeout(() => showToast('⏳ Pagamento em análise. Você receberá confirmação em breve.', ''), 800);
+  }
+})();
+
+window.editPayAmount = function() {
+  // Editar valor da perna principal (a que abriu o modal)
+  const leg = _payLegs.find(l => l.tripId === _payTripId && l.carId === _payCarId) || _payLegs[0];
+  if (!leg) return;
+  const min = leg.car.costCalc?.perPerson || 0;
+  const cur = leg.amt || min;
+  const input = prompt(
+    `Valor mínimo: ${fmtBRL(min)}\nInforme o valor (não pode ser menor que o mínimo):`,
+    cur.toFixed(2).replace('.',',')
+  );
+  if (!input) return;
+  const novo = parseFloat(input.replace(',','.'));
+  if (isNaN(novo) || novo < min) { showToast(`Valor mínimo é ${fmtBRL(min)}`,'err'); return; }
+  leg.amt = novo;
+  if (leg.myPaxId) {
+    set(ref(db,`events/${eventId}/cars/${leg.tripId}/${leg.carId}/passengers/${leg.myPaxId}/customAmt`), novo)
+      .catch(()=>{});
+  }
+  renderPaymentPix(_payLegs, _payMode);
+};
+
+window.markPaid = async function(tripId, carId, paxId, paid) {
+  try {
+    await set(ref(db, `events/${eventId}/cars/${tripId}/${carId}/passengers/${paxId}/paid`), paid || null);
+    showToast(paid ? '✅ Marcado como pago!' : 'Pagamento desmarcado', 'ok');
+    // Atualizar lista na hora
+    window.openPayment(tripId, carId);
+  } catch(e) { showToast('Erro ao salvar.', 'err'); }
+};
+
+/* ══ ENCERRAR VIAGEM ══ */
+window.endTrip = async function(tripId, carId, end) {
+  const car = cars[tripId]?.[carId];
+  if (!car) return;
+  if (end && !confirm(`Encerrar a viagem de ${car.driverName}? Todos os passageiros serão notificados.`)) return;
+  try {
+    await set(ref(db, `events/${eventId}/cars/${tripId}/${carId}/status`), end ? 'ended' : null);
+    showToast(end ? '🏁 Viagem encerrada!' : '✅ Viagem reaberta!', 'ok');
+    if (end) {
+      // Notificação local para quem está com app aberto
+      pushNotif(
+        `🏁 Viagem encerrada!`,
+        `${car.driverName} encerrou a viagem · ${eventData?.name||''}`,
+        `end-${carId}`
+      );
+      // Parar geofencing deste carro (destino alcançado)
+      _geoFired[`dest-${carId}`] = true;
+      saveGeoFired();
+    }
+  } catch(e) { showToast('Erro ao atualizar viagem.','err'); }
+};
+
+/* ══ NOTIFY PAX ══ */
+function notifyPax(passengers, driverName, action) {
+  const trip = trips[activeTripIdx];
+  Object.values(passengers||{}).forEach(p => {
+    if (!p.phone || p.phone==='–') return;
+    const msg = encodeURIComponent(
+      `🚗 Atualização na sua carona!\n\nO motorista *${driverName}* ${action} o carro.\n` +
+      `Evento: ${eventData.name} · ${trip?.label||''}\n\nAcesse: ${location.href}`
+    );
+    window.open(`https://wa.me/55${normPhone(p.phone)}?text=${msg}`,'_blank');
+  });
+}
+
+/* ══ ADMIN ══ */
+let tapCount=0; let tapTimer=null;
+window.adminTap = function() {
+  tapCount++; clearTimeout(tapTimer);
+  tapTimer = setTimeout(()=>{tapCount=0;},1500);
+  if (tapCount>=5) { tapCount=0; openAdminModal(); }
+};
+window.openAdminModal = function() {
+  document.getElementById('adminPinInput').value='';
+  document.getElementById('adminError').classList.remove('show');
+  openModal('overlayAdmin');
+};
+window.confirmAdmin = function() {
+  const pin   = document.getElementById('adminPinInput').value.trim();
+  const errEl = document.getElementById('adminError');
+  errEl.classList.remove('show');
+  if (pin !== eventData?.adminPin) { errEl.textContent='PIN incorreto.'; errEl.classList.add('show'); return; }
+  isAdmin = true;
+  sessionStorage.setItem(`admin_${eventId}`,'true');
+  closeModal('overlayAdmin');
+  document.getElementById('adminControls').style.display='flex';
+  document.getElementById('btnAdminLogin').style.display='none';
+  document.getElementById('btnEditEvent').style.display='none'; // já fica dentro do adminControls
+  renderCars();
+  if (!getIdent()) {
+    showToast('Admin ativado! Clique em 👤 Sou motorista para identificar seu carro.','');
+  } else {
+    showToast('Modo admin ativado!','ok');
+  }
+};
+
+/* ══ ALTERAR PIN (dentro do modal de admin) ══ */
+window.showAdminChangePin = function(show = true) {
+  document.getElementById('adminLoginSection').style.display   = show ? 'none'  : 'block';
+  document.getElementById('adminChangePinSection').style.display = show ? 'block' : 'none';
+  if (show) {
+    document.getElementById('adminNewPin').value     = '';
+    document.getElementById('adminConfirmPin').value  = '';
+    document.getElementById('adminChangePinError').classList.remove('show');
+    setTimeout(() => document.getElementById('adminNewPin').focus(), 80);
+  } else {
+    document.getElementById('adminError').classList.remove('show');
+  }
+};
+
+window.saveAdminPin = async function() {
+  const pin1  = document.getElementById('adminNewPin').value.trim();
+  const pin2  = document.getElementById('adminConfirmPin').value.trim();
+  const errEl = document.getElementById('adminChangePinError');
+  errEl.classList.remove('show');
+
+  if (!pin1)         { errEl.textContent='Informe o novo PIN.'; errEl.classList.add('show'); return; }
+  if (pin1.length<4) { errEl.textContent='PIN deve ter pelo menos 4 caracteres.'; errEl.classList.add('show'); return; }
+  if (pin1!==pin2)   {
+    errEl.textContent='Os PINs não coincidem. Verifique e tente novamente.';
+    errEl.classList.add('show');
+    document.getElementById('adminConfirmPin').value='';
+    document.getElementById('adminConfirmPin').focus();
+    return;
+  }
+
+  try {
+    await set(ref(db, `events/${eventId}/adminPin`), pin1);
+    if (eventData) eventData.adminPin = pin1; // atualiza cópia local
+    closeModal('overlayAdmin');
+    window.showAdminChangePin(false); // reset para login
+    showToast('🔑 PIN alterado com sucesso!', 'ok');
+  } catch(e) {
+    errEl.textContent = 'Erro ao salvar. Verifique sua conexão.';
+    errEl.classList.add('show');
+  }
+};
+
+/* ══ EDITAR EVENTO ══ */
+window.openEditEvent = function() {
+  if (!isAdmin || !eventData) return;
+  document.getElementById('editEvName').value     = eventData.name || '';
+  document.getElementById('editEvDest').value     = eventData.destination || '';
+  document.getElementById('editEvDestAddr').value = eventData.destinationAddress || '';
+  document.getElementById('editEvOrigin').value   = eventData.defaultOrigin || '';
+  document.getElementById('editEventError').classList.remove('show');
+  openModal('overlayEditEvent');
+};
+
+window.saveEventEdit = async function() {
+  const name     = document.getElementById('editEvName').value.trim();
+  const dest     = document.getElementById('editEvDest').value.trim();
+  const destAddr = document.getElementById('editEvDestAddr').value.trim();
+  const origin   = document.getElementById('editEvOrigin').value.trim();
+  const errEl    = document.getElementById('editEventError');
+  const btn      = document.getElementById('btnSaveEvent');
+  errEl.classList.remove('show');
+  if (!name) { errEl.textContent = 'Informe o nome do evento.'; errEl.classList.add('show'); return; }
+  if (!dest) { errEl.textContent = 'Informe o local de destino.'; errEl.classList.add('show'); return; }
+
+  // Coordenadas salvas pelo autocomplete
+  const destAddrEl = document.getElementById('editEvDestAddr');
+  const destEl     = document.getElementById('editEvDest');
+  const destLat    = parseFloat(destAddrEl.dataset.lat || destEl.dataset.lat) || null;
+  const destLon    = parseFloat(destAddrEl.dataset.lon || destEl.dataset.lon) || null;
+
+  btn.disabled = true; btn.textContent = '⏳ Salvando…';
+  try {
+    const updates = { name, destination: dest, destinationAddress: destAddr, defaultOrigin: origin };
+    if (destLat && destLon) { updates.destLat = destLat; updates.destLon = destLon; }
+    await set(ref(db, `events/${eventId}/name`),                 name);
+    await set(ref(db, `events/${eventId}/destination`),          dest);
+    await set(ref(db, `events/${eventId}/destinationAddress`),   destAddr);
+    await set(ref(db, `events/${eventId}/defaultOrigin`),        origin);
+    if (destLat && destLon) {
+      await set(ref(db, `events/${eventId}/destLat`), destLat);
+      await set(ref(db, `events/${eventId}/destLon`), destLon);
+    }
+    // Atualizar cópia local
+    if (eventData) Object.assign(eventData, updates);
+    closeModal('overlayEditEvent');
+    showToast('✅ Evento atualizado!', 'ok');
+    // Atualizar header
+    const hn = document.getElementById('headerEventName');
+    if (hn) hn.textContent = name;
+  } catch(e) {
+    console.error(e);
+    errEl.textContent = 'Erro ao salvar. Tente novamente.';
+    errEl.classList.add('show');
+  } finally {
+    btn.disabled = false; btn.textContent = '✅ Atualizar evento';
+  }
+};
+
+/* Abre o modal de identidade a partir do modo admin */
+window.openIdentAdmin = function() {
+  const cur = getIdent();
+  if (cur) {
+    document.getElementById('identName').value  = cur.name  || '';
+    document.getElementById('identPhone').value = cur.phone || '';
+  }
+  document.getElementById('identModalTitle').textContent = 'Seus dados de motorista';
+  document.getElementById('identModalSub').textContent   = 'Informe os mesmos dados usados ao cadastrar seu carro.';
+  pendingAction = () => renderCars();
+  openModal('overlayIdent');
+};
+
+/* ══ DETALHE DO CARRO ══ */
+window.openCarDetail = function(tripId, carId) {
+  const trip   = trips.find(t => t.id === tripId);
+  const car    = cars[tripId]?.[carId];
+  const ident  = getIdent();
+  if (!car || !trip) return;
+
+  const paxList    = Object.entries(car.passengers||{});
+  const totalSeats = Number(car.seats)||0;
+  const paxCount   = paxList.length;
+  const freeSeats  = totalSeats - paxCount;
+  const isFull     = freeSeats <= 0;
+  const isMyDriver = ident && normPhone(car.driverPhone) === normPhone(ident.phone);
+  const myPaxEntry = ident ? paxList.find(([,p]) => normPhone(p.phone) === normPhone(ident.phone)) : null;
+  const myPaxId    = myPaxEntry?.[0] || null;
+  const amIPax     = !!myPaxId;
+  const canEdit    = isAdmin || isMyDriver;
+  const msgCount   = Object.keys(car.chat||{}).length;
+  const chatBadge  = msgCount > 0 ? `<span class="chat-badge">${msgCount}</span>` : '';
+
+  // Slots completos (sem truncagem)
+  const allSlots = Array.from({length: Math.max(totalSeats, 5)}, (_,i) => {
+    if (i >= totalSeats) {
+      return `<div class="seat-slot slot-inactive">
+        <span class="seat-slot-label">Passageiro ${i+1}/5</span>
+        <span class="seat-slot-name">–</span>
+      </div>`;
+    }
+    const entry  = paxList[i];
+    const filled = !!entry;
+    const isMe   = ident && entry && normPhone(entry[1].phone) === normPhone(ident.phone);
+    const cls    = isMe ? 'slot-me' : filled ? 'slot-filled' : 'slot-empty';
+    return `<div class="seat-slot ${cls}">
+      <span class="seat-slot-label">Passageiro ${i+1}/${totalSeats}</span>
+      <span class="seat-slot-name">${filled ? escHtml(entry[1].name) : 'Vaga livre'}</span>
+    </div>`;
+  }).join('');
+
+  // Passageiros completos
+  const paxDetailHtml = paxList.length
+    ? paxList.map(([paxId, p]) => {
+        const isMe  = ident && normPhone(p.phone) === normPhone(ident.phone);
+        const canRm = isAdmin || isMyDriver || isMe;
+        return `<div class="pax-item ${isMe?'pax-me':''}">
+          <div>
+            <div class="pax-name">${isMe?'<span style="color:var(--primary)">Você</span> · ':''}${escHtml(p.name)}</div>
+            <div class="pax-phone">${escHtml(p.phone)}</div>
+          </div>
+          ${canRm?`<button class="btn-remove-pax" onclick="window.removePax('${tripId}','${carId}','${paxId}','${escHtml(p.name)}');closeModal('overlayCarDetail')" title="Remover">×</button>`:''}
+        </div>`;
+      }).join('')
+    : `<div style="font-size:13px;color:var(--muted)">Nenhum passageiro ainda</div>`;
+
+  const waMsg = encodeURIComponent(
+    `🚗 *Carona disponível!*\n\n*Evento:* ${eventData.name}\n*Trajeto:* ${trip.label}\n` +
+    `*Motorista:* ${car.driverName}\n*Saída:* ${car.origin||eventData.defaultOrigin||'–'}${car.time?' às '+car.time:''}\n` +
+    `*Vagas livres:* ${freeSeats} de ${totalSeats}\n\nAcesse: ${location.href}`
+  );
+
+  document.getElementById('carDetailContent').innerHTML = `
+    ${isMyDriver?'<div class="my-car-banner">🚗 Este é o seu carro</div>':''}
+    <div style="background:var(--surface);display:flex;align-items:center;justify-content:space-between;
+                padding:10px 14px 6px;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto"></div>
+      <button onclick="closeModal('overlayCarDetail')"
+        style="position:absolute;top:10px;right:12px;background:var(--surface2);border:1px solid var(--border);
+               border-radius:50%;width:30px;height:30px;font-size:18px;font-weight:400;
+               cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;
+               line-height:1;padding:0">×</button>
+    </div>
+    <div class="detail-hero">
+      <div class="detail-hero-badge">🚗 Motorista</div>
+      <div class="detail-hero-name">${escHtml(car.driverName)}</div>
+      ${car.carDesc?`<div class="detail-hero-desc">${escHtml(car.carDesc)}</div>`:''}
+      <div class="detail-hero-meta">
+        ${car.origin?`<span class="detail-hero-badge-sm">📍 ${escHtml(car.origin)}</span>`:''}
+        ${car.time  ?`<span class="detail-hero-badge-sm">⏰ ${car.time}</span>`:''}
+        <span class="detail-hero-badge-sm ${isFull?'':''}">🪑 ${freeSeats} vaga${freeSeats!==1?'s':''} livre${freeSeats!==1?'s':''}</span>
+        <span class="detail-hero-badge-sm">📅 ${trip.label}</span>
+      </div>
+    </div>
+
+    ${(car.origin || car.originLat || eventData?.destinationAddress || eventData?.destination)?`
+    <div class="detail-section" style="padding:0;overflow:hidden">
+      <div id="mapDetail"
+           data-origin="${escHtml(car.origin||eventData?.defaultOrigin||'')}"
+           data-dest="${escHtml(eventData?.destinationAddress||eventData?.destination||'')}"
+           data-olat="${car.originLat||''}" data-olon="${car.originLon||''}"
+           data-dlat="${eventData?.destLat||''}" data-dlon="${eventData?.destLon||''}"
+           style="height:180px;width:100%"></div>
+    </div>`:''}
+
+    ${car.obs?`<div class="detail-section">
+      <div class="detail-section-title">📝 Observações do motorista</div>
+      <div class="detail-obs">${escHtml(car.obs)}</div>
+    </div>`:''}
+
+    <div class="detail-section">
+      <div class="detail-section-title">💺 Vagas</div>
+      <div class="seat-slots">${allSlots}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">👥 Passageiros</div>
+      <div class="pax-list">${paxDetailHtml}</div>
+      ${!amIPax&&!isMyDriver&&!isFull?`<button class="btn btn-primary btn-full" style="margin-top:10px" onclick="window.openJoinModal('${carId}','${escHtml(car.driverName)}');closeModal('overlayCarDetail')">Quero uma vaga</button>`:''}
+      ${amIPax?`<button class="btn btn-danger btn-full" style="margin-top:10px" onclick="window.leaveCar('${tripId}','${carId}','${myPaxId}');closeModal('overlayCarDetail')">Sair do carro</button>`:''}
+      ${canEdit&&!isFull?`<button class="btn btn-outline btn-full" style="margin-top:8px" onclick="window.openAddPaxModal('${carId}');closeModal('overlayCarDetail')">+ Adicionar passageiro</button>`:''}
+    </div>
+
+    <div class="detail-actions">
+      <button class="chat-trigger" style="margin-top:0" onclick="closeModal('overlayCarDetail');window.openChat('${tripId}','${carId}')">
+        💬 Mensagens do grupo ${chatBadge}
+      </button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://wa.me/?text=${waMsg}" target="_blank" class="btn btn-success btn-sm">Compartilhar</a>
+        ${car.driverPhone?`<a href="https://wa.me/55${normPhone(car.driverPhone)}" target="_blank" class="btn btn-whatsapp btn-sm">Falar c/ motorista</a>`:''}
+        ${canEdit?`<button class="btn btn-outline btn-sm" onclick="closeModal('overlayCarDetail');window.openEditCarModal('${carId}')">Editar</button>`:''}
+        ${canEdit?`<button class="btn btn-danger btn-sm" onclick="closeModal('overlayCarDetail');window.deleteCar('${tripId}','${carId}','${escHtml(car.driverName)}')">Excluir</button>`:''}
+      </div>
+      <button class="btn btn-secondary btn-full" onclick="closeModal('overlayCarDetail')">Fechar</button>
+    </div>`;
+
+  document.getElementById('overlayCarDetail').classList.remove('hidden');
+  // Inicializar mapa (precisa ser após o modal estar visível)
+  setTimeout(() => window.initDetailMap(), 80);
+};
+
+/* ══ CHAT ══ */
+let chatUnsubscribe = null;
+let chatTripId = null;
+let chatCarId  = null;
+
+window.openChat = function(tripId, carId) {
+  const car = cars[tripId]?.[carId];
+  if (!car) return;
+  chatTripId = tripId; chatCarId = carId;
+  const trip = trips.find(t=>t.id===tripId);
+  document.getElementById('chatCarName').textContent = `Grupo · ${car.driverName}`;
+  document.getElementById('chatCarSub').textContent  = trip?.label||'';
+  document.getElementById('chatMessages').innerHTML  = '<div class="chat-empty">Carregando…</div>';
+  document.getElementById('chatInput').value         = '';
+  openModal('overlayChat');
+  maybeAskNotif(); // pede permissão de notificação na primeira vez
+  // Marca mensagens como lidas
+  const msgs = car.chat||{};
+  const maxTs = Object.values(msgs).length
+    ? Math.max(...Object.values(msgs).map(m=>m.ts||0)) : Date.now();
+  setNotifTs(carId, Math.max(maxTs, Date.now()));
+  if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe=null; }
+  chatUnsubscribe = onValue(ref(db,`events/${eventId}/cars/${tripId}/${carId}/chat`), (s) => {
+    const data = s.val()||{};
+    renderChatMessages(data);
+    // Atualiza timestamp de leitura enquanto o chat está aberto
+    const latest = Object.values(data).length
+      ? Math.max(...Object.values(data).map(m=>m.ts||0)) : 0;
+    if (latest>0) setNotifTs(carId, latest);
+  });
+};
+
+window.closeChat = function() {
+  if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe=null; }
+  closeModal('overlayChat');
+};
+
+function renderChatMessages(msgs) {
+  const ident = getIdent();
+  const el    = document.getElementById('chatMessages');
+  const entries = Object.entries(msgs).sort(([,a],[,b]) => (a.ts||0)-(b.ts||0));
+  if (!entries.length) {
+    el.innerHTML = '<div class="chat-empty">Nenhuma mensagem ainda.<br>Seja o primeiro a escrever!</div>';
+    return;
+  }
+  el.innerHTML = entries.map(([,m]) => {
+    const isMe = ident && m.name === ident.name;
+    return `<div class="chat-msg ${isMe?'chat-msg-me':'chat-msg-other'}">
+      <div class="chat-msg-name">${isMe?'Você':escHtml(m.name)}</div>
+      <div class="chat-msg-bubble">${escHtml(m.text)}</div>
+      ${m.ts?`<div class="chat-msg-time">${fmtTime(m.ts)}</div>`:''}
+    </div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+window.sendChatMsg = async function() {
+  const ident = getIdent();
+  if (!ident) { showToast('Identifique-se primeiro.',''); return; }
+  const text = document.getElementById('chatInput').value.trim();
+  if (!text) return;
+  const btn = document.getElementById('chatSendBtn');
+  btn.disabled = true;
+  try {
+    await push(ref(db,`events/${eventId}/cars/${chatTripId}/${chatCarId}/chat`),{
+      name:ident.name, text, ts:serverTimestamp()
+    });
+    document.getElementById('chatInput').value = '';
+    autoResizeChat(document.getElementById('chatInput'));
+  } catch(e) { showToast('Erro ao enviar.',''); }
+  finally { btn.disabled=false; }
+};
+
+window.handleChatKey = function(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); window.sendChatMsg(); }
+};
+window.autoResizeChat = function(el) {
+  el.style.height='auto';
+  el.style.height = Math.min(el.scrollHeight,100)+'px';
+};
+
+/* ══ TOAST ══ */
+let toastT = null;
+function showToast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent=msg; el.className='toast show '+(type||'');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>el.classList.remove('show'),3200);
+}
+window.toast = showToast;
+
+/* ══ CALCULADORA DE CUSTO ══════════════════════════════════════════════════ */
+let calcCarId = null, calcTripId = null, calcFuelType = 'gasolina', calcSplitMode = 'pax';
+
+window.openCostModal = function(tripId, carId) {
+  calcTripId = tripId; calcCarId = carId;
+  const car = (cars[tripId]||{})[carId]; if (!car) return;
+
+  document.getElementById('calcCarName').textContent =
+    `Carro de ${car.driverName}${car.carDesc?' — '+car.carDesc:''}`;
+
+  // carrega dados salvos (se existirem)
+  const cc = car.costCalc || {};
+  setFuelType(cc.fuelType || 'gasolina');
+  setSplitMode(cc.splitMode || 'pax');
+  document.getElementById('calcConsum').value    = cc.consumption  || '';
+  document.getElementById('calcPrice').value     = cc.fuelPrice    || '';
+  document.getElementById('calcKwh').value       = cc.kwhPer100    || '';
+  document.getElementById('calcTarifa').value    = cc.tarifa       || '';
+  document.getElementById('calcHibKwh').value    = cc.hibKwh       || '';
+  document.getElementById('calcHibTarifa').value = cc.hibTarifa    || '';
+  document.getElementById('calcHibPct').value    = cc.hibPct       !== undefined ? cc.hibPct : 40;
+  document.getElementById('calcKmIda').value     = cc.kmIda        || '';
+  document.getElementById('calcKmVolta').value   = cc.kmVolta      || '';
+  document.getElementById('calcKmLocal').value   = cc.kmLocal      || '';
+  document.getElementById('calcPedagios').value  = cc.pedagios     || '';
+  document.getElementById('calcVoltaIgual').checked = cc.voltaIgual !== false;
+  calcHibPctUpdate();
+  calcUpdate();
+  document.getElementById('calcError').classList.remove('show');
+  openModal('overlayCalc');
+};
+
+window.setFuelType = function(type) {
+  calcFuelType = type;
+  ['gasolina','etanol','eletrico','hibrido'].forEach(t => {
+    const map = {gasolina:'Gas',etanol:'Etanol',eletrico:'Eletric',hibrido:'Hibrid'};
+    document.getElementById('fuelTab'+map[t]).classList.toggle('active', t===type);
+  });
+  const isCombust = type==='gasolina'||type==='etanol'||type==='hibrido';
+  const isElec    = type==='eletrico'||type==='hibrido';
+  document.getElementById('calcFieldsCombust').style.display       = isCombust&&type!=='eletrico' ? '' : 'none';
+  document.getElementById('calcFieldsEletric').style.display       = type==='eletrico' ? '' : 'none';
+  document.getElementById('calcFieldsHibridExtra').style.display   = type==='hibrido'  ? '' : 'none';
+  // ajusta labels
+  const isEtanol = type==='etanol';
+  document.getElementById('calcConsumLabel').textContent  = isEtanol ? '(km/L)' : '(km/L)';
+  document.getElementById('calcConsumHint').textContent   = isEtanol ? 'Etanol: ~8–12 km/L típico' : 'Gasolina: ~10–15 km/L típico';
+  document.getElementById('calcPriceLabel').textContent   = '/litro';
+  document.getElementById('calcPriceHint').textContent    = isEtanol ? 'Preço do litro de etanol' : 'Preço do litro de gasolina';
+  calcUpdate();
+};
+
+window.setSplitMode = function(mode) {
+  calcSplitMode = mode;
+  document.getElementById('splitOptPax').classList.toggle('active', mode==='pax');
+  document.getElementById('splitOptAll').classList.toggle('active', mode==='all');
+  document.getElementById('calcSplitHint').textContent =
+    mode==='pax' ? 'Motorista não entra no rateio' : 'Motorista divide o custo junto com os passageiros';
+  calcUpdate();
+};
+
+window.calcKmVoltaSync = function() {
+  if (document.getElementById('calcVoltaIgual').checked) {
+    document.getElementById('calcKmVolta').value = document.getElementById('calcKmIda').value;
+  }
+};
+window.calcHibPctUpdate = function() {
+  const v = document.getElementById('calcHibPct').value;
+  document.getElementById('calcHibPctVal').textContent = v + '% elétrico';
+  calcUpdate();
+};
+
+function fmtBRL(v) {
+  return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+window.calcUpdate = function() {
+  const kmIda   = parseFloat(document.getElementById('calcKmIda').value)   || 0;
+  const kmVolta = parseFloat(document.getElementById('calcKmVolta').value) || 0;
+  const kmLocal = parseFloat(document.getElementById('calcKmLocal').value) || 0;
+  // rodagem local tem consumo ~20% pior (urbano) — aplicamos fator 1.2
+  const kmEstrada = kmIda + kmVolta;
+  const pedagios  = parseFloat(document.getElementById('calcPedagios').value) || 0;
+
+  let custoCombust = 0;
+
+  if (calcFuelType === 'gasolina' || calcFuelType === 'etanol') {
+    const consumo = parseFloat(document.getElementById('calcConsum').value) || 0;
+    const preco   = parseFloat(document.getElementById('calcPrice').value)  || 0;
+    if (consumo > 0) {
+      const litrosEstrada = kmEstrada / consumo;
+      const litrosLocal   = kmLocal   / (consumo * 0.8); // 20% pior no urbano
+      custoCombust = (litrosEstrada + litrosLocal) * preco;
+    }
+  } else if (calcFuelType === 'eletrico') {
+    const kwh100  = parseFloat(document.getElementById('calcKwh').value)    || 0;
+    const tarifa  = parseFloat(document.getElementById('calcTarifa').value) || 0;
+    if (kwh100 > 0) {
+      const kwhEstrada = (kmEstrada / 100) * kwh100;
+      const kwhLocal   = (kmLocal   / 100) * kwh100 * 1.2; // urbano consome ~20% mais
+      custoCombust = (kwhEstrada + kwhLocal) * tarifa;
+    }
+  } else if (calcFuelType === 'hibrido') {
+    const consumo    = parseFloat(document.getElementById('calcConsum').value)    || 0;
+    const preco      = parseFloat(document.getElementById('calcPrice').value)     || 0;
+    const kwh100     = parseFloat(document.getElementById('calcHibKwh').value)    || 0;
+    const tarifa     = parseFloat(document.getElementById('calcHibTarifa').value) || 0;
+    const pctElec    = parseFloat(document.getElementById('calcHibPct').value)    / 100;
+    const pctCombust = 1 - pctElec;
+    const kmTotalAll = kmEstrada + kmLocal;
+    const kmCombust  = kmTotalAll * pctCombust;
+    const kmElec     = kmTotalAll * pctElec;
+    if (consumo > 0) custoCombust += (kmCombust / consumo) * preco;
+    if (kwh100  > 0) custoCombust += (kmElec    / 100) * kwh100 * tarifa;
+  }
+
+  const totalCost = custoCombust + pedagios;
+
+  // número de pessoas
+  const car    = (cars[calcTripId]||{})[calcCarId] || {};
+  const nPax   = Object.keys(car.passengers||{}).length;
+  const nPeople = calcSplitMode === 'all' ? nPax + 1 : nPax;
+  const perPerson = nPeople > 0 ? totalCost / nPeople : 0;
+
+  document.getElementById('calcResCombust').textContent   = fmtBRL(custoCombust);
+  document.getElementById('calcResPedagios').textContent  = fmtBRL(pedagios);
+  document.getElementById('calcResTotal').textContent     = fmtBRL(totalCost);
+  document.getElementById('calcNPeople').textContent      = nPeople;
+  document.getElementById('calcResValPerPerson').textContent = nPeople > 0 ? fmtBRL(perPerson) : 'R$ —';
+};
+
+window.saveCostCalc = async function() {
+  const errEl = document.getElementById('calcError');
+  errEl.classList.remove('show');
+
+  const kmIda   = parseFloat(document.getElementById('calcKmIda').value)   || 0;
+  if (!kmIda) {
+    errEl.textContent = 'Informe pelo menos a distância de ida.';
+    errEl.classList.add('show'); return;
+  }
+
+  const kmVolta = parseFloat(document.getElementById('calcKmVolta').value) || 0;
+  const kmLocal = parseFloat(document.getElementById('calcKmLocal').value) || 0;
+  const pedagios= parseFloat(document.getElementById('calcPedagios').value)|| 0;
+  const kmEstrada = kmIda + kmVolta;
+
+  let custoCombust = 0;
+  const payload = {
+    fuelType: calcFuelType, splitMode: calcSplitMode,
+    kmIda, kmVolta, kmLocal, pedagios,
+    voltaIgual: document.getElementById('calcVoltaIgual').checked,
+    updatedAt: Date.now()
+  };
+
+  if (calcFuelType==='gasolina'||calcFuelType==='etanol') {
+    const c = parseFloat(document.getElementById('calcConsum').value)||0;
+    const p = parseFloat(document.getElementById('calcPrice').value) ||0;
+    payload.consumption = c; payload.fuelPrice = p;
+    if (c>0) custoCombust = ((kmEstrada/c) + (kmLocal/(c*0.8))) * p;
+  } else if (calcFuelType==='eletrico') {
+    const k = parseFloat(document.getElementById('calcKwh').value)   ||0;
+    const t = parseFloat(document.getElementById('calcTarifa').value)||0;
+    payload.kwhPer100=k; payload.tarifa=t;
+    if (k>0) custoCombust = ((kmEstrada/100)*k + (kmLocal/100)*k*1.2) * t;
+  } else if (calcFuelType==='hibrido') {
+    const c   = parseFloat(document.getElementById('calcConsum').value)   ||0;
+    const p   = parseFloat(document.getElementById('calcPrice').value)    ||0;
+    const k   = parseFloat(document.getElementById('calcHibKwh').value)   ||0;
+    const t   = parseFloat(document.getElementById('calcHibTarifa').value)||0;
+    const pct = parseFloat(document.getElementById('calcHibPct').value)   /100;
+    payload.consumption=c; payload.fuelPrice=p;
+    payload.hibKwh=k; payload.hibTarifa=t; payload.hibPct=pct*100;
+    const all=kmEstrada+kmLocal;
+    if (c>0) custoCombust += (all*(1-pct)/c)*p;
+    if (k>0) custoCombust += (all*pct/100)*k*t;
+  }
+
+  const totalCost  = custoCombust + pedagios;
+  const car        = (cars[calcTripId]||{})[calcCarId]||{};
+  const nPax       = Object.keys(car.passengers||{}).length;
+  const nPeople    = calcSplitMode==='all' ? nPax+1 : nPax;
+  payload.totalCost = totalCost;
+  payload.perPerson = nPeople>0 ? totalCost/nPeople : 0;
+  payload.nPeople   = nPeople;
+
+  try {
+    await set(ref(db, `events/${eventId}/cars/${calcTripId}/${calcCarId}/costCalc`), payload);
+    closeModal('overlayCalc');
+    showToast('💰 Custo salvo! Passageiros já podem ver o valor.');
+  } catch(e) {
+    errEl.textContent = 'Erro ao salvar: ' + e.message;
+    errEl.classList.add('show');
+  }
+};
+
+
+/* ════════════════════════════════════════
+   MAPA LEAFLET (detalhe do carro)
+════════════════════════════════════════ */
+window.initDetailMap = function() {
+  const mapEl = document.getElementById('mapDetail');
+  if (!mapEl) return;
+  if (mapEl._leafletMap) { mapEl._leafletMap.invalidateSize(); return; }
+  if (typeof L === 'undefined') return;
+
+  const origin = mapEl.dataset.origin || '';
+  const dest   = mapEl.dataset.dest   || '';
+  // Coordenadas pré-salvas (quando endereço veio do autocomplete)
+  const oLatSaved = parseFloat(mapEl.dataset.olat);
+  const oLonSaved = parseFloat(mapEl.dataset.olon);
+  const dLatSaved = parseFloat(mapEl.dataset.dlat);
+  const dLonSaved = parseFloat(mapEl.dataset.dlon);
+  const hasOCoord = !isNaN(oLatSaved) && !isNaN(oLonSaved);
+  const hasDCoord = !isNaN(dLatSaved) && !isNaN(dLonSaved);
+
+  if (!origin && !dest && !hasOCoord && !hasDCoord) return;
+
+  const map = L.map(mapEl, { zoomControl: true, attributionControl: false })
+               .setView([-23.5, -46.6], 10);
+  mapEl._leafletMap = map;
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+
+  // Limpar endereço: converter "–" em vírgula, remover complementos (Ap/Apto/sala)
+  function cleanAddr(s) {
+    return s
+      .replace(/[–—]/g, ',')                      // travessão → vírgula (mantém cidade!)
+      .replace(/\bAp(to)?\b\s*\d*\s*/gi, '')      // remove "Ap 2505", "Apto 12"
+      .replace(/\bSala\b\s*\d*\s*/gi, '')          // remove "Sala 3"
+      .replace(/,\s*,/g, ',')                      // vírgulas duplas
+      .replace(/,\s*$/, '')                        // vírgula final
+      .trim();
+  }
+
+  // Variações progressivas para aumentar chance de geocoding
+  function variants(s) {
+    const c     = cleanAddr(s);
+    const parts = c.split(',').map(p => p.trim()).filter(Boolean);
+    // Sem número de rua
+    const noNum = c.replace(/,?\s*\b\d+\b/, '').replace(/,\s*,/g,',').trim();
+    // Últimas 2 partes (bairro/cidade)
+    const city  = parts.length > 1 ? parts.slice(-2).join(', ') : c;
+    // Só a última parte (cidade)
+    const onlyCity = parts.length > 0 ? parts[parts.length - 1] : c;
+    return [c, noNum, city, onlyCity].filter((v, i, a) => v && a.indexOf(v) === i);
+  }
+
+  async function geocode(addr) {
+    for (const q of variants(addr)) {
+      try {
+        const r = await fetch(
+          'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' +
+          encodeURIComponent(q) + '&countrycodes=br',
+          { headers: { 'Accept-Language': 'pt-BR' } }
+        );
+        const d = await r.json();
+        if (d[0]) return { coord: [+d[0].lat, +d[0].lon], label: q, precise: q === variants(addr)[0] };
+        await new Promise(r => setTimeout(r, 300)); // respeitar rate limit
+      } catch(e) { /* continua */ }
+    }
+    return null;
+  }
+
+  const mkIcon = (color) => L.divIcon({
+    html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>`,
+    iconSize:[14,14], iconAnchor:[7,7], className:''
+  });
+
+  async function plotPoints(oCoord, dCoord) {
+    const bounds = [];
+    if (oCoord) {
+      L.marker(oCoord, { icon: mkIcon('#4f46e5') }).addTo(map)
+       .bindPopup('📍 Saída' + (origin ? ': ' + cleanAddr(origin).split(',')[0] : ''));
+      bounds.push(oCoord);
+    }
+    if (dCoord) {
+      L.marker(dCoord, { icon: mkIcon('#dc2626') }).addTo(map)
+       .bindPopup('🏁 Destino' + (dest ? ': ' + cleanAddr(dest).split(',')[0] : ''));
+      bounds.push(dCoord);
+    }
+    if (oCoord && dCoord) {
+      // Tentar rota real via OSRM (gratuito, sem API key)
+      try {
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${oCoord[1]},${oCoord[0]};${dCoord[1]},${dCoord[0]}?overview=full&geometries=geojson`;
+        const rr = await fetch(osrmUrl);
+        const rd = await rr.json();
+        if (rd.routes?.[0]?.geometry?.coordinates) {
+          const coords = rd.routes[0].geometry.coordinates.map(([lon,lat]) => [lat,lon]);
+          L.polyline(coords, { color:'#4f46e5', weight:4, opacity:0.85 }).addTo(map);
+          // Mostrar distância e tempo
+          const dist = (rd.routes[0].distance / 1000).toFixed(1);
+          const mins = Math.round(rd.routes[0].duration / 60);
+          const hrs  = Math.floor(mins / 60);
+          const minR = mins % 60;
+          const tempo = hrs > 0 ? `${hrs}h${minR > 0 ? minR+'min' : ''}` : `${mins} min`;
+          L.popup({ className:'route-info-popup', closeButton:false, autoPan:false })
+           .setLatLng(coords[Math.floor(coords.length/2)])
+           .setContent(`<b>${dist} km</b> · ${tempo}`)
+           .openOn(map);
+        } else {
+          // Fallback linha reta
+          L.polyline([oCoord, dCoord], { color:'#4f46e5', weight:3, dashArray:'7,5', opacity:0.8 }).addTo(map);
+        }
+      } catch(e) {
+        L.polyline([oCoord, dCoord], { color:'#4f46e5', weight:3, dashArray:'7,5', opacity:0.8 }).addTo(map);
+      }
+    }
+    if (bounds.length > 1) map.fitBounds(bounds, { padding:[24,24] });
+    else if (bounds.length === 1) map.setView(bounds[0], 14);
+    map.invalidateSize();
+  }
+
+  // Se temos coordenadas salvas, usar diretamente — sem precisar geocodificar
+  if (hasOCoord || hasDCoord) {
+    plotPoints(
+      hasOCoord ? [oLatSaved, oLonSaved] : null,
+      hasDCoord ? [dLatSaved, dLonSaved] : null
+    );
+    return;
+  }
+
+  // Fallback: geocodificar em série (respeita rate limit Nominatim)
+  geocode(origin || '').then(async oRes => {
+    const dRes = dest ? await geocode(dest) : null;
+    await plotPoints(oRes?.coord || null, dRes?.coord || null);
+  });
+};
+
+/* ════════════════════════════════════════
+   AUTOCOMPLETE DE ENDEREÇO (event.html)
+════════════════════════════════════════ */
+const _acTimers = {};
+window.acSearchEv = function(input, listId) {
+  const val = input.value.trim();
+  const listEl = document.getElementById(listId);
+  if (!listEl) return;
+  clearTimeout(_acTimers[listId]);
+  if (val.length < 3) { listEl.style.display = 'none'; return; }
+  _acTimers[listId] = setTimeout(async () => {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(val)}&countrycodes=br`;
+      const res  = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+      const data = await res.json();
+      if (!data.length) { listEl.style.display = 'none'; return; }
+      listEl.innerHTML = data.map(r => {
+        const parts = r.display_name.split(', ');
+        const main  = parts.slice(0, 2).join(', ');
+        const sub   = parts.slice(2).join(', ');
+        return `<div class="ac-item"
+          onmousedown="window.acPickEv(event,'${listId}')"
+          data-full="${r.display_name.replace(/"/g,'&quot;')}"
+          data-lat="${r.lat}" data-lon="${r.lon}">
+          <div class="ac-item-main">${escHtml(main)}</div>
+          ${sub ? `<div class="ac-item-sub">${escHtml(sub)}</div>` : ''}
+        </div>`;
+      }).join('');
+      listEl.style.display = 'block';
+    } catch(e) { listEl.style.display = 'none'; }
+  }, 350);
+  input.onblur = () => setTimeout(() => { if(listEl) listEl.style.display='none'; }, 200);
+};
+
+window.acPickEv = function(e, listId) {
+  e.preventDefault();
+  const listEl = document.getElementById(listId);
+  const item   = e.currentTarget;
+  const full   = item.getAttribute('data-full');
+  const lat    = item.getAttribute('data-lat');
+  const lon    = item.getAttribute('data-lon');
+  const input  = listEl?.previousElementSibling;
+  if (input) {
+    input.value = full;
+    if (lat) input.dataset.lat = lat;
+    if (lon) input.dataset.lon = lon;
+  }
+  if (listEl) listEl.style.display = 'none';
+};
+
+window.geoFillEv = function(inputId, listId) {
+  const input  = document.getElementById(inputId);
+  const listEl = document.getElementById(listId);
+  if (!input) return;
+  if (!navigator.geolocation) { showToast('Geolocalização não suportada.','err'); return; }
+  const orig = input.placeholder;
+  input.placeholder = '⏳ Obtendo localização…';
+  navigator.geolocation.getCurrentPosition(async pos => {
+    try {
+      const { latitude: lat, longitude: lon } = pos.coords;
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`;
+      const res  = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+      const data = await res.json();
+      input.value = data.display_name || `${lat}, ${lon}`;
+      input.placeholder = orig;
+      if (listEl) listEl.style.display = 'none';
+    } catch(e) {
+      input.placeholder = orig;
+      showToast('Não foi possível obter o endereço.','err');
+    }
+  }, () => {
+    input.placeholder = orig;
+    showToast('Permissão de localização negada.','err');
+  });
+};
+
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+
+  // ── Dark mode ──
+  (function() {
+    const THEME_KEY = 'caronaTheme';
+    const root = document.documentElement;
+    const btn  = document.getElementById('btnThemeToggle');
+
+    function applyTheme(theme) {
+      if (theme === 'dark')  root.setAttribute('data-theme','dark');
+      else if(theme==='light') root.setAttribute('data-theme','light');
+      else                     root.removeAttribute('data-theme');
+      if(theme) localStorage.setItem(THEME_KEY, theme);
+      else localStorage.removeItem(THEME_KEY);
+    }
+
+    // Restaurar preferência salva
+    const saved = localStorage.getItem(THEME_KEY);
+    applyTheme(saved || null);
+
+    window.toggleTheme = function() {
+      const cur = root.getAttribute('data-theme');
+      const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (!cur) { applyTheme(sys === 'dark' ? 'light' : 'dark'); }
+      else if (cur === 'dark')  { applyTheme('light'); }
+      else                      { applyTheme('dark');  }
+    };
+  })();
+
+  // ── Header colapsável ao scroll ──
+  (function() {
+    const header    = document.querySelector('.header');
+    const THRESHOLD = 48; // px de scroll para colapsar
+    let   lastY     = 0;
+    let   collapsed = false;
+
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y > THRESHOLD && !collapsed) {
+        header.classList.add('header-collapsed');
+        collapsed = true;
+      } else if (y <= 8 && collapsed) {
+        header.classList.remove('header-collapsed');
+        collapsed = false;
+      }
+      lastY = y;
+    }, { passive: true });
+  })();
+</script>
+
+<!-- ── MODAL: Pagamento da viagem ── -->
+<div class="overlay hidden" id="overlayPayment">
+  <div class="modal pay-modal">
+
+    <!-- Header escuro com voltar + título + X -->
+    <div class="pay-header">
+      <button class="pay-header-back" onclick="closeModal('overlayPayment')">← Voltar</button>
+      <div class="pay-header-title" id="payTitle">Pagamento da viagem</div>
+      <button class="pay-header-close" onclick="closeModal('overlayPayment')">×</button>
+    </div>
+
+    <!-- Abas PIX / Cartão -->
+    <div class="pay-tabs">
+      <div class="pay-tab active" id="payTabPix"    onclick="window.switchPayTab('pix')">🏦 PIX</div>
+      <div class="pay-tab"        id="payTabCard"   onclick="window.switchPayTab('card')">💳 Cartão de crédito</div>
+    </div>
+
+    <!-- Aba PIX — conteúdo gerado dinamicamente por renderPaymentPix() -->
+    <div id="payBodyPix" class="pay-body" style="padding:0"></div>
+
+    <!-- Aba Cartão -->
+    <div id="payBodyCard" class="pay-body" style="display:none">
+
+      <!-- Resumo do valor -->
+      <div class="pay-amount-box" id="cardAmountBox">
+        <div class="pay-amount-label">Total com cartão</div>
+        <div class="pay-amount-value" id="cardAmountTotal">R$ 0,00</div>
+        <div style="font-size:11px;color:var(--primary-dark);margin-top:6px;opacity:.8" id="cardFeeNote"></div>
+      </div>
+
+      <!-- Detalhamento da taxa -->
+      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:16px;font-size:13px">
+        <div style="font-weight:700;margin-bottom:8px;color:var(--text)">📋 Detalhamento</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="color:var(--muted)">Valor da carona</span>
+          <span id="cardBaseAmt" style="font-weight:600">R$ 0,00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="color:var(--muted)">Taxa operacional (4,99%)</span>
+          <span id="cardFeeAmt" style="font-weight:600;color:var(--accent)">+ R$ 0,00</span>
+        </div>
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between">
+          <span style="font-weight:700">Total a pagar</span>
+          <span id="cardTotalAmt" style="font-weight:800;color:var(--primary)">R$ 0,00</span>
+        </div>
+      </div>
+
+      <!-- Aviso de aceite da taxa -->
+      <label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);
+                    margin-bottom:16px;cursor:pointer">
+        <input type="checkbox" id="cardFeeAccept" style="margin-top:2px;flex-shrink:0"
+               onchange="window.updateCardBtn()"/>
+        <span>Estou ciente que ao pagar com cartão de crédito será cobrada uma taxa operacional de <strong>4,99%</strong>, totalizando o valor acima.</span>
+      </label>
+
+      <!-- Botão pagar -->
+      <button id="btnPayCard" onclick="window.payByCard()"
+        style="width:100%;padding:15px;background:#4f46e5;color:#fff;border:none;border-radius:var(--r-sm);
+               font-size:16px;font-weight:800;cursor:pointer;opacity:.4;pointer-events:none;
+               transition:opacity .2s">
+        💳 Pagar com cartão
+      </button>
+
+      <div style="margin-top:12px;font-size:12px;color:var(--muted);text-align:center;line-height:1.5">
+        Você será redirecionado para o ambiente seguro do Mercado Pago.<br>
+        Aceitamos Visa, Mastercard, Elo, Hipercard e mais.
+      </div>
+
+      <!-- Sandbox notice -->
+      <div id="sandboxNotice" style="display:none;margin-top:16px;background:#fef3c7;border:1px solid #fde68a;
+           border-radius:var(--r-sm);padding:10px 14px;font-size:12px;color:#92400e;text-align:center">
+        🔧 <strong>Modo de teste</strong> — nenhum valor real será cobrado.
+      </div>
+
+      <!-- Erro -->
+      <div id="cardError" class="error-box" style="margin-top:12px"></div>
+
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

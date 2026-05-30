@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎉 Caronas – Aniversário Mairiporã</title>
+  <meta name="description" content="Coordenação de caronas para o aniversário em Mairiporã" />
+  <style>
+    /* ═══════════════════ VARIÁVEIS ═══════════════════ */
+    :root {
+      --primary: #5b4fcf;
+      --primary-light: #8b7fef;
+      --primary-dark: #3d339f;
+      --accent: #e84545;
+      --success: #2ea87e;
+      --warning: #f59e0b;
+      --whatsapp: #25d366;
+      --bg: #f0eeff;
+      --surface: #ffffff;
+      --surface2: #f5f3ff;
+      --text: #1a1a2e;
+      --muted: #6b6b8a;
+      --border: #ddd8f5;
+      --r: 14px;
+      --r-sm: 8px;
+      --shadow: 0 2px 12px rgba(91,79,207,.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 90px;
+    }
+
+    /* ═══════════════════ HEADER ═══════════════════ */
+    .header {
+      background: linear-gradient(150deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      padding: 20px 16px 28px;
+    }
+    .header-title { font-size: 21px; font-weight: 800; letter-spacing: -.3px; }
+    .header-sub { font-size: 13px; opacity: .8; margin-bottom: 16px; }
+    .route-box {
+      background: rgba(255,255,255,.15);
+      border-radius: var(--r-sm);
+      padding: 12px 14px;
+    }
+    .route-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; font-size: 13px; }
+    .route-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .dot-origin { background: #7dd3fc; }
+    .dot-dest   { background: #fb923c; }
+    .route-line { width: 1px; height: 18px; background: rgba(255,255,255,.35); margin: 0 4px; }
+    .route-meta {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-top: 8px; font-size: 12px; opacity: .85;
+    }
+
+    /* ═══════════════════ BANNER NOTIFICAÇÃO ═══════════════════ */
+    .notif-banner {
+      display: none; background: var(--accent); color: #fff;
+      padding: 10px 16px; font-size: 13px; font-weight: 600;
+      line-height: 1.4; cursor: pointer;
+    }
+    .notif-banner.show { display: block; }
+
+    /* ═══════════════════ TABS ═══════════════════ */
+    .tabs {
+      background: var(--surface); display: flex;
+      overflow-x: auto; scrollbar-width: none;
+      border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 50;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 0 0 auto; padding: 13px 16px; font-size: 13px; font-weight: 700;
+      color: var(--muted); border-bottom: 3px solid transparent;
+      cursor: pointer; white-space: nowrap; transition: all .2s;
+      margin-bottom: -2px;
+    }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* ═══════════════════ CONTEÚDO ═══════════════════ */
+    .content { padding: 14px 14px 0; max-width: 620px; margin: 0 auto; }
+
+    /* ═══════════════════ STATS ═══════════════════ */
+    .stats {
+      display: flex; gap: 0; background: var(--surface);
+      border-radius: var(--r-sm); margin-bottom: 14px;
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .stat { flex: 1; text-align: center; padding: 12px 8px; border-right: 1px solid var(--border); }
+    .stat:last-child { border-right: none; }
+    .stat-n { font-size: 24px; font-weight: 800; color: var(--primary); line-height: 1; }
+    .stat-l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ═══════════════════ CAR CARD ═══════════════════ */
+    .cars { display: flex; flex-direction: column; gap: 12px; }
+    .car-card {
+      background: var(--surface); border-radius: var(--r); padding: 16px;
+      box-shadow: var(--shadow); border: 2px solid transparent; transition: border-color .2s;
+    }
+    .car-card.is-mine { border-color: var(--primary); }
+    .car-card.is-full { opacity: .75; }
+
+    .car-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .car-driver { font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .car-model  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .tag {
+      font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .tag-avail { background: #d1fae5; color: #065f46; }
+    .tag-full  { background: #fee2e2; color: #991b1b; }
+    .tag-mine  { background: var(--primary); color: #fff; }
+
+    .car-info { font-size: 13px; color: var(--muted); margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .car-info-row { display: flex; align-items: center; gap: 6px; }
+
+    /* Assentos visuais */
+    .seats-wrap { margin-bottom: 12px; }
+    .seats-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 8px; }
+    .seats-row { display: flex; gap: 7px; flex-wrap: wrap; }
+    .seat {
+      width: 42px; height: 54px; border-radius: 10px 10px 6px 6px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    }
+    .seat-icon { font-size: 19px; line-height: 1; }
+    .seat-name { font-size: 9px; max-width: 40px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .seat.driver   { background: var(--primary-dark); }
+    .seat.driver .seat-name { color: rgba(255,255,255,.85); }
+    .seat.taken    { background: var(--primary); }
+    .seat.taken .seat-name { color: rgba(255,255,255,.85); }
+    .seat.mine     { background: #7c3aed; }
+    .seat.mine .seat-name  { color: rgba(255,255,255,.9); }
+    .seat.empty    { background: var(--surface2); border: 2px dashed var(--border); }
+    .seat.empty .seat-icon { color: #ccc; }
+
+    /* Lista de passageiros */
+    .pax-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .pax-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface2); border-radius: var(--r-sm); padding: 8px 12px;
+    }
+    .pax-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .pax-name.me { color: var(--primary); }
+    .btn-del-pax {
+      background: none; border: none; color: var(--accent); font-size: 20px;
+      cursor: pointer; line-height: 1; padding: 0 2px; flex-shrink: 0;
+    }
+
+    /* Ações do card */
+    .car-actions { display: flex; gap: 8px; }
+    .btn {
+      flex: 1; padding: 10px 12px; border-radius: var(--r-sm); border: none;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: filter .15s;
+      display: flex; align-items: center; justify-content: center; gap: 5px; font-family: inherit;
+    }
+    .btn:hover { filter: brightness(.92); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+    .btn-primary   { background: var(--primary); color: #fff; }
+    .btn-secondary { background: var(--surface2); color: var(--text); }
+    .btn-danger    { background: #fff1f1; color: var(--accent); }
+    .btn-green     { background: var(--success); color: #fff; }
+    .btn-wa        { background: var(--whatsapp); color: #fff; flex: 0 0 auto; padding: 10px 14px; }
+
+    /* ═══════════════════ EMPTY STATE ═══════════════════ */
+    .empty {
+      text-align: center; padding: 52px 24px;
+    }
+    .empty-ico { font-size: 60px; margin-bottom: 14px; }
+    .empty-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .empty-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+    /* ═══════════════════ FAB ═══════════════════ */
+    .fab {
+      position: fixed; bottom: 22px; right: 18px; z-index: 100;
+      width: 58px; height: 58px; border-radius: 50%; border: none;
+      background: var(--primary); color: #fff; font-size: 26px;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(91,79,207,.45);
+      display: flex; align-items: center; justify-content: center; transition: transform .2s;
+    }
+    .fab:hover { transform: scale(1.08); }
+    .fab-hint {
+      position: fixed; bottom: 31px; right: 88px; z-index: 100;
+      background: var(--text); color: #fff; font-size: 12px; font-weight: 600;
+      padding: 5px 11px; border-radius: 6px; white-space: nowrap; pointer-events: none;
+    }
+
+    /* ═══════════════════ MODAL ═══════════════════ */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 200; display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .2s;
+    }
+    .overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface); border-radius: var(--r) var(--r) 0 0;
+      padding: 20px 20px 30px; width: 100%; max-width: 620px;
+      max-height: 92vh; overflow-y: auto;
+      transform: translateY(100%); transition: transform .3s ease;
+    }
+    .overlay.open .modal { transform: translateY(0); }
+    .modal-handle { width: 38px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 18px; }
+    .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 18px; }
+
+    /* Formulário */
+    .fg { margin-bottom: 15px; }
+    .fl { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 6px; }
+    .fi {
+      width: 100%; padding: 12px 13px; border: 2px solid var(--border);
+      border-radius: var(--r-sm); font-size: 15px; color: var(--text);
+      background: var(--surface); transition: border-color .2s; font-family: inherit;
+    }
+    .fi:focus { outline: none; border-color: var(--primary); }
+    .fi-hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Seletor de vagas */
+    .seats-sel { display: flex; gap: 8px; flex-wrap: wrap; }
+    .seat-opt {
+      width: 46px; height: 46px; border-radius: var(--r-sm);
+      border: 2px solid var(--border); font-size: 17px; font-weight: 800;
+      cursor: pointer; background: var(--surface); color: var(--text);
+      transition: all .15s; font-family: inherit;
+    }
+    .seat-opt.sel { border-color: var(--primary); background: var(--primary); color: #fff; }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+    .modal-actions .btn-secondary { flex: 0 0 auto; width: 84px; }
+
+    /* Info box dentro do modal */
+    .info-box {
+      background: var(--surface2); border-radius: var(--r-sm);
+      padding: 12px 14px; font-size: 14px; margin-bottom: 18px; line-height: 1.5;
+    }
+    .warn-box {
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--r-sm);
+      padding: 11px 14px; font-size: 13px; color: #78350f; margin-bottom: 16px; line-height: 1.5;
+    }
+
+    /* ═══════════════════ SETUP ═══════════════════ */
+    .setup-step { display: flex; gap: 12px; margin-bottom: 18px; }
+    .step-n {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff;
+      font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .step-body h4 { font-size: 15px; margin-bottom: 3px; }
+    .step-body p  { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .step-body a  { color: var(--primary); }
+    code { background: var(--surface2); padding: 2px 7px; border-radius: 4px; font-size: 13px; }
+
+    /* ═══════════════════ TOAST ═══════════════════ */
+    .toast {
+      position: fixed; top: 18px; left: 50%; z-index: 500;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--text); color: #fff; padding: 11px 22px;
+      border-radius: var(--r-sm); font-size: 14px; font-weight: 600;
+      max-width: 320px; text-align: center; transition: transform .3s ease;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.ok   { background: var(--success); }
+    .toast.err  { background: var(--accent); }
+
+    /* ═══════════════════ LOADING ═══════════════════ */
+    .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; gap: 14px; color: var(--muted); }
+    .spin { width: 38px; height: 38px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .refresh-info { text-align: center; font-size: 11px; color: var(--muted); padding: 10px; }
+
+    /* ═══════════════════ TRIP INFO BOX ═══════════════════ */
+    .trip-info-box {
+      background: var(--surface); border-radius: var(--r-sm); padding: 11px 14px;
+      margin-bottom: 14px; font-size: 13px; color: var(--muted);
+      box-shadow: var(--shadow); display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Separador de edit */
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ TOAST ═══ -->
+<div id="toast" class="toast"></div>
+
+<!-- ═══ BANNER DE NOTIFICAÇÃO ═══ -->
+<div id="notifBanner" class="notif-banner" onclick="dismissBanner()">
+  <span id="notifText"></span>
+  <span style="margin-left:8px;opacity:.7;font-size:11px">(toque para fechar)</span>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+    <div class="header-title" id="headerTitle" onclick="adminTap()" style="cursor:default;user-select:none">🎉 Aniversário em Mairiporã</div>
+    <div id="adminBadge" style="display:none;background:#fbbf24;color:#1a1a2e;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.5px">⚡ ADMIN</div>
+  </div>
+  <div class="header-sub">22–24 de Maio de 2025 · Coordenação de Caronas</div>
+  <div class="route-box">
+    <div class="route-row">
+      <div class="route-dot dot-origin"></div>
+      <div><strong>📍 Saída principal</strong><br>
+        <span style="opacity:.85;font-size:12px">R. Martim Buchard, 187 – Ap 2505 Atlântico, São Paulo</span>
+      </div>
+    </div>
+    <div class="route-line" style="margin-left:4px"></div>
+    <div class="route-row">
+      <div class="route-dot dot-dest"></div>
+      <div><strong>🌿 Destino</strong><br>
+        <span style="opacity:.85;font-size:12px">Sítio FMB Recanto dos Duendes – Terra Preta, Mairiporã</span>
+      </div>
+    </div>
+    <div class="route-meta">
+      <span>🛣️ ~53 km via Fernão Dias</span>
+      <span>⏱️ ~50 min sem trânsito</span>
+      <span>⚠️ Sexta: 1h30–2h30 c/ trânsito</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TABS ═══ -->
+<div class="tabs" id="tabs">
+  <div class="tab active" onclick="selectTrip('sexta-ida')"   id="tab-sexta-ida">🎉 Sex 22/05 – Ida</div>
+  <div class="tab"        onclick="selectTrip('sabado-ida')"  id="tab-sabado-ida">🚙 Sáb 23/05 – Ida</div>
+  <div class="tab"        onclick="selectTrip('domingo-volta')" id="tab-domingo-volta">🏠 Dom 24/05 – Volta</div>
+</div>
+
+<!-- ═══ CONTEÚDO ═══ -->
+<div class="content">
+  <div id="carsArea">
+    <div class="loading"><div class="spin"></div><div>Carregando caronas…</div></div>
+  </div>
+  <div class="refresh-info" id="refreshInfo"></div>
+</div>
+
+<!-- ═══ FAB ═══ -->
+<button class="fab" id="fabBtn" onclick="openAddModal()" title="Oferecer carona">🚗</button>
+<div class="fab-hint">Oferecer carona</div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL: ADICIONAR / EDITAR CARRO
+═══════════════════════════════════════════ -->
+<div class="overlay" id="modalCar">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalCarTitle">🚗 Oferecer carona</div>
+
+    <div class="fg">
+      <label class="fl">Seu nome (motorista) *</label>
+      <input type="text" id="fDriverName" class="fi" placeholder="Ex: João Silva">
+    </div>
+    <div class="fg">
+      <label class="fl">Seu WhatsApp *</label>
+      <input type="tel" id="fDriverPhone" class="fi" placeholder="11999999999">
+      <div class="fi-hint">Para os passageiros entrarem em contato</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Descrição do carro</label>
+      <input type="text" id="fCarDesc" class="fi" placeholder="Ex: Honda Civic Prata – ABC-1234">
+    </div>
+    <div class="fg">
+      <label class="fl">Ponto de saída</label>
+      <input type="text" id="fDeptPoint" class="fi" placeholder="Endereço de partida">
+      <div class="fi-hint" id="fDeptHint">💡 Deixe em branco para usar a saída principal</div>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label class="fl">Horário de saída</label>
+        <input type="time" id="fDeptTime" class="fi" value="15:00">
+      </div>
+      <div class="fg">
+        <label class="fl">Vagas para passageiros</label>
+        <div class="seats-sel" id="seatsSel">
+          <button class="seat-opt" onclick="setSeat(1)">1</button>
+          <button class="seat-opt sel" onclick="setSeat(2)">2</button>
+          <button class="seat-opt" onclick="setSeat(3)">3</button>
+          <button class="seat-opt" onclick="setSeat(4)">4</button>
+        </div>
+        <div class="fi-hint">Vagas p/ passageiros (sem contar motorista)</div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalCar')">Cancelar</button>
+      <button class="btn btn-primary" id="btnCarSubmit" onclick="submitCar()">✅ Registrar carro</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL: ENTRAR EM UM CARRO
+═══════════════════════════════════════════ -->
+<div class="overlay" id="modalJoin">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🙋 Pegar carona</div>
+
+    <div class="info-box" id="joinCarInfo"></div>
+
+    <div class="fg">
+      <label class="fl">Seu nome *</label>
+      <input type="text" id="fPaxName" class="fi" placeholder="Ex: Maria Santos">
+    </div>
+    <div class="fg">
+      <label class="fl">Seu WhatsApp *</label>
+      <input type="tel" id="fPaxPhone" class="fi" placeholder="11999999999">
+      <div class="fi-hint">Para ser notificado se houver mudanças no carro</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Seu e-mail <span style="font-weight:400">(opcional)</span></label>
+      <input type="email" id="fPaxEmail" class="fi" placeholder="seu@email.com">
+    </div>
+
+    <div class="warn-box">
+      ℹ️ Ao entrar no carro, o motorista será notificado via WhatsApp. Se houver mudanças na carona, você receberá um aviso pelo app.
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalJoin')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitJoin()">🚗 Entrar no carro</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL: MOTORISTA ADICIONA PASSAGEIRO
+═══════════════════════════════════════════ -->
+<div class="overlay" id="modalAddPax">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">👤 Adicionar passageiro</div>
+
+    <div class="info-box" id="addPaxCarInfo"></div>
+
+    <div class="fg">
+      <label class="fl">Nome da pessoa *</label>
+      <input type="text" id="fAddPaxName" class="fi" placeholder="Ex: Carlos Souza">
+    </div>
+    <div class="fg">
+      <label class="fl">WhatsApp <span style="font-weight:400">(para notificações)</span></label>
+      <input type="tel" id="fAddPaxPhone" class="fi" placeholder="11999999999">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddPax')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitAddPax()">✅ Confirmar entrada</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL: ADMIN PIN
+═══════════════════════════════════════════ -->
+<div class="overlay" id="modalAdmin">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚡ Modo Administrador</div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.6">
+      O modo admin dá acesso total: editar qualquer carro, adicionar ou remover qualquer pessoa, corrigir dados.
+    </p>
+    <div class="fg">
+      <label class="fl">PIN de administrador</label>
+      <input type="password" id="adminPin" class="fi" placeholder="••••" maxlength="20"
+        onkeydown="if(event.key==='Enter') submitAdmin()">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAdmin')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitAdmin()">⚡ Entrar como admin</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL: CONFIGURAÇÃO INICIAL
+═══════════════════════════════════════════ -->
+<div class="overlay" id="modalSetup">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ Configuração inicial</div>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.6">
+      Para que todos do grupo vejam as mesmas caronas em tempo real, precisamos de um banco de dados gratuito.
+      Siga os 4 passos abaixo — leva menos de 5 minutos:
+    </p>
+
+    <div class="setup-step">
+      <div class="step-n">1</div>
+      <div class="step-body">
+        <h4>Crie conta gratuita no JSONBin</h4>
+        <p>Acesse <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → clique em <strong>Sign Up</strong></p>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="step-n">2</div>
+      <div class="step-body">
+        <h4>Copie sua API Key</h4>
+        <p>No painel, clique em <strong>API Keys</strong> → copie a chave Master Key</p>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="step-n">3</div>
+      <div class="step-body">
+        <h4>Crie um Bin (armazenamento)</h4>
+        <p>Clique em <strong>Bins → Create Bin</strong>. Cole <code>{}</code> e salve. Copie o <strong>Bin ID</strong> que aparece na URL.</p>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="step-n">4</div>
+      <div class="step-body">
+        <h4>Cole as informações abaixo</h4>
+        <p>Preencha os dois campos e clique em Salvar.</p>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label class="fl">API Key (Master Key)</label>
+      <input type="text" id="setupKey" class="fi" placeholder="$2b$10$...">
+    </div>
+    <div class="fg">
+      <label class="fl">Bin ID</label>
+      <input type="text" id="setupBin" class="fi" placeholder="6650...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveSetup()" style="width:100%">💾 Salvar e começar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+/* ═════════════════════════════════════
+   CONFIGURAÇÃO RÁPIDA
+════════════════════════════════════ */
+const PRESET_API_KEY = '$2a$10$f61thvpEeen.TW3UsU7rj.JTVXcdP9FV4q8bORCSx6ZVCGiDTIefy';
+const PRESET_BIN_ID  = '6a0e575eee5a733b12f2cea0';
+
+/* ═════════════════════════════════════
+   ADMIN — altere o PIN aqui
+════════════════════════════════════ */
+const ADMIN_PIN = 'luiz2025';   // 👈 mude para o PIN que quiser
+
+/* ═════════════════════════════════════
+   DEFINIÇÃO DAS VIAGENS
+════════════════════════════════════ */
+const TRIPS = [
+  {
+    id: 'sexta-ida',
+    label: 'Sexta 22/05 – Ida',
+    emoji: '🎉',
+    direction: 'ida',
+    defPoint: 'R. Martim Buchard, 187 – Ap 2505 Atlântico, SP',
+    defTime: '15:00',
+    destName: 'Sítio FMB Recanto dos Duendes – Mairiporã'
+  },
+  {
+    id: 'sabado-ida',
+    label: 'Sábado 23/05 – Ida',
+    emoji: '🚙',
+    direction: 'ida',
+    defPoint: '',
+    defTime: '',
+    destName: 'Sítio FMB Recanto dos Duendes – Mairiporã'
+  },
+  {
+    id: 'domingo-volta',
+    label: 'Domingo 24/05 – Volta',
+    emoji: '🏠',
+    direction: 'volta',
+    defPoint: 'Sítio FMB Recanto dos Duendes – Mairiporã',
+    defTime: '',
+    destName: 'São Paulo'
+  }
+];
+
+/* ═════════════════════════════════════
+   ESTADO
+════════════════════════════════════ */
+let db        = { cars: {} };
+let tripId    = 'sexta-ida';
+let seats     = 2;
+let joinCarId = null;
+let editCarId = null;
+let apiKey    = '';
+let binId     = '';
+let myId      = localStorage.getItem('c_uid') || '';
+let lastSnap  = {};
+let refreshT  = null;
+let isAdmin   = sessionStorage.getItem('c_admin') === '1';
+let adminTaps = 0;
+let adminTapT = null;
+
+/* ═════════════════════════════════════
+   INIT
+════════════════════════════════════ */
+async function init() {
+  if (!myId) {
+    myId = 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+    localStorage.setItem('c_uid', myId);
+  }
+  apiKey = localStorage.getItem('c_key') || PRESET_API_KEY;
+  binId  = localStorage.getItem('c_bin') || PRESET_BIN_ID;
+  lastSnap = JSON.parse(localStorage.getItem('c_snap') || '{}');
+
+  if (!apiKey || !binId) {
+    openModal('modalSetup'); return;
+  }
+  await load();
+  refreshT = setInterval(load, 30000);
+}
+
+/* ═════════════════════════════════════
+   API JSONBIN
+════════════════════════════════════ */
+async function apiFetch() {
+  const r = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+    headers: { 'X-Master-Key': apiKey, 'X-Bin-Meta': 'false' }
+  });
+  if (!r.ok) throw new Error('Falha ao buscar dados');
+  return r.json();
+}
+
+async function apiSave(data) {
+  const r = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': apiKey },
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error('Falha ao salvar dados');
+  return r.json();
+}
+
+async function load() {
+  try {
+    const raw = await apiFetch();
+    db = (raw && raw.cars) ? raw : { cars: {} };
+    checkChanges();
+    render();
+    updateRefreshInfo();
+  } catch(e) {
+    renderError();
+  }
+}
+
+/* ═════════════════════════════════════
+   DETECÇÃO DE MUDANÇAS (notificações)
+════════════════════════════════════ */
+function snap(car) {
+  return {
+    seats: car.totalSeats,
+    time:  car.departureTime,
+    point: car.departurePoint,
+    pax:   Object.values(car.passengers || {}).map(p => p.name).sort().join('|')
+  };
+}
+
+function checkChanges() {
+  const msgs = [];
+  Object.entries(db.cars).forEach(([cid, car]) => {
+    const isMine = car.driverId === myId ||
+      Object.values(car.passengers || {}).some(p => p.userId === myId);
+    if (!isMine) return;
+
+    const prev = lastSnap[cid];
+    const curr = snap(car);
+
+    if (!prev) { lastSnap[cid] = curr; return; }
+
+    if (curr.seats !== prev.seats)
+      msgs.push(`⚠️ Vagas do carro de ${car.driverName} mudaram para ${curr.seats}.`);
+    if (curr.time !== prev.time)
+      msgs.push(`🕐 Horário do carro de ${car.driverName} mudou para ${curr.time}.`);
+    if (curr.point !== prev.point)
+      msgs.push(`📍 Ponto de saída do carro de ${car.driverName} foi alterado.`);
+
+    const prevPax = prev.pax ? prev.pax.split('|').filter(Boolean) : [];
+    const currPax = curr.pax ? curr.pax.split('|').filter(Boolean) : [];
+    const added   = currPax.filter(n => !prevPax.includes(n));
+    const removed = prevPax.filter(n => !currPax.includes(n));
+    if (added.length)   msgs.push(`🎉 ${added.join(', ')} entrou no carro de ${car.driverName}.`);
+    if (removed.length) msgs.push(`👋 ${removed.join(', ')} saiu do carro de ${car.driverName}.`);
+
+    lastSnap[cid] = curr;
+  });
+  localStorage.setItem('c_snap', JSON.stringify(lastSnap));
+
+  const banner = document.getElementById('notifBanner');
+  if (msgs.length) {
+    document.getElementById('notifText').textContent = msgs.join('  ·  ');
+    banner.classList.add('show');
+  }
+}
+
+function dismissBanner() {
+  document.getElementById('notifBanner').classList.remove('show');
+}
+
+/* ═════════════════════════════════════
+   SELEÇÃO DE VIAGEM
+════════════════════════════════════ */
+function selectTrip(id) {
+  tripId = id;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+
+  const trip = TRIPS.find(t => t.id === id);
+  const hint = document.getElementById('fDeptHint');
+  if (hint) hint.textContent = trip.defPoint
+    ? '💡 Padrão: ' + trip.defPoint
+    : '💡 Insira o endereço de partida do seu carro';
+  const tEl = document.getElementById('fDeptTime');
+  if (tEl && trip.defTime) tEl.value = trip.defTime;
+
+  render();
+}
+
+/* ═════════════════════════════════════
+   RENDER
+════════════════════════════════════ */
+function render() {
+  const trip  = TRIPS.find(t => t.id === tripId);
+  const cars  = Object.entries(db.cars)
+    .filter(([, c]) => c.tripId === tripId)
+    .sort((a, b) => (a[1].departureTime || '').localeCompare(b[1].departureTime || ''));
+
+  const area = document.getElementById('carsArea');
+
+  if (!cars.length) {
+    area.innerHTML = `
+      <div class="trip-info-box">
+        ${trip.emoji} <span><strong>${trip.direction === 'ida' ? 'Indo para' : 'Voltando de'}</strong> ${trip.destName}</span>
+      </div>
+      <div class="empty">
+        <div class="empty-ico">${trip.emoji}</div>
+        <div class="empty-title">Nenhum carro ainda</div>
+        <div class="empty-sub">Seja o primeiro a oferecer uma carona ${trip.direction === 'ida' ? 'para a festa' : 'para São Paulo'}!</div>
+        <button class="btn btn-primary" onclick="openAddModal()" style="max-width:200px;margin:0 auto">🚗 Oferecer carona</button>
+      </div>`;
+    return;
+  }
+
+  const totalSeats  = cars.reduce((s,[,c]) => s + (c.totalSeats || 0), 0);
+  const takenSeats  = cars.reduce((s,[,c]) => s + Object.keys(c.passengers || {}).length, 0);
+  const freeSeats   = totalSeats - takenSeats;
+
+  let html = `
+    <div class="trip-info-box">
+      ${trip.emoji} <span>${trip.direction === 'ida' ? 'Indo para' : 'Voltando de'} <strong>${trip.destName}</strong></span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n">${cars.length}</div><div class="stat-l">Carros</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--success)">${freeSeats}</div><div class="stat-l">Vagas livres</div></div>
+      <div class="stat"><div class="stat-n">${takenSeats}</div><div class="stat-l">Ocupadas</div></div>
+    </div>
+    <div class="cars">`;
+
+  cars.forEach(([cid, car]) => { html += renderCard(cid, car); });
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+function renderCard(cid, car) {
+  const paxEntries  = Object.entries(car.passengers || {});
+  const totalSeats  = car.totalSeats || 2;
+  const takenSeats  = paxEntries.length;
+  const freeSeats   = totalSeats - takenSeats;
+  const isFull      = freeSeats <= 0;
+  const isMyDriver  = car.driverId === myId;
+  const myPaxEntry  = paxEntries.find(([, p]) => p.userId === myId);
+  const isMyPax     = !!myPaxEntry;
+  const isMine      = isMyDriver || isMyPax;
+
+  // Tag
+  let tag = isFull
+    ? `<span class="tag tag-full">Lotado</span>`
+    : isMine
+      ? `<span class="tag tag-mine">Meu carro</span>`
+      : `<span class="tag tag-avail">${freeSeats} vaga${freeSeats !== 1 ? 's' : ''} livre${freeSeats !== 1 ? 's' : ''}</span>`;
+
+  // Assentos visuais
+  let seatsHtml = `<div class="seat driver"><div class="seat-icon">🧑</div><div class="seat-name">${firstName(car.driverName)}</div></div>`;
+  paxEntries.forEach(([, p]) => {
+    const me = p.userId === myId;
+    seatsHtml += `<div class="seat ${me ? 'mine' : 'taken'}"><div class="seat-icon">${me ? '⭐' : '👤'}</div><div class="seat-name">${firstName(p.name)}</div></div>`;
+  });
+  for (let i = 0; i < freeSeats; i++) {
+    seatsHtml += `<div class="seat empty"><div class="seat-icon">💺</div></div>`;
+  }
+
+  // Lista de passageiros
+  let paxHtml = '';
+  paxEntries.forEach(([pid, p]) => {
+    const me = p.userId === myId;
+    const canDel = me || isMyDriver || isAdmin;
+    paxHtml += `
+      <div class="pax-item">
+        <div class="pax-name ${me ? 'me' : ''}">${me ? '⭐' : '👤'} ${p.name}${me ? ' <span style="font-size:11px;font-weight:400">(você)</span>' : ''}</div>
+        ${canDel ? `<button class="btn-del-pax" onclick="removePax('${cid}','${pid}')" title="Remover">×</button>` : ''}
+      </div>`;
+  });
+
+  // Ações
+  const trip = TRIPS.find(t => t.id === car.tripId);
+  let actions = '';
+  if (!isMyDriver && !isMyPax && !isFull)
+    actions += `<button class="btn btn-primary" onclick="openJoinModal('${cid}')">🙋 Quero uma vaga</button>`;
+  if (isMyPax)
+    actions += `<button class="btn btn-danger" onclick="removePax('${cid}','${myPaxEntry[0]}')">❌ Sair do carro</button>`;
+  if (isMyDriver || isAdmin) {
+    if (!isFull)
+      actions += `<button class="btn btn-green" onclick="openAddPaxModal('${cid}')">👤 Adicionar</button>`;
+    actions += `<button class="btn btn-secondary" onclick="openEditModal('${cid}')">✏️ Editar</button>`;
+    actions += `<button class="btn btn-danger" style="flex:0 0 auto;padding:10px 14px" onclick="deleteCar('${cid}')" title="Remover carro">🗑️</button>`;
+  }
+
+  // WhatsApp share
+  const paxNames = paxEntries.map(([, p]) => p.name).join(', ') || 'Nenhum ainda';
+  const waMsg = encodeURIComponent(
+    `🚗 *Carona disponível – ${trip.label}*\n\n` +
+    `👤 Motorista: ${car.driverName}\n` +
+    (car.driverPhone ? `📱 Contato: ${fmt(car.driverPhone)}\n` : '') +
+    `🚙 Carro: ${car.carDescription || 'A informar'}\n` +
+    `📍 Saída: ${car.departurePoint || trip.defPoint || 'A definir'}\n` +
+    `🕐 Horário: ${car.departureTime || 'A definir'}\n` +
+    `💺 Vagas disponíveis: ${freeSeats} de ${totalSeats}\n` +
+    `👥 Passageiros: ${paxNames}\n\n` +
+    `Acesse o link das caronas para se inscrever! 👇`
+  );
+
+  return `
+    <div class="car-card ${isMine ? 'is-mine' : ''} ${isFull ? 'is-full' : ''}" id="card-${cid}">
+      <div class="car-top">
+        <div>
+          <div class="car-driver">🚗 ${car.driverName}</div>
+          <div class="car-model">${car.carDescription || ''}</div>
+        </div>
+        ${tag}
+      </div>
+      <div class="car-info">
+        <div class="car-info-row">📍 ${car.departurePoint || trip.defPoint || 'A definir'}</div>
+        <div class="car-info-row">🕐 Saída: ${car.departureTime || 'A definir'}</div>
+      </div>
+      <div class="seats-wrap">
+        <div class="seats-lbl">Assentos (${takenSeats + 1}/${totalSeats + 1} com motorista)</div>
+        <div class="seats-row">${seatsHtml}</div>
+      </div>
+      ${paxHtml ? `<div class="pax-list">${paxHtml}</div>` : ''}
+      <div class="car-actions">
+        ${actions}
+        <a href="https://wa.me/?text=${waMsg}" target="_blank" class="btn btn-wa" title="Compartilhar no WhatsApp">📤</a>
+      </div>
+    </div>`;
+}
+
+function renderError() {
+  document.getElementById('carsArea').innerHTML = `
+    <div class="empty">
+      <div class="empty-ico">⚠️</div>
+      <div class="empty-title">Erro de conexão</div>
+      <div class="empty-sub">Não foi possível carregar os dados. Verifique sua conexão e tente novamente.</div>
+      <button class="btn btn-primary" onclick="load()" style="max-width:180px;margin:0 auto">🔄 Tentar novamente</button>
+    </div>`;
+}
+
+function updateRefreshInfo() {
+  const now = new Date();
+  document.getElementById('refreshInfo').textContent =
+    `Atualizado às ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})} · auto-refresh a cada 30s`;
+}
+
+/* ═════════════════════════════════════
+   HELPERS
+════════════════════════════════════ */
+function firstName(name) { return (name || '').split(' ')[0]; }
+function fmt(phone) { return phone ? phone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3') : ''; }
+function uid() { return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2,5); }
+function waLink(phone, msg) {
+  const num = '55' + (phone || '').replace(/\D/g,'');
+  return `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+}
+
+/* ═════════════════════════════════════
+   MODAIS
+════════════════════════════════════ */
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); });
+});
+
+/* ═════════════════════════════════════
+   ADICIONAR CARRO
+════════════════════════════════════ */
+function openAddModal() {
+  editCarId = null;
+  document.getElementById('modalCarTitle').textContent = '🚗 Oferecer carona';
+  document.getElementById('btnCarSubmit').textContent  = '✅ Registrar carro';
+
+  const trip = TRIPS.find(t => t.id === tripId);
+  document.getElementById('fDriverName').value  = localStorage.getItem('c_dname') || '';
+  document.getElementById('fDriverPhone').value = localStorage.getItem('c_dphone') || '';
+  document.getElementById('fCarDesc').value     = localStorage.getItem('c_cdesc') || '';
+  document.getElementById('fDeptPoint').value   = '';
+  document.getElementById('fDeptTime').value    = trip.defTime || '';
+  setSeat(2);
+  openModal('modalCar');
+}
+
+/* ═════════════════════════════════════
+   EDITAR CARRO
+════════════════════════════════════ */
+function openEditModal(cid) {
+  editCarId = cid;
+  const car = db.cars[cid];
+  document.getElementById('modalCarTitle').textContent = '✏️ Editar carona';
+  document.getElementById('btnCarSubmit').textContent  = '💾 Salvar alterações';
+  document.getElementById('fDriverName').value  = car.driverName;
+  document.getElementById('fDriverPhone').value = car.driverPhone || '';
+  document.getElementById('fCarDesc').value     = car.carDescription || '';
+  document.getElementById('fDeptPoint').value   = car.departurePoint || '';
+  document.getElementById('fDeptTime').value    = car.departureTime || '';
+  setSeat(car.totalSeats || 2);
+  openModal('modalCar');
+}
+
+function setSeat(n) {
+  seats = n;
+  document.querySelectorAll('.seat-opt').forEach(b => {
+    b.classList.toggle('sel', parseInt(b.textContent) === n);
+  });
+}
+
+async function submitCar() {
+  const driverName  = document.getElementById('fDriverName').value.trim();
+  const driverPhone = document.getElementById('fDriverPhone').value.trim();
+  const carDesc     = document.getElementById('fCarDesc').value.trim();
+  const deptPoint   = document.getElementById('fDeptPoint').value.trim();
+  const deptTime    = document.getElementById('fDeptTime').value;
+
+  if (!driverName)  { toast('Por favor, insira seu nome.', 'err'); return; }
+  if (!driverPhone) { toast('Por favor, insira seu WhatsApp.', 'err'); return; }
+
+  localStorage.setItem('c_dname',  driverName);
+  localStorage.setItem('c_dphone', driverPhone);
+  if (carDesc) localStorage.setItem('c_cdesc', carDesc);
+
+  const trip = TRIPS.find(t => t.id === tripId);
+
+  try {
+    const latest = await apiFetch();
+    const data   = (latest && latest.cars) ? latest : { cars: {} };
+
+    if (editCarId) {
+      // Editar carro existente
+      const prev = data.cars[editCarId];
+      data.cars[editCarId] = {
+        ...prev,
+        driverName, driverPhone,
+        carDescription: carDesc,
+        departurePoint: deptPoint || prev.departurePoint || trip.defPoint,
+        departureTime:  deptTime,
+        totalSeats:     seats
+      };
+      await apiSave(data);
+      db = data;
+
+      // Notificar passageiros das alterações
+      const paxList = Object.values(data.cars[editCarId].passengers || {}).filter(p => p.phone);
+      if (paxList.length && confirm(`Deseja notificar ${paxList.length} passageiro(s) sobre as alterações?`)) {
+        const msg = `📢 *Atualização na carona de ${driverName}*\n\n` +
+          `📍 Saída: ${deptPoint || trip.defPoint}\n🕐 Horário: ${deptTime}\n💺 Vagas: ${seats}\n\n` +
+          `Acesse a ferramenta de caronas para conferir! 🚗`;
+        paxList.forEach(p => {
+          window.open(waLink(p.phone, msg), '_blank');
+        });
+      }
+      closeModal('modalCar');
+      render();
+      toast('✅ Carona atualizada!', 'ok');
+
+    } else {
+      // Novo carro
+      const cid = uid();
+      data.cars[cid] = {
+        tripId, driverId: myId,
+        driverName, driverPhone, carDescription: carDesc,
+        departurePoint: deptPoint || trip.defPoint,
+        departureTime: deptTime, totalSeats: seats,
+        passengers: {}, createdAt: new Date().toISOString()
+      };
+      await apiSave(data);
+      db = data;
+      lastSnap[cid] = snap(data.cars[cid]);
+      localStorage.setItem('c_snap', JSON.stringify(lastSnap));
+      closeModal('modalCar');
+      render();
+      toast('✅ Carro registrado com sucesso!', 'ok');
+    }
+  } catch(e) {
+    toast('Erro ao salvar. Verifique sua conexão.', 'err');
+  }
+}
+
+/* ═════════════════════════════════════
+   MOTORISTA ADICIONA PASSAGEIRO
+════════════════════════════════════ */
+let addPaxCarId = null;
+
+function openAddPaxModal(cid) {
+  addPaxCarId = cid;
+  const car = db.cars[cid];
+  const trip = TRIPS.find(t => t.id === car.tripId);
+  const free = (car.totalSeats || 2) - Object.keys(car.passengers || {}).length;
+  document.getElementById('addPaxCarInfo').innerHTML =
+    `<strong>🚗 Seu carro</strong> · ${car.carDescription || ''}<br>` +
+    `📍 ${car.departurePoint || trip.defPoint} · 🕐 ${car.departureTime || 'A definir'}<br>` +
+    `<span style="color:var(--success);font-weight:700">💺 ${free} vaga${free !== 1 ? 's' : ''} disponível${free !== 1 ? 'eis' : ''}</span>`;
+  document.getElementById('fAddPaxName').value = '';
+  document.getElementById('fAddPaxPhone').value = '';
+  openModal('modalAddPax');
+}
+
+async function submitAddPax() {
+  const name  = document.getElementById('fAddPaxName').value.trim();
+  const phone = document.getElementById('fAddPaxPhone').value.trim();
+  if (!name) { toast('Por favor, insira o nome da pessoa.', 'err'); return; }
+
+  try {
+    const latest = await apiFetch();
+    const data   = (latest && latest.cars) ? latest : { cars: {} };
+    const car    = data.cars[addPaxCarId];
+    if (!car) { toast('Carro não encontrado.', 'err'); return; }
+
+    const taken = Object.keys(car.passengers || {}).length;
+    if (taken >= car.totalSeats) { toast('Carro lotado!', 'err'); return; }
+
+    const pid = uid();
+    if (!data.cars[addPaxCarId].passengers) data.cars[addPaxCarId].passengers = {};
+    data.cars[addPaxCarId].passengers[pid] = {
+      userId: 'driver_added_' + pid,
+      name, phone, email: '',
+      addedAt: new Date().toISOString(),
+      addedByDriver: true
+    };
+
+    await apiSave(data);
+    db = data;
+
+    // Notificar passageiro via WhatsApp se tiver telefone
+    if (phone) {
+      const msg = `🎉 *${car.driverName}* reservou uma vaga para você no carro!\n\n` +
+        `🚙 ${car.carDescription || ''}\n` +
+        `📍 Saída: ${car.departurePoint || ''}\n` +
+        `🕐 Horário: ${car.departureTime || 'A definir'}\n\n` +
+        `Acesse o link das caronas para confirmar: https://chimerical-cupcake-4cb99a.netlify.app`;
+      if (confirm(`Enviar notificação de WhatsApp para ${name}?`)) {
+        window.open(waLink(phone, msg), '_blank');
+      }
+    }
+
+    closeModal('modalAddPax');
+    render();
+    toast(`✅ ${name} adicionado ao carro!`, 'ok');
+  } catch(e) {
+    toast('Erro ao salvar. Tente novamente.', 'err');
+  }
+}
+
+/* ═════════════════════════════════════
+   ENTRAR EM UM CARRO
+════════════════════════════════════ */
+function openJoinModal(cid) {
+  joinCarId = cid;
+  const car = db.cars[cid];
+  const trip = TRIPS.find(t => t.id === car.tripId);
+  const free = (car.totalSeats || 2) - Object.keys(car.passengers || {}).length;
+  document.getElementById('joinCarInfo').innerHTML =
+    `<strong>🚗 ${car.driverName}</strong>${car.carDescription ? ' · ' + car.carDescription : ''}<br>` +
+    `📍 ${car.departurePoint || trip.defPoint || 'A definir'} · 🕐 ${car.departureTime || 'A definir'}<br>` +
+    `<span style="color:var(--success);font-weight:700">💺 ${free} vaga${free !== 1 ? 's' : ''} disponível${free !== 1 ? 'eis' : ''}</span>`;
+
+  document.getElementById('fPaxName').value  = localStorage.getItem('c_pname')  || '';
+  document.getElementById('fPaxPhone').value = localStorage.getItem('c_pphone') || '';
+  document.getElementById('fPaxEmail').value = localStorage.getItem('c_pemail') || '';
+  openModal('modalJoin');
+}
+
+async function submitJoin() {
+  const name  = document.getElementById('fPaxName').value.trim();
+  const phone = document.getElementById('fPaxPhone').value.trim();
+  const email = document.getElementById('fPaxEmail').value.trim();
+
+  if (!name)  { toast('Por favor, insira seu nome.', 'err'); return; }
+  if (!phone) { toast('Por favor, insira seu WhatsApp.', 'err'); return; }
+
+  // Verificar se já está em outro carro na mesma viagem
+  const thisTripId = db.cars[joinCarId]?.tripId;
+  const alreadyIn  = Object.entries(db.cars)
+    .filter(([, c]) => c.tripId === thisTripId)
+    .some(([, c]) => Object.values(c.passengers || {}).some(p => p.userId === myId));
+
+  if (alreadyIn) {
+    toast('Você já está em um carro nesta viagem. Saia dele primeiro.', 'err');
+    return;
+  }
+
+  localStorage.setItem('c_pname',  name);
+  localStorage.setItem('c_pphone', phone);
+  if (email) localStorage.setItem('c_pemail', email);
+
+  try {
+    const latest = await apiFetch();
+    const data   = (latest && latest.cars) ? latest : { cars: {} };
+    const car    = data.cars[joinCarId];
+
+    if (!car) { toast('Este carro não existe mais.', 'err'); closeModal('modalJoin'); return; }
+
+    const taken = Object.keys(car.passengers || {}).length;
+    if (taken >= car.totalSeats) {
+      toast('Este carro lotou agora! Escolha outro.', 'err');
+      await load(); closeModal('modalJoin'); return;
+    }
+
+    const pid = uid();
+    if (!data.cars[joinCarId].passengers) data.cars[joinCarId].passengers = {};
+    data.cars[joinCarId].passengers[pid] = {
+      userId: myId, name, phone, email, addedAt: new Date().toISOString()
+    };
+
+    await apiSave(data);
+    db = data;
+
+    // Notificar motorista
+    if (car.driverPhone) {
+      const remaining = car.totalSeats - taken - 1;
+      const msg = `🎉 *${name}* entrou no seu carro!\n` +
+        `🚗 ${car.carDescription || ''} · ${car.departureTime || ''}\n` +
+        `💺 Vagas restantes: ${remaining}\n\n` +
+        `Acesse a ferramenta de caronas para gerenciar.`;
+      window.open(waLink(car.driverPhone, msg), '_blank');
+    }
+
+    lastSnap[joinCarId] = snap(data.cars[joinCarId]);
+    localStorage.setItem('c_snap', JSON.stringify(lastSnap));
+
+    closeModal('modalJoin');
+    render();
+    toast(`✅ Você entrou no carro de ${car.driverName}!`, 'ok');
+  } catch(e) {
+    toast('Erro ao salvar. Verifique sua conexão.', 'err');
+  }
+}
+
+/* ═════════════════════════════════════
+   REMOVER PASSAGEIRO
+════════════════════════════════════ */
+async function removePax(cid, pid) {
+  if (!confirm('Confirmar remoção desta pessoa do carro?')) return;
+  try {
+    const latest  = await apiFetch();
+    const data    = (latest && latest.cars) ? latest : { cars: {} };
+    const pax     = data.cars[cid]?.passengers?.[pid];
+    const paxName = pax?.name || 'Passageiro';
+    const car     = data.cars[cid];
+
+    if (data.cars[cid]?.passengers?.[pid])
+      delete data.cars[cid].passengers[pid];
+
+    await apiSave(data);
+    db = data;
+    render();
+    toast(`${paxName} foi removido do carro.`);
+
+    // Notificar removido (se não for ele mesmo)
+    if (pax?.phone && pax?.userId !== myId) {
+      const msg = `⚠️ Sua vaga no carro de *${car.driverName}* foi removida.\n\n` +
+        `Acesse a ferramenta de caronas para encontrar outra opção. 🚗`;
+      if (confirm(`Deseja enviar notificação de WhatsApp para ${paxName}?`)) {
+        window.open(waLink(pax.phone, msg), '_blank');
+      }
+    }
+  } catch(e) {
+    toast('Erro ao remover. Tente novamente.', 'err');
+  }
+}
+
+/* ═════════════════════════════════════
+   DELETAR CARRO
+════════════════════════════════════ */
+async function deleteCar(cid) {
+  if (!confirm('Tem certeza que deseja remover seu carro? Os passageiros serão notificados.')) return;
+  try {
+    const latest = await apiFetch();
+    const data   = (latest && latest.cars) ? latest : { cars: {} };
+    const car    = data.cars[cid];
+    const paxList = Object.values(car?.passengers || {});
+
+    delete data.cars[cid];
+    await apiSave(data);
+    db = data;
+    render();
+    toast('Carro removido.');
+
+    // Notificar passageiros
+    if (paxList.length) {
+      const msg = `⚠️ O carro de *${car.driverName}* foi cancelado.\n\n` +
+        `Acesse a ferramenta de caronas para encontrar outra opção. 🚗`;
+      for (const p of paxList) {
+        if (p.phone && confirm(`Notificar ${p.name} sobre o cancelamento?`)) {
+          window.open(waLink(p.phone, msg), '_blank');
+        }
+      }
+    }
+  } catch(e) {
+    toast('Erro ao deletar. Tente novamente.', 'err');
+  }
+}
+
+/* ═════════════════════════════════════
+   SETUP
+════════════════════════════════════ */
+async function saveSetup() {
+  const key = document.getElementById('setupKey').value.trim();
+  const bin = document.getElementById('setupBin').value.trim();
+  if (!key || !bin) { toast('Preencha os dois campos.', 'err'); return; }
+  localStorage.setItem('c_key', key);
+  localStorage.setItem('c_bin', bin);
+  apiKey = key; binId = bin;
+  closeModal('modalSetup');
+  await load();
+  if (!refreshT) refreshT = setInterval(load, 30000);
+  toast('✅ Configurado! Bem-vindo(a)!', 'ok');
+}
+
+/* ═════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
+let toastT = null;
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  if (toastT) clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 3800);
+}
+
+/* ═════════════════════════════════════
+   ADMIN
+════════════════════════════════════ */
+function adminTap() {
+  adminTaps++;
+  if (adminTapT) clearTimeout(adminTapT);
+  adminTapT = setTimeout(() => { adminTaps = 0; }, 2000);
+  if (adminTaps >= 5) {
+    adminTaps = 0;
+    if (isAdmin) {
+      // Sair do modo admin
+      isAdmin = false;
+      sessionStorage.removeItem('c_admin');
+      document.getElementById('adminBadge').style.display = 'none';
+      render();
+      toast('Modo admin desativado.', '');
+    } else {
+      openModal('modalAdmin');
+      setTimeout(() => document.getElementById('adminPin')?.focus(), 300);
+    }
+  }
+}
+
+function submitAdmin() {
+  const pin = document.getElementById('adminPin').value;
+  if (pin === ADMIN_PIN) {
+    isAdmin = true;
+    sessionStorage.setItem('c_admin', '1');
+    document.getElementById('adminBadge').style.display = 'block';
+    closeModal('modalAdmin');
+    document.getElementById('adminPin').value = '';
+    render();
+    toast('⚡ Modo admin ativado! Acesso total.', 'ok');
+  } else {
+    toast('PIN incorreto.', 'err');
+    document.getElementById('adminPin').value = '';
+    document.getElementById('adminPin').focus();
+  }
+}
+
+function updateAdminUI() {
+  const badge = document.getElementById('adminBadge');
+  if (badge) badge.style.display = isAdmin ? 'block' : 'none';
+}
+
+/* ═════════════════════════════════════
+   START
+════════════════════════════════════ */
+init();
+updateAdminUI();
+</script>
+</body>
+</html>
