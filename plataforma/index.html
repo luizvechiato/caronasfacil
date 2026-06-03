@@ -347,10 +347,10 @@
     /* ── AUTOCOMPLETE ── */
     .ac-wrap { position: relative; }
     .ac-list {
-      position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
+      position: fixed; z-index: 9999;
       background: var(--surface); border: 1px solid var(--border);
       border-top: none; border-radius: 0 0 var(--r-sm) var(--r-sm);
-      box-shadow: 0 4px 12px rgba(0,0,0,.12); max-height: 240px; overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,.18); max-height: 240px; overflow-y: auto;
     }
     .ac-item {
       padding: 10px 14px; font-size: 13px; cursor: pointer; line-height: 1.4;
@@ -1410,6 +1410,13 @@ window.saveNewPin = async function() {
 ════════════════════════════════════════ */
 let acTimers = {};
 
+function acPositionList(input, listEl) {
+  const r = input.getBoundingClientRect();
+  listEl.style.top   = (r.bottom) + 'px';
+  listEl.style.left  = r.left + 'px';
+  listEl.style.width = r.width + 'px';
+}
+
 window.acSearch = function(input, listId) {
   const val = input.value.trim();
   const listEl = document.getElementById(listId);
@@ -1448,6 +1455,7 @@ window.acSearch = function(input, listId) {
           ${sub ? `<div class="ac-item-sub">${escHtml(sub)}</div>` : ''}
         </div>`;
       }).join('');
+      acPositionList(input, listEl);
       listEl.style.display = 'block';
     } catch(e) { listEl.style.display = 'none'; }
   }, 500);
@@ -1474,6 +1482,8 @@ window.acFocusDefault = function(input, listId) {
   if (!defaultAddr) return;
   input.value = defaultAddr;
   input.select();
+  const listEl = document.getElementById(listId);
+  if (listEl) acPositionList(input, listEl);
   acSearch(input, listId);
 };
 
