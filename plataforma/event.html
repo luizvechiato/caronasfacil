@@ -1243,21 +1243,13 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="firebase-config.js"></script>
 <script type="module">
 import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, get, set, push, remove, onValue, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-const firebaseConfig = {
-  apiKey:            "AIzaSyBLiObW7HniFnJGcGt5xPFQNdtSXuZxQjw",
-  authDomain:        "caronas-lhpv.firebaseapp.com",
-  databaseURL:       "https://caronas-lhpv-default-rtdb.firebaseio.com",
-  projectId:         "caronas-lhpv",
-  storageBucket:     "caronas-lhpv.firebasestorage.app",
-  messagingSenderId: "159548357201",
-  appId:             "1:159548357201:web:91b0a892071daef103d670",
-  measurementId:     "G-QNNJN6WTCW"
-};
+const firebaseConfig = window.firebaseConfig;
 
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
