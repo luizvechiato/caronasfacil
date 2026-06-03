@@ -34,7 +34,6 @@ exports.handler = async function (event) {
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'MP_ACCESS_TOKEN não configurado' }) };
     }
 
-    const isSandbox = accessToken.startsWith('TEST-');
     const siteUrl   = process.env.URL || process.env.DEPLOY_URL || 'https://caronasfacil.com.br';
 
     // Montar preferência de pagamento
@@ -75,9 +74,9 @@ exports.handler = async function (event) {
       };
     }
 
-    const checkoutUrl = isSandbox
-      ? mpResponse.body.sandbox_init_point
-      : mpResponse.body.init_point;
+    // sandbox_init_point existe em credenciais de teste; init_point em produção
+    const checkoutUrl = mpResponse.body.sandbox_init_point || mpResponse.body.init_point;
+    const isSandbox = !!mpResponse.body.sandbox_init_point;
 
     return {
       statusCode: 200,
