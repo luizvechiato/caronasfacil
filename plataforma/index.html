@@ -692,7 +692,6 @@
   </div>
 
   <div class="create-content">
-    <div id="createError" class="error-box" style="display:none"></div>
 
     <!-- Informações básicas -->
     <div class="section-card">
@@ -764,6 +763,7 @@
       <button class="btn-add-trip" onclick="addTrip()">+ Adicionar trajeto</button>
     </div>
 
+    <div id="createError" class="error-box" style="display:none;margin-bottom:12px"></div>
     <button class="btn btn-primary" onclick="createEvent()" id="btnCreateEvent" style="margin-bottom:32px">
       🎉 Criar evento e gerar link
     </button>
@@ -1218,7 +1218,7 @@ window.createEvent = async function() {
   function showValidationErr(msg) {
     showErr(errEl, msg);
     errEl.style.display = 'block';
-    errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('btnCreateEvent').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   errEl.style.display = 'none';
