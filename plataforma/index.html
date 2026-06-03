@@ -704,7 +704,7 @@
         <label class="fl">Local de destino *</label>
         <div class="ac-wrap">
           <input type="text" id="evDest" class="fi" placeholder="Ex: Sítio FMB Recanto dos Duendes"
-                 autocomplete="off" oninput="acSearch(this,'evDestList')">
+                 autocomplete="off" oninput="acSearch(this,'evDestList')" onkeydown="acKeydown(event,'evDestList')">
           <div class="ac-list" id="evDestList" style="display:none"></div>
         </div>
       </div>
@@ -712,7 +712,7 @@
         <label class="fl">Endereço completo do destino</label>
         <div class="ac-wrap">
           <input type="text" id="evDestAddr" class="fi" placeholder="Ex: Av. Dr. Sérgio Machado Brauner, 2090 – Mairiporã"
-                 autocomplete="off" oninput="acSearch(this,'evDestAddrList')">
+                 autocomplete="off" oninput="acSearch(this,'evDestAddrList')" onkeydown="acKeydown(event,'evDestAddrList')">
           <div class="ac-list" id="evDestAddrList" style="display:none"></div>
         </div>
       </div>
@@ -720,7 +720,7 @@
         <label class="fl">Endereço de saída principal (opcional)</label>
         <div class="ac-wrap">
           <input type="text" id="evOrigin" class="fi" placeholder="Ex: R. Martim Buchard, 187 – São Paulo"
-                 autocomplete="off" oninput="acSearch(this,'evOriginList')">
+                 autocomplete="off" oninput="acSearch(this,'evOriginList')" onkeydown="acKeydown(event,'evOriginList')">
           <div class="ac-list" id="evOriginList" style="display:none"></div>
         </div>
         <button type="button" class="ac-geo-btn" onclick="geoFill('evOrigin','evOriginList')">
@@ -764,7 +764,7 @@
     </div>
 
     <div id="createError" class="error-box" style="display:none;margin-bottom:12px"></div>
-    <button class="btn btn-primary" onclick="createEvent()" id="btnCreateEvent" style="margin-bottom:32px">
+    <button class="btn btn-primary" onclick="window.createEvent()" id="btnCreateEvent" style="margin-bottom:32px">
       🎉 Criar evento e gerar link
     </button>
   </div>
@@ -1179,7 +1179,9 @@ window.addTrip = function() {
         <label class="fl">Ponto de saída</label>
         <div class="ac-wrap">
           <input type="text" class="fi trip-point" placeholder="(usa o padrão do evento)"
-                 autocomplete="off" oninput="acSearch(this, 'ac_${id}')">
+                 autocomplete="off" oninput="acSearch(this, 'ac_${id}')"
+                 onfocus="acFocusDefault(this, 'ac_${id}')"
+                 onkeydown="acKeydown(event, 'ac_${id}')">
           <div class="ac-list" id="ac_${id}" style="display:none"></div>
         </div>
       </div>
@@ -1414,16 +1416,30 @@ window.acSearch = function(input, listId) {
   if (!listEl) return;
   clearTimeout(acTimers[listId]);
   if (val.length < 3) { listEl.style.display = 'none'; return; }
+
+  // Fecha ao perder foco
+  input.onblur = () => setTimeout(() => { if(listEl) listEl.style.display = 'none'; }, 200);
+
   acTimers[listId] = setTimeout(async () => {
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(val)}&countrycodes=br`;
-      const res  = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
-      const data = await res.json();
+      // Normaliza numeração com zero à esquerda: busca com e sem o zero
+      // Ex: "Rua X, 0173" → tenta também "Rua X, 173"
+      const valNorm = val.replace(/\b0+(\d+)/g, '$1');
+      const queries = valNorm !== val ? [val, valNorm] : [val];
+
+      let data = [];
+      for (const q of queries) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(q)}&countrycodes=br`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+        const d = await res.json();
+        if (d.length) { data = d; break; }
+      }
+
       if (!data.length) { listEl.style.display = 'none'; return; }
-      listEl.innerHTML = data.map((r, i) => {
-        const parts  = r.display_name.split(', ');
-        const main   = parts.slice(0, 2).join(', ');
-        const sub    = parts.slice(2).join(', ');
+      listEl.innerHTML = data.map((r) => {
+        const parts = r.display_name.split(', ');
+        const main  = parts.slice(0, 2).join(', ');
+        const sub   = parts.slice(2).join(', ');
         return `<div class="ac-item" tabindex="-1"
           onmousedown="acPick(event,'${listId}')"
           data-full="${escHtmlAttr(r.display_name)}"
@@ -1434,10 +1450,31 @@ window.acSearch = function(input, listId) {
       }).join('');
       listEl.style.display = 'block';
     } catch(e) { listEl.style.display = 'none'; }
-  }, 350);
+  }, 500);
+};
 
-  // Fechar ao perder foco
-  input.onblur = () => setTimeout(() => { if(listEl) listEl.style.display = 'none'; }, 200);
+// Fecha dropdown com Escape
+window.acKeydown = function(e, listId) {
+  if (e.key === 'Escape') {
+    const listEl = document.getElementById(listId);
+    if (listEl) listEl.style.display = 'none';
+  }
+};
+
+// Ao focar campo de trajeto vazio, pré-preenche com o endereço padrão do evento
+window.acFocusDefault = function(input, listId) {
+  if (input.value.trim()) return; // já tem valor, não interfere
+  // Descobre direção do trajeto (ida ou volta)
+  const tripItem = input.closest('.trip-item');
+  const dir = tripItem?.querySelector('.trip-dir')?.value || 'ida';
+  // "ida" → ponto de saída = origem do evento; "volta" → ponto de saída = destino do evento
+  const defaultAddr = dir === 'volta'
+    ? (document.getElementById('evDest')?.value || document.getElementById('evDestAddr')?.value || '')
+    : (document.getElementById('evOrigin')?.value || '');
+  if (!defaultAddr) return;
+  input.value = defaultAddr;
+  input.select();
+  acSearch(input, listId);
 };
 
 window.acPick = function(e, listId) {

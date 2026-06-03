@@ -23,7 +23,7 @@ exports.handler = async function (event) {
 
   try {
     const body = JSON.parse(event.body || '{}');
-    const { amount, description, eventId, tripId, carId, paxName } = body;
+    const { amount, description, eventId, tripId, carId, paxName, installments } = body;
 
     if (!amount || amount <= 0) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Valor inválido' }) };
@@ -56,10 +56,10 @@ exports.handler = async function (event) {
       auto_return:          'approved',
       statement_descriptor: 'CARONAS FACIL',
       metadata:             { eventId, tripId, carId, paxName },
-      // Taxa de parcelamento — passageiro vê o custo do cartão
+      // Parcelas — passageiro escolhe no frontend; custo já embutido no total
       payment_methods: {
-        installments: 1,       // sem parcelamento por padrão (muda para 12 quando quiser)
-        default_installments: 1,
+        installments:         parseInt(installments) || 1,
+        default_installments: parseInt(installments) || 1,
       },
     };
 
