@@ -1,18 +1,19 @@
 [build]
   publish = "plataforma"
-    functions = "plataforma/netlify/functions"
+  functions = "plataforma/netlify/functions"
+  command = "printf 'window.firebaseConfig={apiKey:\"%s\",authDomain:\"%s\",databaseURL:\"%s\",projectId:\"%s\",storageBucket:\"%s\",messagingSenderId:\"%s\",appId:\"%s\",measurementId:\"%s\"};' \"$FIREBASE_API_KEY\" \"$FIREBASE_AUTH_DOMAIN\" \"$FIREBASE_DB_URL\" \"$FIREBASE_PROJECT_ID\" \"$FIREBASE_STORAGE_BUCKET\" \"$FIREBASE_MESSAGING_SENDER_ID\" \"$FIREBASE_APP_ID\" \"$FIREBASE_MEASUREMENT_ID\" > plataforma/firebase-config.js"
 
-    [functions]
-      node_bundler = "esbuild"
+[functions]
+  node_bundler = "esbuild"
 
-      [[headers]]
-        for = "/*"
-          [headers.values]
-              X-Frame-Options = "DENY"
-                  X-Content-Type-Options = "nosniff"
-                      Referrer-Policy = "strict-origin-when-cross-origin"
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
-                      [[redirects]]
-                        from = "/*"
-                          to = "/index.html"
-                            status = 200
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
