@@ -69,6 +69,71 @@
     .page { display: none; min-height: 100vh; }
     .page.active { display: flex; flex-direction: column; }
 
+    /* ── HEADER FIXO ── */
+    .sticky-header {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 56px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 1000;
+    }
+
+    .sticky-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .sticky-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-button {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.15s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .admin-button:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .pin-display {
+      color: #fff;
+      font-size: 12px;
+      background: rgba(79, 70, 229, 0.2);
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .page {
+      padding-top: 56px;
+    }
+
     /* ── LANDING ── */
     .landing-hero {
       background: #0f172a;
@@ -347,10 +412,10 @@
     /* ── AUTOCOMPLETE ── */
     .ac-wrap { position: relative; }
     .ac-list {
-      position: fixed; z-index: 9999;
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
       background: var(--surface); border: 1px solid var(--border);
       border-top: none; border-radius: 0 0 var(--r-sm) var(--r-sm);
-      box-shadow: 0 4px 12px rgba(0,0,0,.18); max-height: 240px; overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12); max-height: 240px; overflow-y: auto;
     }
     .ac-item {
       padding: 10px 14px; font-size: 13px; cursor: pointer; line-height: 1.4;
@@ -370,6 +435,21 @@
   </style>
 </head>
 <body>
+
+<!-- ══ HEADER FIXO ══ -->
+<div class="sticky-header">
+  <div class="sticky-header-left">
+    <span style="color: #fff; font-weight: 800; font-size: 16px;">🚗 Caronas Fácil</span>
+  </div>
+  <div class="sticky-header-right">
+    <div id="pinContainer" class="pin-display" style="display:none">
+      PIN: <span id="pinValue"></span>
+    </div>
+    <a href="/admin" class="admin-button" title="Painel administrativo">
+      🛡️ Superadmin
+    </a>
+  </div>
+</div>
 
 <!-- ══ TOAST ══ -->
 <div id="toast" class="toast"></div>
@@ -692,6 +772,7 @@
   </div>
 
   <div class="create-content">
+    <div id="createError" class="error-box" style="display:none"></div>
 
     <!-- Informações básicas -->
     <div class="section-card">
@@ -704,7 +785,7 @@
         <label class="fl">Local de destino *</label>
         <div class="ac-wrap">
           <input type="text" id="evDest" class="fi" placeholder="Ex: Sítio FMB Recanto dos Duendes"
-                 autocomplete="off" oninput="acSearch(this,'evDestList')" onkeydown="acKeydown(event,'evDestList')">
+                 autocomplete="off" oninput="acSearch(this,'evDestList')">
           <div class="ac-list" id="evDestList" style="display:none"></div>
         </div>
       </div>
@@ -712,7 +793,7 @@
         <label class="fl">Endereço completo do destino</label>
         <div class="ac-wrap">
           <input type="text" id="evDestAddr" class="fi" placeholder="Ex: Av. Dr. Sérgio Machado Brauner, 2090 – Mairiporã"
-                 autocomplete="off" oninput="acSearch(this,'evDestAddrList')" onkeydown="acKeydown(event,'evDestAddrList')">
+                 autocomplete="off" oninput="acSearch(this,'evDestAddrList')">
           <div class="ac-list" id="evDestAddrList" style="display:none"></div>
         </div>
       </div>
@@ -720,7 +801,7 @@
         <label class="fl">Endereço de saída principal (opcional)</label>
         <div class="ac-wrap">
           <input type="text" id="evOrigin" class="fi" placeholder="Ex: R. Martim Buchard, 187 – São Paulo"
-                 autocomplete="off" oninput="acSearch(this,'evOriginList')" onkeydown="acKeydown(event,'evOriginList')">
+                 autocomplete="off" oninput="acSearch(this,'evOriginList')">
           <div class="ac-list" id="evOriginList" style="display:none"></div>
         </div>
         <button type="button" class="ac-geo-btn" onclick="geoFill('evOrigin','evOriginList')">
@@ -763,8 +844,7 @@
       <button class="btn-add-trip" onclick="addTrip()">+ Adicionar trajeto</button>
     </div>
 
-    <div id="createError" class="error-box" style="display:none;margin-bottom:12px"></div>
-    <button class="btn btn-primary" onclick="window.createEvent()" id="btnCreateEvent" style="margin-bottom:32px">
+    <button class="btn btn-primary" onclick="createEvent()" id="btnCreateEvent" style="margin-bottom:32px">
       🎉 Criar evento e gerar link
     </button>
   </div>
@@ -774,7 +854,6 @@
 <!-- ═══════════════════════════════════════
      FIREBASE SDK
 ════════════════════════════════════════ -->
-<script src="firebase-config.js"></script>
 <script type="module">
 import { initializeApp }                                    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword,
@@ -787,7 +866,16 @@ import { getDatabase, ref, set, push, get, onValue, query,
    🔧 COLE AQUI SUA CONFIGURAÇÃO DO FIREBASE
    (Project Settings → Your apps → Config)
 ════════════════════════════════════════ */
-const firebaseConfig = window.firebaseConfig;
+const firebaseConfig = {
+  apiKey:            "AIzaSyBLiObW7HniFnJGcGt5xPFQNdtSXuZxQjw",
+  authDomain:        "caronas-lhpv.firebaseapp.com",
+  databaseURL:       "https://caronas-lhpv-default-rtdb.firebaseio.com",
+  projectId:         "caronas-lhpv",
+  storageBucket:     "caronas-lhpv.firebasestorage.app",
+  messagingSenderId: "159548357201",
+  appId:             "1:159548357201:web:91b8a892071daef103d670",
+  measurementId:     "G-QNNJN6WTCW"
+};
 
 /* ── INICIALIZAÇÃO ── */
 const app  = initializeApp(firebaseConfig);
@@ -1037,15 +1125,15 @@ function renderEventsList() {
         <span class="meta-chip">${trips} trajeto${trips !== 1 ? 's' : ''}</span>
       </div>
       <div class="event-card-actions">
-        <button class="btn-card btn-card-primary" style="flex:1" onclick="openEvent('${id}')">↗ Abrir evento</button>
-        <button class="btn-card btn-card-outline" style="flex:1" onclick="copyEventLink('${id}', this)">🔗 Copiar link</button>
+        <button class="btn-card btn-card-primary" onclick="openEvent('${id}')">↗ Abrir evento</button>
+        <button class="btn-card btn-card-outline" onclick="copyEventLink('${id}', this)">🔗 Copiar link</button>
       </div>
       <div class="event-card-actions" style="margin-top:4px;gap:6px">
         ${isArch
-          ? `<button class="btn-card btn-card-outline" style="flex:1;color:var(--primary);border-color:var(--primary)" onclick="window.archiveEvent('${id}',false)">↩ Reativar</button>`
-          : `<button class="btn-card btn-card-outline" style="flex:1;color:var(--muted)" onclick="window.archiveEvent('${id}',true)">📦 Arquivar</button>`
+          ? `<button class="btn-card" style="flex:1;color:var(--primary);border-color:var(--primary)" onclick="window.archiveEvent('${id}',false)">↩ Reativar</button>`
+          : `<button class="btn-card" style="flex:1;color:var(--muted)" onclick="window.archiveEvent('${id}',true)">📦 Arquivar</button>`
         }
-        <button class="btn-card btn-card-outline" style="flex:1;color:var(--accent);border-color:var(--accent)" onclick="window.confirmDeleteEvent('${id}','${ev.name.replace(/'/g,"\\'")}')">🗑 Excluir</button>
+        <button class="btn-card" style="flex:1;color:var(--accent)" onclick="window.confirmDeleteEvent('${id}','${ev.name.replace(/'/g,"\\'")}')">🗑 Excluir</button>
       </div>
     </div>`;
   }).join('');
@@ -1179,9 +1267,7 @@ window.addTrip = function() {
         <label class="fl">Ponto de saída</label>
         <div class="ac-wrap">
           <input type="text" class="fi trip-point" placeholder="(usa o padrão do evento)"
-                 autocomplete="off" oninput="acSearch(this, 'ac_${id}')"
-                 onfocus="acFocusDefault(this, 'ac_${id}')"
-                 onkeydown="acKeydown(event, 'ac_${id}')">
+                 autocomplete="off" oninput="acSearch(this, 'ac_${id}')">
           <div class="ac-list" id="ac_${id}" style="display:none"></div>
         </div>
       </div>
@@ -1202,6 +1288,34 @@ window.removeTrip = function(id) {
    CRIAR EVENTO
 ════════════════════════════════════════ */
 window.createEvent = async function() {
+  // VALIDAÇÃO CRÍTICA: Exigir nome e email do criador
+  if (!currentUser) {
+    alert('❌ Você precisa estar logado para criar um evento.');
+    return;
+  }
+
+  // Verificar se tem nome completo
+  if (!currentUser.displayName || currentUser.displayName.trim().length === 0) {
+    const nome = prompt('📝 Para criar um evento, precisamos do seu nome completo:\n\n(Exemplo: João Silva)');
+    if (!nome || nome.trim().length === 0) {
+      alert('❌ Nome é obrigatório para criar eventos.');
+      return;
+    }
+    try {
+      await updateProfile(currentUser, { displayName: nome.trim() });
+      currentUser.displayName = nome.trim();
+    } catch(e) {
+      alert('❌ Erro ao salvar seu nome. Tente novamente.');
+      return;
+    }
+  }
+
+  // Verificar se tem email
+  if (!currentUser.email) {
+    alert('❌ Seu email não está registrado. Entre em contato com suporte.');
+    return;
+  }
+
   const name      = document.getElementById('evName').value.trim();
   const destEl    = document.getElementById('evDest');
   const destAddrEl= document.getElementById('evDestAddr');
@@ -1220,7 +1334,7 @@ window.createEvent = async function() {
   function showValidationErr(msg) {
     showErr(errEl, msg);
     errEl.style.display = 'block';
-    document.getElementById('btnCreateEvent').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   errEl.style.display = 'none';
@@ -1260,6 +1374,9 @@ window.createEvent = async function() {
       defaultOrigin: origin, adminPin: pin,
       trips: tripsObj, cars: {},
       createdBy: currentUser.uid,
+      creatorEmail: currentUser.email || '',
+      creatorName: currentUser.displayName || 'Desconhecido',
+      creatorPhone: '',
       createdAt: serverTimestamp()
     };
     if (destLat && destLon) { eventData.destLat = destLat; eventData.destLon = destLon; }
@@ -1410,43 +1527,22 @@ window.saveNewPin = async function() {
 ════════════════════════════════════════ */
 let acTimers = {};
 
-function acPositionList(input, listEl) {
-  const r = input.getBoundingClientRect();
-  listEl.style.top   = (r.bottom) + 'px';
-  listEl.style.left  = r.left + 'px';
-  listEl.style.width = r.width + 'px';
-}
-
 window.acSearch = function(input, listId) {
   const val = input.value.trim();
   const listEl = document.getElementById(listId);
   if (!listEl) return;
   clearTimeout(acTimers[listId]);
   if (val.length < 3) { listEl.style.display = 'none'; return; }
-
-  // Fecha ao perder foco
-  input.onblur = () => setTimeout(() => { if(listEl) listEl.style.display = 'none'; }, 200);
-
   acTimers[listId] = setTimeout(async () => {
     try {
-      // Normaliza numeração com zero à esquerda: busca com e sem o zero
-      // Ex: "Rua X, 0173" → tenta também "Rua X, 173"
-      const valNorm = val.replace(/\b0+(\d+)/g, '$1');
-      const queries = valNorm !== val ? [val, valNorm] : [val];
-
-      let data = [];
-      for (const q of queries) {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(q)}&countrycodes=br`;
-        const res = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
-        const d = await res.json();
-        if (d.length) { data = d; break; }
-      }
-
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(val)}&countrycodes=br`;
+      const res  = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+      const data = await res.json();
       if (!data.length) { listEl.style.display = 'none'; return; }
-      listEl.innerHTML = data.map((r) => {
-        const parts = r.display_name.split(', ');
-        const main  = parts.slice(0, 2).join(', ');
-        const sub   = parts.slice(2).join(', ');
+      listEl.innerHTML = data.map((r, i) => {
+        const parts  = r.display_name.split(', ');
+        const main   = parts.slice(0, 2).join(', ');
+        const sub    = parts.slice(2).join(', ');
         return `<div class="ac-item" tabindex="-1"
           onmousedown="acPick(event,'${listId}')"
           data-full="${escHtmlAttr(r.display_name)}"
@@ -1455,36 +1551,12 @@ window.acSearch = function(input, listId) {
           ${sub ? `<div class="ac-item-sub">${escHtml(sub)}</div>` : ''}
         </div>`;
       }).join('');
-      acPositionList(input, listEl);
       listEl.style.display = 'block';
     } catch(e) { listEl.style.display = 'none'; }
-  }, 500);
-};
+  }, 350);
 
-// Fecha dropdown com Escape
-window.acKeydown = function(e, listId) {
-  if (e.key === 'Escape') {
-    const listEl = document.getElementById(listId);
-    if (listEl) listEl.style.display = 'none';
-  }
-};
-
-// Ao focar campo de trajeto vazio, pré-preenche com o endereço padrão do evento
-window.acFocusDefault = function(input, listId) {
-  if (input.value.trim()) return; // já tem valor, não interfere
-  // Descobre direção do trajeto (ida ou volta)
-  const tripItem = input.closest('.trip-item');
-  const dir = tripItem?.querySelector('.trip-dir')?.value || 'ida';
-  // "ida" → ponto de saída = origem do evento; "volta" → ponto de saída = destino do evento
-  const defaultAddr = dir === 'volta'
-    ? (document.getElementById('evDest')?.value || document.getElementById('evDestAddr')?.value || '')
-    : (document.getElementById('evOrigin')?.value || '');
-  if (!defaultAddr) return;
-  input.value = defaultAddr;
-  input.select();
-  const listEl = document.getElementById(listId);
-  if (listEl) acPositionList(input, listEl);
-  acSearch(input, listId);
+  // Fechar ao perder foco
+  input.onblur = () => setTimeout(() => { if(listEl) listEl.style.display = 'none'; }, 200);
 };
 
 window.acPick = function(e, listId) {

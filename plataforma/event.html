@@ -137,7 +137,7 @@
     /* ── TABS ── */
     .tabs{
       display:flex;overflow-x:auto;padding:10px 12px;gap:6px;
-      background:var(--header-bg);border-bottom:1px solid var(--border);
+      background:var(--surface);border-bottom:1px solid var(--border);
       scrollbar-width:none;
     }
     .tabs::-webkit-scrollbar{display:none;}
@@ -354,7 +354,7 @@
     /* ── STATUS BAR ── */
     .status-bar{
       display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-      padding:8px 16px;background:var(--surface);
+      padding:8px 16px;background:var(--bg);
       border-bottom:1px solid var(--border);
       font-size:12px;color:var(--muted);
     }
@@ -364,8 +364,8 @@
       border-radius:20px;padding:3px 10px;font-weight:600;color:var(--text);
       font-size:12px;
     }
-    .status-pill.green{background:#f0fdf4;border-color:#bbf7d0;color:#15803d;}
-    .status-pill.red{background:#fff1f1;border-color:#fecaca;color:#b91c1c;font-weight:700;}
+    .status-pill.green{background:rgba(16,185,74,.15);border-color:#bbf7d0;color:#4ade80;}
+    .status-pill.red{background:rgba(220,38,38,.15);border-color:#fecaca;color:#f87171;font-weight:700;}
     .status-sep{color:var(--border);margin:0 2px;}
 
     /* ── CAR BODY ── */
@@ -528,6 +528,78 @@
       font-size:10px;font-weight:700;text-transform:uppercase;
       letter-spacing:.7px;color:var(--muted);margin-bottom:8px;
     }
+    /* Seção expandida de endereço */
+    .card-section.address-expanded{
+      background:var(--primary-light);padding:12px 16px;border-top:none;
+    }
+    .card-section.address-expanded .card-section-title{
+      color:var(--primary-dark);margin-bottom:6px;
+    }
+    .card-section.address-expanded .address-text{
+      font-size:13px;color:var(--text);line-height:1.6;font-weight:500;word-wrap:break-word;
+    }
+    .card-section.address-expanded .address-time{
+      font-size:12px;color:var(--muted);margin-top:6px;font-weight:500;
+    }
+    /* Mini-mapa no card */
+    .card-map{
+      width:100%;min-height:140px;background:var(--surface2);
+      position:relative;z-index:10;
+      border-top:1px solid var(--border);
+    }
+    .card-map-loading{
+      display:flex;align-items:center;justify-content:center;height:100%;
+      color:var(--muted);font-size:12px;gap:6px;
+    }
+    .leaflet-container.card-map-leaflet{
+      font-family:inherit;
+      width: 100% !important;
+      height: 140px !important;
+      min-height: 140px !important;
+    }
+    .leaflet-container {
+      background: var(--surface2);
+    }
+    /* Esconder apenas barra inferior e atribuição */
+    .card-map-leaflet .leaflet-bottom-left,
+    .card-map-leaflet .leaflet-bottom-right {
+      display: none !important;
+    }
+    .card-map-leaflet .leaflet-attribution {
+      display: none !important;
+    }
+
+    /* Mostrar controles de zoom em lugar visível */
+    .card-map-leaflet .leaflet-top-left {
+      top: 10px !important;
+      left: 10px !important;
+    }
+    .card-map-leaflet .leaflet-control-zoom {
+      display: flex !important;
+      flex-direction: column;
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 6px !important;
+    }
+    .card-map-leaflet .leaflet-control-zoom a {
+      width: 32px !important;
+      height: 32px !important;
+      line-height: 32px !important;
+      font-size: 16px !important;
+      color: var(--primary) !important;
+      background: var(--surface) !important;
+      border: none !important;
+      text-align: center !important;
+    }
+    .card-map-leaflet .leaflet-control-zoom a:hover {
+      background: var(--surface2) !important;
+    }
+    .leaflet-popup-content-wrapper{
+      border-radius:6px;
+    }
+    .leaflet-control-zoom{
+      display:none;
+    }
     .pax-unified{display:flex;flex-direction:column;gap:4px;}
     .pax-row{
       display:flex;align-items:center;gap:8px;
@@ -535,9 +607,9 @@
       border:1.5px solid var(--border);background:var(--surface);
     }
     .pax-row.pax-row-driver{background:var(--primary-light);border-color:#c7d2fe;}
-    .pax-row.pax-row-me{border-color:#86efac;background:#f0fdf4;}
+    .pax-row.pax-row-me{border-color:#86efac;background:rgba(16,185,74,.1);}
     .pax-row.pax-row-empty{border-style:dashed;background:transparent;opacity:.6;}
-    .pax-row.pax-row-blocked{border-style:dashed;background:#fff1f1;border-color:#fecaca;opacity:.55;}
+    .pax-row.pax-row-blocked{border-style:dashed;background:rgba(220,38,38,.1);border-color:#fecaca;opacity:.55;}
     .pax-row-icon{font-size:14px;flex-shrink:0;line-height:1;}
     .pax-row-info{flex:1;min-width:0;}
     .pax-row-name{
@@ -561,7 +633,7 @@
     a.pax-row-phone:hover{text-decoration:underline;}
     .pax-row-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
     .pax-cost-tag{
-      background:#f0fdf4;border:1px solid #86efac;color:#15803d;
+      background:rgba(16,185,74,.15);border:1px solid #86efac;color:#4ade80;
       font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;white-space:nowrap;
     }
     .card-pax-action{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
@@ -807,7 +879,7 @@
 <div class="header">
   <div class="header-row1">
     <div style="display:flex;align-items:center;gap:10px">
-      <a class="btn-back" href="index.html">← Viagens</a>
+      <a class='btn-back' href='/'>← Viagens</a>
       <div class="header-appname" id="headerAppname" onclick="adminTap()">Caronas Fácil</div>
     </div>
     <div>
@@ -819,6 +891,17 @@
       <!-- Botão editar visível para o dono mesmo sem modo admin -->
       <button class="btn-admin-small" id="btnEditEvent" onclick="window.openEditEvent()"
               style="display:none" title="Editar evento">✏️ Editar evento</button>
+
+      <!-- PIN do Evento -->
+      <div id="pinDisplay" style="display:none;background:rgba(79,70,229,.15);border:1px solid rgba(79,70,229,.3);padding:5px 12px;border-radius:6px;font-size:12px;color:var(--text);font-family:monospace;font-weight:600;white-space:nowrap">
+        PIN: <span id="pinValue">-</span>
+      </div>
+
+      <!-- Botão do Portal Admin (sempre visível) -->
+      <a href="/admin" class="btn-admin-small" title="Acessar painel administrativo">
+        🛡️ Admin
+      </a>
+
       <!-- Toggle dark/light mode -->
       <button class="btn-admin-small" id="btnThemeToggle" onclick="window.toggleTheme()"
               title="Alternar modo claro/escuro" style="font-size:13px;padding:5px 9px;letter-spacing:1px">☀️🌙</button>
@@ -993,6 +1076,7 @@
       <div class="fg">
         <input class="fi" id="adminPinInput" type="password" placeholder="PIN do admin"
                onkeydown="if(event.key==='Enter')confirmAdmin()"/>
+        <div class="fi-hint" style="font-size:11px;margin-top:6px;opacity:.6">Use o PIN do evento ou o super-PIN global (se disponível)</div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-primary btn-full" onclick="confirmAdmin()">Entrar como admin</button>
@@ -1243,13 +1327,21 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="firebase-config.js"></script>
 <script type="module">
 import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, get, set, push, remove, onValue, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-const firebaseConfig = window.firebaseConfig;
+const firebaseConfig = {
+  apiKey:            "AIzaSyBLiObW7HniFnJGcGt5xPFQNdtSXuZxQjw",
+  authDomain:        "caronas-lhpv.firebaseapp.com",
+  databaseURL:       "https://caronas-lhpv-default-rtdb.firebaseio.com",
+  projectId:         "caronas-lhpv",
+  storageBucket:     "caronas-lhpv.firebasestorage.app",
+  messagingSenderId: "159548357201",
+  appId:             "1:159548357201:web:91b0a892071daef103d670",
+  measurementId:     "G-QNNJN6WTCW"
+};
 
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
@@ -1263,6 +1355,10 @@ let cars          = {};
 let activeTripIdx = 0;
 let isAdmin       = false;
 let isOwner       = false; // dono do evento (identificado via UID do index.html)
+let isGlobalAdmin = false; // admin global (super-PIN)
+
+/* ── SUPER-PIN GLOBAL (altere para suas necessidades) ── */
+const SUPER_ADMIN_PIN = '1902';
 
 /* ── ORDENAÇÃO ── */
 const SORT_KEY = `caronaSort_${eventId}`;
@@ -1521,6 +1617,8 @@ async function loadEvent() {
     }
     document.getElementById('btnAdminLogin').style.display = 'block';
 
+    // PIN NOT exibido no header por segurança - apenas digitado no modal de admin
+
     // Detectar dono do evento (UID salvo pelo index.html ao abrir)
     const ownerUid = sessionStorage.getItem(`owner_${eventId}`);
     if (ownerUid && ownerUid === eventData.createdBy) {
@@ -1529,6 +1627,9 @@ async function loadEvent() {
 
     if (sessionStorage.getItem(`admin_${eventId}`) === 'true') {
       isAdmin = true;
+      if (sessionStorage.getItem(`globalAdmin_${eventId}`) === 'true') {
+        isGlobalAdmin = true;
+      }
       document.getElementById('adminControls').style.display = 'flex';
       document.getElementById('btnAdminLogin').style.display  = 'none';
     }
@@ -1636,11 +1737,11 @@ function renderCars() {
     const isMember   = isMyDriver || amIPax;
     const isFull     = freeSeats <= 0;
 
-    const canEdit  = isAdmin || isMyDriver;
+    const canEdit  = isAdmin || isMyDriver || isGlobalAdmin;
     const msgCount  = Object.keys(car.chat||{}).length;
     const chatBadge = msgCount > 0 ? `<span class="chat-badge">${msgCount}</span>` : '';
     const cc        = car.costCalc;
-    const showContacts = isMyDriver || amIPax || isAdmin;
+    const showContacts = isMyDriver || amIPax || isAdmin || isGlobalAdmin;
 
     // ── Linha do motorista ──
     const driverCostHtml = (cc && showContacts)
@@ -1753,6 +1854,23 @@ function renderCars() {
         </div>
       </div>
 
+      <!-- SEÇÃO: Endereço expandido + Mapa (novo) -->
+      ${(car.origin || eventData?.destination)?`<div class="card-section address-expanded">
+        <div class="card-section-title">📍 Ponto de Saída</div>
+        <div class="address-text">${escHtml(car.origin || eventData?.defaultOrigin || '–')}</div>
+        ${car.time?`<div class="address-time">⏰ Saída às ${escHtml(car.time)}</div>`:''}
+      </div>`:''}</
+
+      <!-- Mini-mapa (se houver dados de localização) -->
+      ${(car.origin || car.originLat || eventData?.destination)?`<div class="card-section" style="padding:0;overflow:hidden;max-height:140px">
+        <div class="card-map" id="cardMap_${carId}"
+             data-origin="${escHtml(car.origin||eventData?.defaultOrigin||'')}"
+             data-dest="${escHtml(eventData?.destination||'')}"
+             data-olat="${car.originLat||''}" data-olon="${car.originLon||''}"
+             data-dlat="${eventData?.destLat||''}" data-dlon="${eventData?.destLon||''}"
+             style="height:140px;width:100%;background:var(--surface2)"></div>
+      </div>`:''}>
+
       <!-- SEÇÃO 1: Passageiros unificados -->
       <div class="card-section">
         <div class="card-section-title">Ocupantes do carro</div>
@@ -1828,6 +1946,9 @@ function renderCars() {
   </div>`;
 
   content.innerHTML = alertHtml + statusHtml + sortBarHtml + `<div class="content">${cardsHtml}</div>`;
+
+  // Renderizar mini-mapas dos cards após um pequeno delay para garantir que o DOM está pronto
+  setTimeout(() => window.renderCardMaps(), 100);
 }
 
 function showChangeAlert() {
@@ -1974,12 +2095,16 @@ window.confirmJoin = async function() {
   if (!phone) { errEl.textContent='Informe seu WhatsApp.'; errEl.classList.add('show'); return; }
   const car = cars[trip.id]?.[joiningCarId];
   if (!car) { errEl.textContent='Este carro não existe mais.'; errEl.classList.add('show'); return; }
-  if (Object.keys(car.passengers||{}).length >= car.seats) {
+  // Super-admin pode entrar mesmo se lotado (para inspeção)
+  if (!isGlobalAdmin && Object.keys(car.passengers||{}).length >= car.seats) {
     errEl.textContent='Este carro já está lotado.'; errEl.classList.add('show'); return;
   }
-  for (const c of Object.values(cars[trip.id]||{})) {
-    if (Object.values(c.passengers||{}).some(p => normPhone(p.phone)===normPhone(phone))) {
-      errEl.textContent='Você já está em um carro neste trajeto.'; errEl.classList.add('show'); return;
+  // Super-admin pode entrar em múltiplos carros para inspeção
+  if (!isGlobalAdmin) {
+    for (const c of Object.values(cars[trip.id]||{})) {
+      if (Object.values(c.passengers||{}).some(p => normPhone(p.phone)===normPhone(phone))) {
+        errEl.textContent='Você já está em um carro neste trajeto.'; errEl.classList.add('show'); return;
+      }
     }
   }
   try {
@@ -1987,13 +2112,7 @@ window.confirmJoin = async function() {
     saveIdentLocal(name, phone);
     closeModal('overlayJoin');
     showToast('Você entrou na carona!','ok');
-    if (car.driverPhone) {
-      const msg = encodeURIComponent(`🚗 *${name}* entrou na sua carona!\n\nEvento: ${eventData.name}\nTrajeto: ${trip.label}\nWhatsApp: ${phone}`);
-      setTimeout(()=>{
-        if(confirm('Notificar o motorista via WhatsApp?'))
-          window.open(`https://wa.me/55${normPhone(car.driverPhone)}?text=${msg}`,'_blank');
-      },500);
-    }
+    notifyLocal('🚗 Nova entrada na carona', `${name} entrou no carro de ${car.driverName||''}.`);
   } catch(e) { errEl.textContent='Erro ao entrar.'; errEl.classList.add('show'); }
 };
 
@@ -2011,12 +2130,7 @@ window.removePax = async function(tripId, carId, paxId, paxName) {
     const pax = cars[tripId]?.[carId]?.passengers?.[paxId];
     await remove(ref(db,`events/${eventId}/cars/${tripId}/${carId}/passengers/${paxId}`));
     showToast(`${paxName} removido(a).`,'');
-    if (pax?.phone && pax.phone!=='–') {
-      const trip = trips.find(t=>t.id===tripId);
-      const msg  = encodeURIComponent(`❌ Você foi removido(a) da carona.\n\nEvento: ${eventData.name}\nTrajeto: ${trip?.label||''}`);
-      if (confirm(`Notificar ${paxName} via WhatsApp?`))
-        window.open(`https://wa.me/55${normPhone(pax.phone)}?text=${msg}`,'_blank');
-    }
+    notifyLocal('❌ Passageiro removido', `${paxName} foi removido(a) da carona.`);
   } catch(e) { showToast('Erro ao remover.',''); }
 };
 
@@ -2272,51 +2386,24 @@ window.switchPayTab = (function(_orig) {
   };
 })(window.switchPayTab);
 
-// Taxas de parcelamento do Mercado Pago (crédito, bandeiras principais)
-// Fonte: tabela oficial MP – acréscimo sobre o valor bruto por nº de parcelas
-const MP_INSTALLMENT_RATES = {
-  1:  0.0499,  // à vista: só taxa operacional
-  2:  0.0799,
-  3:  0.0999,
-  4:  0.1299,
-  5:  0.1499,
-  6:  0.1699,
-  7:  0.1999,
-  8:  0.2199,
-  9:  0.2399,
-  10: 0.2599,
-  11: 0.2799,
-  12: 0.2999,
-};
-
-window._cardBase = 0; // valor base salvo para recálculos
-
 window.renderCardTab = function() {
   const leg = _payLegs.find(l => l.tripId === _payTripId && l.carId === _payCarId) || _payLegs[0];
   if (!leg) return;
 
-  const base = (_payMode === 'combined')
+  const base  = (_payMode === 'combined')
     ? _payLegs.reduce((s, l) => s + l.amt, 0)
     : leg.amt;
+  const fee   = parseFloat((base * CARD_FEE_RATE).toFixed(2));
+  const total = parseFloat((base + fee).toFixed(2));
 
-  window._cardBase = base;
+  const fmt = (v) => fmtBRL(v);
+  document.getElementById('cardAmountTotal').textContent = fmt(total);
+  document.getElementById('cardBaseAmt').textContent     = fmt(base);
+  document.getElementById('cardFeeAmt').textContent      = `+ ${fmt(fee)}`;
+  document.getElementById('cardTotalAmt').textContent    = fmt(total);
+  document.getElementById('cardFeeNote').textContent     =
+    `Valor da carona (${fmt(base)}) + taxa de cartão (${fmt(fee)})`;
 
-  // Popular select de parcelas
-  const sel = document.getElementById('cardInstallments');
-  if (sel) {
-    sel.innerHTML = Object.entries(MP_INSTALLMENT_RATES).map(([n, rate]) => {
-      const total     = parseFloat((base * (1 + rate)).toFixed(2));
-      const parcela   = parseFloat((total / n).toFixed(2));
-      const rateLabel = (rate * 100).toFixed(2).replace('.', ',');
-      const label     = n === '1'
-        ? `1x de ${fmtBRL(total)} (à vista – taxa ${rateLabel}%)`
-        : `${n}x de ${fmtBRL(parcela)} = ${fmtBRL(total)} (taxa ${rateLabel}%)`;
-      return `<option value="${n}">${label}</option>`;
-    }).join('');
-    sel.value = '1';
-  }
-
-  window.updateInstallments();
   document.getElementById('cardFeeAccept').checked = false;
   window.updateCardBtn();
 
@@ -2329,33 +2416,6 @@ window.renderCardTab = function() {
     const notice = document.getElementById('sandboxNotice');
     if (notice && d.sandbox) notice.style.display = 'block';
   }).catch(() => {});
-};
-
-window.updateInstallments = function() {
-  const base = window._cardBase;
-  const n    = parseInt(document.getElementById('cardInstallments')?.value || '1');
-  const rate = MP_INSTALLMENT_RATES[n] || CARD_FEE_RATE;
-  const fee  = parseFloat((base * rate).toFixed(2));
-  const total = parseFloat((base + fee).toFixed(2));
-  const fmt = fmtBRL;
-
-  document.getElementById('cardAmountTotal').textContent = fmt(total);
-  document.getElementById('cardBaseAmt').textContent     = fmt(base);
-  document.getElementById('cardFeeAmt').textContent      = `+ ${fmt(fee)}`;
-  document.getElementById('cardTotalAmt').textContent    = fmt(total);
-  document.getElementById('cardFeeNote').textContent     =
-    `${fmt(base)} + taxa ${((rate)*100).toFixed(2).replace('.',',')}%`;
-
-  const rateLabel = ((rate)*100).toFixed(2).replace('.',',');
-  const feeLabel  = document.getElementById('cardFeeLabel');
-  if (feeLabel) feeLabel.textContent = `Taxa operacional (${rateLabel}%)`;
-
-  const acceptText = document.getElementById('cardFeeAcceptText');
-  if (acceptText) acceptText.innerHTML =
-    `Estou ciente que ao pagar com cartão de crédito será cobrada uma taxa de <strong>${rateLabel}%</strong>${n > 1 ? ` em ${n}x` : ' à vista'}, totalizando <strong>${fmt(total)}</strong>.`;
-
-  document.getElementById('cardFeeAccept').checked = false;
-  window.updateCardBtn();
 };
 
 window.updateCardBtn = function() {
@@ -2376,9 +2436,7 @@ window.payByCard = async function() {
   const base  = (_payMode === 'combined')
     ? _payLegs.reduce((s, l) => s + l.amt, 0)
     : leg.amt;
-  const installments = parseInt(document.getElementById('cardInstallments')?.value || '1');
-  const rate  = MP_INSTALLMENT_RATES[installments] || CARD_FEE_RATE;
-  const total = parseFloat((base * (1 + rate)).toFixed(2));
+  const total = parseFloat((base * (1 + CARD_FEE_RATE)).toFixed(2));
 
   const ident    = getIdent();
   const car      = leg.car;
@@ -2393,13 +2451,12 @@ window.payByCard = async function() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        amount:       total,
-        description:  `Carona ${eventData?.name || ''} · ${tripLabel} · ${car.driverName}`,
+        amount:      total,
+        description: `Carona ${eventData?.name || ''} · ${tripLabel} · ${car.driverName}`,
         eventId,
-        tripId:       leg.tripId,
-        carId:        leg.carId,
-        paxName:      ident?.name || 'Passageiro',
-        installments,
+        tripId:  leg.tripId,
+        carId:   leg.carId,
+        paxName: ident?.name || 'Passageiro',
       }),
     });
 
@@ -2492,17 +2549,34 @@ window.endTrip = async function(tripId, carId, end) {
   } catch(e) { showToast('Erro ao atualizar viagem.','err'); }
 };
 
-/* ══ NOTIFY PAX ══ */
+/* ══ NOTIFY PAX (notificação local no app, sem WhatsApp) ══ */
 function notifyPax(passengers, driverName, action) {
-  const trip = trips[activeTripIdx];
-  Object.values(passengers||{}).forEach(p => {
-    if (!p.phone || p.phone==='–') return;
-    const msg = encodeURIComponent(
-      `🚗 Atualização na sua carona!\n\nO motorista *${driverName}* ${action} o carro.\n` +
-      `Evento: ${eventData.name} · ${trip?.label||''}\n\nAcesse: ${location.href}`
-    );
-    window.open(`https://wa.me/55${normPhone(p.phone)}?text=${msg}`,'_blank');
-  });
+  const count = Object.keys(passengers||{}).length;
+  if (!count) return;
+  notifyLocal(
+    '🚗 Atualização na carona',
+    `O motorista ${driverName} ${action} o carro. ${count} passageiro${count!==1?'s':''} afetado${count!==1?'s':''}.`
+  );
+}
+
+/* ══ NOTIFICAÇÃO LOCAL (Notification API + Service Worker, sem plataforma externa) ══ */
+function notifyLocal(title, body) {
+  try {
+    if (!('Notification' in window)) return;
+    const fire = () => {
+      if (navigator.serviceWorker?.ready) {
+        navigator.serviceWorker.ready.then(reg => reg.showNotification(title, { body, icon: 'icon-192.png' })).catch(()=>{
+          try { new Notification(title, { body, icon: 'icon-192.png' }); } catch(e) {}
+        });
+      } else {
+        try { new Notification(title, { body, icon: 'icon-192.png' }); } catch(e) {}
+      }
+    };
+    if (Notification.permission === 'granted') fire();
+    else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(p => { if (p === 'granted') fire(); });
+    }
+  } catch(e) {}
 }
 
 /* ══ ADMIN ══ */
@@ -2521,18 +2595,38 @@ window.confirmAdmin = function() {
   const pin   = document.getElementById('adminPinInput').value.trim();
   const errEl = document.getElementById('adminError');
   errEl.classList.remove('show');
-  if (pin !== eventData?.adminPin) { errEl.textContent='PIN incorreto.'; errEl.classList.add('show'); return; }
+
+  // Verificar se é super-PIN ou PIN do evento
+  const isSuperPin = pin === SUPER_ADMIN_PIN;
+  const isEventPin = pin === eventData?.adminPin;
+
+  if (!isSuperPin && !isEventPin) {
+    errEl.textContent='PIN incorreto.';
+    errEl.classList.add('show');
+    return;
+  }
+
   isAdmin = true;
-  sessionStorage.setItem(`admin_${eventId}`,'true');
+  if (isSuperPin) {
+    isGlobalAdmin = true;
+    sessionStorage.setItem(`admin_${eventId}`,'true');
+    sessionStorage.setItem(`globalAdmin_${eventId}`,'true');
+  } else {
+    sessionStorage.setItem(`admin_${eventId}`,'true');
+  }
+
   closeModal('overlayAdmin');
   document.getElementById('adminControls').style.display='flex';
   document.getElementById('btnAdminLogin').style.display='none';
   document.getElementById('btnEditEvent').style.display='none'; // já fica dentro do adminControls
   renderCars();
+
   if (!getIdent()) {
-    showToast('Admin ativado! Clique em 👤 Sou motorista para identificar seu carro.','');
+    const msg = isGlobalAdmin ? 'Super-admin ativado! Acesso total ao evento.' : 'Admin ativado! Clique em 👤 Sou motorista para identificar seu carro.';
+    showToast(msg,'');
   } else {
-    showToast('Modo admin ativado!','ok');
+    const msg = isGlobalAdmin ? '✅ Super-admin ativado com acesso total!' : 'Modo admin ativado!';
+    showToast(msg,'ok');
   }
 };
 
@@ -3063,13 +3157,154 @@ window.saveCostCalc = async function() {
 
 
 /* ════════════════════════════════════════
+   RENDERIZAR MINI-MAPAS DOS CARDS
+════════════════════════════════════════ */
+window.renderCardMaps = function() {
+  // Lazy-load: renderizar mapas dos cards visíveis
+  if (typeof L === 'undefined') return; // Leaflet não carregou
+
+  const mapElements = document.querySelectorAll('[id^="cardMap_"]');
+  mapElements.forEach(mapEl => {
+    if (mapEl._leafletMap || mapEl.style.visibility === 'hidden') return;
+    window.initCardMap(mapEl);
+  });
+};
+
+window.initCardMap = function(mapEl) {
+  if (mapEl._leafletMap) return;
+  if (typeof L === 'undefined') return;
+
+  const origin = mapEl.dataset.origin || '';
+  const dest   = mapEl.dataset.dest   || '';
+  const oLatSaved = parseFloat(mapEl.dataset.olat);
+  const oLonSaved = parseFloat(mapEl.dataset.olon);
+  const dLatSaved = parseFloat(mapEl.dataset.dlat);
+  const dLonSaved = parseFloat(mapEl.dataset.dlon);
+  const hasOCoord = !isNaN(oLatSaved) && !isNaN(oLonSaved);
+  const hasDCoord = !isNaN(dLatSaved) && !isNaN(dLonSaved);
+
+  if (!origin && !dest && !hasOCoord && !hasDCoord) return;
+
+  // Destruir mapa anterior se existir (evitar conflito)
+  if (mapEl._leafletMap) {
+    mapEl._leafletMap.remove();
+    mapEl._leafletMap = null;
+  }
+
+  // Mostrar loading
+  mapEl.innerHTML = '<div class="card-map-loading">📍 Carregando mapa…</div>';
+
+  const map = L.map(mapEl, {
+    zoomControl: true,
+    attributionControl: false,
+    dragging: true,
+    scrollWheelZoom: false,
+    doubleClickZoom: true,
+    touchZoom: true,
+    tap: true
+  }).setView([-23.5, -46.6], 11);
+
+  mapEl._leafletMap = map;
+  mapEl.classList.add('card-map-leaflet');
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+
+  // Função auxiliar
+  function cleanAddr(s) {
+    return s.replace(/[–—]/g, ',').replace(/\bAp(to)?\b\s*\d*\s*/gi, '')
+            .replace(/\bSala\b\s*\d*\s*/gi, '').replace(/,\s*,/g, ',').replace(/,\s*$/, '').trim();
+  }
+
+  function variants(s) {
+    const c = cleanAddr(s);
+    const parts = c.split(',').map(p => p.trim()).filter(Boolean);
+    const noNum = c.replace(/,?\s*\b\d+\b/, '').replace(/,\s*,/g,',').trim();
+    const city = parts.length > 1 ? parts.slice(-2).join(', ') : c;
+    const onlyCity = parts.length > 0 ? parts[parts.length - 1] : c;
+    return [c, noNum, city, onlyCity].filter((v, i, a) => v && a.indexOf(v) === i);
+  }
+
+  async function geocodeCard(addr) {
+    for (const q of variants(addr)) {
+      try {
+        const r = await fetch(
+          'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' +
+          encodeURIComponent(q) + '&countrycodes=br',
+          { headers: { 'Accept-Language': 'pt-BR' } }
+        );
+        const d = await r.json();
+        if (d[0]) return [+d[0].lat, +d[0].lon];
+        await new Promise(r => setTimeout(r, 250));
+      } catch(e) { }
+    }
+    return null;
+  }
+
+  const mkIcon = (color) => L.divIcon({
+    html: `<div style="background:${color};width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,
+    iconSize:[12,12], iconAnchor:[6,6], className:''
+  });
+
+  async function plotCardPoints(oCoord, dCoord) {
+    const bounds = [];
+    if (oCoord) {
+      L.marker(oCoord, { icon: mkIcon('#4f46e5') }).addTo(map);
+      bounds.push(oCoord);
+    }
+    if (dCoord) {
+      L.marker(dCoord, { icon: mkIcon('#dc2626') }).addTo(map);
+      bounds.push(dCoord);
+    }
+    if (oCoord && dCoord) {
+      try {
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${oCoord[1]},${oCoord[0]};${dCoord[1]},${dCoord[0]}?overview=full&geometries=geojson`;
+        const rr = await fetch(osrmUrl);
+        const rd = await rr.json();
+        if (rd.routes?.[0]?.geometry?.coordinates) {
+          const coords = rd.routes[0].geometry.coordinates.map(([lon,lat]) => [lat,lon]);
+          L.polyline(coords, { color:'#4f46e5', weight:3, opacity:0.85 }).addTo(map);
+        } else {
+          L.polyline([oCoord, dCoord], { color:'#4f46e5', weight:2, dashArray:'5,3', opacity:0.7 }).addTo(map);
+        }
+      } catch(e) {
+        L.polyline([oCoord, dCoord], { color:'#4f46e5', weight:2, dashArray:'5,3', opacity:0.7 }).addTo(map);
+      }
+    }
+    if (bounds.length > 1) map.fitBounds(bounds, { padding:[10,10] });
+    else if (bounds.length === 1) map.setView(bounds[0], 13);
+
+    // Garantir que o mapa recalcule seu tamanho
+    setTimeout(() => {
+      map.invalidateSize(true);
+    }, 100);
+  }
+
+  // Usar coordenadas salvas ou geocodificar
+  if (hasOCoord || hasDCoord) {
+    plotCardPoints(
+      hasOCoord ? [oLatSaved, oLonSaved] : null,
+      hasDCoord ? [dLatSaved, dLonSaved] : null
+    );
+  } else {
+    geocodeCard(origin || '').then(async oRes => {
+      const dRes = dest ? await geocodeCard(dest) : null;
+      await plotCardPoints(oRes || null, dRes || null);
+    });
+  }
+};
+
+/* ════════════════════════════════════════
    MAPA LEAFLET (detalhe do carro)
 ════════════════════════════════════════ */
 window.initDetailMap = function() {
   const mapEl = document.getElementById('mapDetail');
   if (!mapEl) return;
-  if (mapEl._leafletMap) { mapEl._leafletMap.invalidateSize(); return; }
   if (typeof L === 'undefined') return;
+
+  // Destruir mapa anterior se existir
+  if (mapEl._leafletMap) {
+    mapEl._leafletMap.remove();
+    mapEl._leafletMap = null;
+  }
 
   const origin = mapEl.dataset.origin || '';
   const dest   = mapEl.dataset.dest   || '';
@@ -3174,7 +3409,11 @@ window.initDetailMap = function() {
     }
     if (bounds.length > 1) map.fitBounds(bounds, { padding:[24,24] });
     else if (bounds.length === 1) map.setView(bounds[0], 14);
-    map.invalidateSize();
+
+    // Garantir que o mapa recalcule seu tamanho
+    setTimeout(() => {
+      map.invalidateSize(true);
+    }, 100);
   }
 
   // Se temos coordenadas salvas, usar diretamente — sem precisar geocodificar
@@ -3355,14 +3594,6 @@ window.geoFillEv = function(inputId, listId) {
         <div style="font-size:11px;color:var(--primary-dark);margin-top:6px;opacity:.8" id="cardFeeNote"></div>
       </div>
 
-      <!-- Parcelas -->
-      <div style="margin-bottom:16px">
-        <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:var(--text)">Parcelas</label>
-        <select id="cardInstallments" class="fi" onchange="window.updateInstallments()"
-                style="width:100%;font-size:13px">
-        </select>
-      </div>
-
       <!-- Detalhamento da taxa -->
       <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:16px;font-size:13px">
         <div style="font-weight:700;margin-bottom:8px;color:var(--text)">📋 Detalhamento</div>
@@ -3371,7 +3602,7 @@ window.geoFillEv = function(inputId, listId) {
           <span id="cardBaseAmt" style="font-weight:600">R$ 0,00</span>
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="color:var(--muted)" id="cardFeeLabel">Taxa operacional (4,99%)</span>
+          <span style="color:var(--muted)">Taxa operacional (4,99%)</span>
           <span id="cardFeeAmt" style="font-weight:600;color:var(--accent)">+ R$ 0,00</span>
         </div>
         <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between">
@@ -3385,7 +3616,7 @@ window.geoFillEv = function(inputId, listId) {
                     margin-bottom:16px;cursor:pointer">
         <input type="checkbox" id="cardFeeAccept" style="margin-top:2px;flex-shrink:0"
                onchange="window.updateCardBtn()"/>
-        <span id="cardFeeAcceptText">Estou ciente que ao pagar com cartão de crédito será cobrada uma taxa operacional de <strong>4,99%</strong>, totalizando o valor acima.</span>
+        <span>Estou ciente que ao pagar com cartão de crédito será cobrada uma taxa operacional de <strong>4,99%</strong>, totalizando o valor acima.</span>
       </label>
 
       <!-- Botão pagar -->

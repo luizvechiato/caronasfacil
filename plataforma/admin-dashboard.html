@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📊 Admin Dashboard - Caronas Fácil</title>
+  <!-- Firebase (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database-compat.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --primary-light: #eef2ff;
+      --accent: #dc2626;
+      --success: #16a34a;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+    }
+
+    [data-theme="dark"] {
+      --primary: #818cf8;
+      --primary-dark: #c7d2fe;
+      --primary-light: #1e1b4b;
+      --accent: #f87171;
+      --success: #4ade80;
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #293548;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #334155;
+      --shadow: 0 1px 4px rgba(0,0,0,.4);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --primary: #818cf8;
+        --primary-dark: #c7d2fe;
+        --primary-light: #1e1b4b;
+        --accent: #f87171;
+        --success: #4ade80;
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --surface2: #293548;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --border: #334155;
+        --shadow: 0 1px 4px rgba(0,0,0,.4);
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: #0f172a;
+      color: #fff;
+      padding: 16px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-info {
+      font-size: 13px;
+      color: rgba(255,255,255,.7);
+    }
+
+    .theme-toggle {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: monospace;
+      transition: background .15s;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255,255,255,.18);
+    }
+
+    .btn-logout {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background .15s;
+    }
+
+    .btn-logout:hover {
+      background: rgba(255,255,255,.18);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Métricas */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .metric-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* Filters */
+    .filters {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .filter-input,
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--surface);
+      font-family: inherit;
+      transition: border-color .15s;
+    }
+
+    .filter-input:focus,
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Tabela de Eventos */
+    .events-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .events-header {
+      background: var(--surface2);
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .events-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .events-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+    }
+
+    .events-table thead {
+      background: var(--surface2);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .events-table th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      border-right: 1px solid var(--border);
+    }
+
+    .events-table th:last-child {
+      border-right: none;
+    }
+
+    .events-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .events-table td:last-child {
+      border-right: none;
+    }
+
+    .events-table tbody tr:hover {
+      background: var(--surface2);
+    }
+
+    .event-name {
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .event-name:hover {
+      text-decoration: underline;
+    }
+
+    .creator-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .creator-email {
+      color: var(--muted);
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .creator-contact {
+      color: var(--muted);
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .event-date {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .no-events {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .no-events-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .filters {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      .filter-input,
+      .filter-select {
+        width: 100%;
+      }
+
+      .events-table {
+        font-size: 12px;
+      }
+
+      .events-table th,
+      .events-table td {
+        padding: 10px 8px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <a href="/" class="header-title" style="text-decoration: none; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px;">← Caronas Fácil</a>
+    <div class="header-title">📊 Dashboard Admin</div>
+  </div>
+  <div class="header-right">
+    <div class="user-info">
+      Logado como: <strong id="adminUser">Admin</strong>
+    </div>
+    <button class="theme-toggle" onclick="window.toggleAdminTheme()" title="Alternar tema">☀️🌙</button>
+    <button class="btn-logout" onclick="handleLogout()">Sair</button>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container">
+  <!-- Métricas -->
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="metric-label">📅 Total de Eventos</div>
+      <div class="metric-value" id="totalEvents">0</div>
+      <div class="metric-sub">eventos criados</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">👥 Total de Criadores</div>
+      <div class="metric-value" id="totalCreators">0</div>
+      <div class="metric-sub">usuários únicos</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">🚗 Total de Caronas</div>
+      <div class="metric-value" id="totalRides">0</div>
+      <div class="metric-sub">ofertas de carona</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">👫 Total de Participantes</div>
+      <div class="metric-value" id="totalParticipants">0</div>
+      <div class="metric-sub">pessoas em eventos</div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <div class="filter-group">
+      <label class="filter-label" for="searchEvent">Buscar evento:</label>
+      <input type="text" id="searchEvent" class="filter-input" placeholder="Nome do evento..." onkeyup="applyFilters()"/>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label" for="sortBy">Ordenar por:</label>
+      <select id="sortBy" class="filter-select" onchange="applyFilters()">
+        <option value="date-desc">Data (Mais recente)</option>
+        <option value="date-asc">Data (Mais antigo)</option>
+        <option value="name-asc">Nome (A-Z)</option>
+        <option value="name-desc">Nome (Z-A)</option>
+        <option value="creator-asc">Criador (A-Z)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabela de Eventos -->
+  <div class="events-section">
+    <div class="events-header">
+      <div class="events-title">📋 Eventos Criados</div>
+    </div>
+    <div id="eventsContainer">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>Carregando eventos...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBLiObW7HniFnJGcGt5xPFQNdtSXuZxQjw",
+    authDomain: "caronas-lhpv.firebaseapp.com",
+    databaseURL: "https://caronas-lhpv-default-rtdb.firebaseio.com",
+    projectId: "caronas-lhpv",
+    storageBucket: "caronas-lhpv.firebasestorage.app",
+    messagingSenderId: "159548357201",
+    appId: "1:159548357201:web:91b0a892071daef103d670"
+  };
+
+  let allEvents = [];
+  let db;
+
+  // Inicializar Firebase quando scripts carregarem
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM carregado, aguardando Firebase...');
+
+    const waitForFirebase = setInterval(() => {
+      console.log('Verificando Firebase:', typeof firebase !== 'undefined');
+
+      if (typeof firebase !== 'undefined') {
+        clearInterval(waitForFirebase);
+        console.log('Firebase encontrado, inicializando...');
+
+        try {
+          firebase.initializeApp(firebaseConfig);
+          console.log('Firebase inicializado com sucesso');
+        } catch (e) {
+          console.log('Firebase já foi inicializado:', e.message);
+        }
+
+        db = firebase.database();
+        console.log('Banco de dados obtido, carregando eventos...');
+        loadEvents();
+      }
+    }, 100);
+
+    // Timeout de segurança: se Firebase não aparecer em 5s, tente mesmo assim
+    setTimeout(() => {
+      clearInterval(waitForFirebase);
+      if (typeof firebase === 'undefined') {
+        console.error('Firebase não carregou em 5 segundos!');
+      }
+    }, 5000);
+  });
+
+  // Dark mode
+  (function() {
+    const THEME_KEY = 'adminTheme';
+    const root = document.documentElement;
+
+    function applyTheme(theme) {
+      if (theme === 'dark') root.setAttribute('data-theme', 'dark');
+      else if (theme === 'light') root.setAttribute('data-theme', 'light');
+      else root.removeAttribute('data-theme');
+      if (theme) localStorage.setItem(THEME_KEY, theme);
+      else localStorage.removeItem(THEME_KEY);
+    }
+
+    const saved = localStorage.getItem(THEME_KEY);
+    applyTheme(saved || null);
+
+    window.toggleAdminTheme = function() {
+      const cur = root.getAttribute('data-theme');
+      const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (!cur) applyTheme(sys === 'dark' ? 'light' : 'dark');
+      else if (cur === 'dark') applyTheme('light');
+      else applyTheme('dark');
+    };
+  })();
+
+  // Session check
+  function checkSession() {
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+      window.location.href = './admin-login.html';
+      return false;
+    }
+    const user = localStorage.getItem('adminUser') || 'Admin';
+    document.getElementById('adminUser').textContent = user;
+    return true;
+  }
+
+  // Logout
+  function handleLogout() {
+    if (confirm('Tem certeza que deseja fazer logout?')) {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      localStorage.removeItem('adminLoginTime');
+      window.location.href = './admin-login.html';
+    }
+  }
+
+  // Load events from Firebase
+  function loadEvents() {
+    if (!db) {
+      console.error('❌ DB não inicializado!');
+      return;
+    }
+
+    console.log('📥 Iniciando carregamento de eventos...');
+
+    db.ref('events').on('value', (snapshot) => {
+      allEvents = [];
+      const data = snapshot.val();
+
+      console.log('📦 Dados do Firebase:', data);
+
+      if (!data) {
+        console.warn('⚠️ Nenhum evento encontrado na database');
+        renderNoEvents();
+        updateMetrics(0, 0, 0, 0);
+        return;
+      }
+
+      console.log('✅ Eventos encontrados:', Object.keys(data).length);
+
+      let totalRides = 0;
+      let totalParticipants = 0;
+      const creators = new Set();
+
+      Object.keys(data).forEach(eventId => {
+        const event = data[eventId];
+        console.log(`🔍 Evento ${eventId}:`, { name: event?.name, email: event?.creatorEmail });
+
+        // Aceitar evento se tiver PELO MENOS o nome (email é opcional)
+        if (event && event.name) {
+          console.log(`✅ Evento ${eventId} ACEITO`);
+          allEvents.push({
+            id: eventId,
+            name: event.name || 'Sem nome',
+            destination: event.destination || '',
+            creatorName: event.creatorName || 'Desconhecido',
+            creatorEmail: event.creatorEmail || '',
+            creatorPhone: event.creatorPhone || '',
+            createdAt: event.createdAt || 0,
+            cars: event.cars || {},
+            passengers: event.passengers || {}
+          });
+
+          // Usar createdBy (UID) como chave única do criador, não email que pode ser undefined
+          creators.add(event.createdBy || event.creatorEmail);
+
+          // Contar caronas por trajeto
+          if (event.cars) {
+            Object.values(event.cars).forEach(trip => {
+              if (trip && typeof trip === 'object') {
+                totalRides += Object.keys(trip).length;
+              }
+            });
+          }
+
+          // Contar participantes (estão dentro de cada carro)
+          if (event.cars) {
+            Object.values(event.cars).forEach(trip => {
+              if (trip && typeof trip === 'object') {
+                Object.values(trip).forEach(car => {
+                  if (car && car.passengers) {
+                    totalParticipants += Object.keys(car.passengers).length;
+                  }
+                });
+              }
+            });
+          }
+        } else {
+          console.log(`❌ Evento ${eventId} REJEITADO - Faltam campos obrigatórios`);
+        }
+      });
+
+      updateMetrics(allEvents.length, creators.size, totalRides, totalParticipants);
+      applyFilters();
+    });
+  }
+
+  // Update metrics
+  function updateMetrics(events, creators, rides, participants) {
+    document.getElementById('totalEvents').textContent = events;
+    document.getElementById('totalCreators').textContent = creators;
+    document.getElementById('totalRides').textContent = rides;
+    document.getElementById('totalParticipants').textContent = participants;
+  }
+
+  // Apply filters and sorting
+  function applyFilters() {
+    let filtered = [...allEvents];
+    const searchTerm = document.getElementById('searchEvent').value.toLowerCase();
+    const sortBy = document.getElementById('sortBy').value;
+
+    // Filtro de busca
+    if (searchTerm) {
+      filtered = filtered.filter(event =>
+        event.name.toLowerCase().includes(searchTerm) ||
+        event.creatorName.toLowerCase().includes(searchTerm) ||
+        event.creatorEmail.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Ordenação
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'date-desc':
+          return b.createdAt - a.createdAt;
+        case 'date-asc':
+          return a.createdAt - b.createdAt;
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'creator-asc':
+          return a.creatorName.localeCompare(b.creatorName);
+        default:
+          return 0;
+      }
+    });
+
+    renderEvents(filtered);
+  }
+
+  // Render events table
+  function renderEvents(events) {
+    const container = document.getElementById('eventsContainer');
+
+    if (events.length === 0) {
+      renderNoEvents();
+      return;
+    }
+
+    const html = `
+      <table class="events-table">
+        <thead>
+          <tr>
+            <th>Nome do Evento</th>
+            <th>Criador</th>
+            <th>E-mail</th>
+            <th>Contato</th>
+            <th>Destino</th>
+            <th>Caronas</th>
+            <th>Criado em</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${events.map(event => `
+            <tr onclick="window.location.href='/event.html?id=${event.id}'">
+              <td><span class="event-name">${escapeHtml(event.name)}</span></td>
+              <td><span class="creator-name">${escapeHtml(event.creatorName)}</span></td>
+              <td><span class="creator-email">${escapeHtml(event.creatorEmail)}</span></td>
+              <td><span class="creator-contact">${escapeHtml(event.creatorPhone || '-')}</span></td>
+              <td>${escapeHtml(event.destination || '-')}</td>
+              <td>${Object.keys(event.cars).length}</td>
+              <td><span class="event-date">${formatDate(event.createdAt)}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+
+    container.innerHTML = html;
+  }
+
+  // No events message
+  function renderNoEvents() {
+    const container = document.getElementById('eventsContainer');
+    container.innerHTML = `
+      <div class="no-events">
+        <div class="no-events-icon">📭</div>
+        <div>Nenhum evento encontrado</div>
+      </div>
+    `;
+  }
+
+  // Utilities
+  function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(text || '').replace(/[&<>"']/g, m => map[m]);
+  }
+
+  function formatDate(timestamp) {
+    if (!timestamp) return '-';
+    const date = new Date(parseInt(timestamp));
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  // Init
+  checkSession();
+</script>
+
+</body>
+</html>
