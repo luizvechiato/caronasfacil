@@ -1816,7 +1816,9 @@ function applyEventTheme(theme) {
   if (theme?.primaryColor) {
     root.style.setProperty('--primary', theme.primaryColor);
     root.style.setProperty('--primary-dark', mixColorGeneric(theme.primaryColor, [0,0,0], 0.35));
-    root.style.setProperty('--primary-light', mixColorGeneric(theme.primaryColor, [255,255,255], 0.88));
+    const tint = mixColorGeneric(theme.primaryColor, [255,255,255], 0.88);
+    root.style.setProperty('--primary-light', tint);
+    root.style.setProperty('--primary-tint', tint);
   }
   // ZONA 1 — header
   if (theme?.headerColor) {
@@ -1831,11 +1833,30 @@ function applyEventTheme(theme) {
     const claro = luminanceGeneric(theme.bandColor) > 0.55;
     root.style.setProperty('--band-fg', claro ? '#16211f' : '#f4f1ea');
   }
-  // ZONA 3 — fundo da página
+  // ZONA 3 — fundo da página.
+  // Quando há fundo personalizado, fixamos um conjunto COERENTE de superfícies,
+  // bordas e texto conforme a luminância do fundo — assim a página não fica
+  // "meio clara, meio escura" caso o aparelho esteja no modo oposto.
   if (theme?.bgColor) {
     root.style.setProperty('--bg', theme.bgColor);
     const claro = luminanceGeneric(theme.bgColor) > 0.55;
-    root.style.setProperty('--text', claro ? '#16211f' : '#f3efe7');
+    if (claro) {
+      root.style.setProperty('--text', '#16211f');
+      root.style.setProperty('--surface', '#ffffff');
+      root.style.setProperty('--surface2', '#efece4');
+      root.style.setProperty('--border', '#e4dfd6');
+      root.style.setProperty('--border-2', '#d7d0c4');
+      root.style.setProperty('--muted', '#5b6763');
+      if (!theme.primaryColor) root.style.setProperty('--primary-tint', '#dbeceb');
+    } else {
+      root.style.setProperty('--text', '#f3efe7');
+      root.style.setProperty('--surface', '#1c1a16');
+      root.style.setProperty('--surface2', '#26231e');
+      root.style.setProperty('--border', '#332f28');
+      root.style.setProperty('--border-2', '#413c33');
+      root.style.setProperty('--muted', '#a49b8b');
+      if (!theme.primaryColor) root.style.setProperty('--primary-tint', '#123a38');
+    }
   }
   // logo no topo (pequeno) — o hero grande usa o mesmo logo via renderCars()
   const logoEl = document.getElementById('eventLogo');
