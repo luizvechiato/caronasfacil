@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📊 Admin Dashboard - Caronas Fácil</title>
+  <title>Dashboard Admin · Caronas Fácil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap">
   <style>
     * {
       box-sizing: border-box;
@@ -12,49 +15,75 @@
     }
 
     :root {
-      --primary: #4f46e5;
-      --primary-dark: #3730a3;
-      --primary-light: #eef2ff;
-      --accent: #dc2626;
-      --success: #16a34a;
-      --bg: #f8fafc;
+      --primary: #0c6e6b;
+      --primary-dark: #08514f;
+      --primary-light: #dbeceb;
+      --primary-tint: #dbeceb;
+      --accent: #c24a2c;
+      --gold: #e0913a;
+      --gold-deep: #b06c1c;
+      --gold-tint: #fbedd7;
+      --success: #12855a;
+      --bg: #f6f4ef;
       --surface: #ffffff;
-      --surface2: #f1f5f9;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --shadow: 0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+      --surface2: #efece4;
+      --text: #16211f;
+      --muted: #5b6763;
+      --border: #e4dfd6;
+      --border-2: #d7d0c4;
+      --shadow: 0 1px 2px rgba(24,30,28,.06),0 6px 18px -10px rgba(24,30,28,.20);
+      --shadow-lg: 0 12px 34px -14px rgba(14,43,42,.34);
+      --header-bg: #0e2b2a;
+      --header-fg: #f4f1ea;
+      --sans:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      --serif:'Fraunces',Georgia,'Times New Roman',serif;
     }
 
     [data-theme="dark"] {
-      --primary: #818cf8;
-      --primary-dark: #c7d2fe;
-      --primary-light: #1e1b4b;
-      --accent: #f87171;
-      --success: #4ade80;
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface2: #293548;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --border: #334155;
-      --shadow: 0 1px 4px rgba(0,0,0,.4);
+      --primary: #3fb0ab;
+      --primary-dark: #8fd3ce;
+      --primary-light: #123a38;
+      --primary-tint: #123a38;
+      --accent: #e07a5a;
+      --gold: #e6a24f;
+      --gold-deep: #f0b876;
+      --gold-tint: #2a2114;
+      --success: #4cbf8c;
+      --bg: #12100e;
+      --surface: #1c1a16;
+      --surface2: #26231e;
+      --text: #f3efe7;
+      --muted: #a49b8b;
+      --border: #332f28;
+      --border-2: #413c33;
+      --shadow: 0 1px 3px rgba(0,0,0,.5);
+      --shadow-lg: 0 12px 34px -14px rgba(0,0,0,.6);
+      --header-bg: #0b1e1d;
+      --header-fg: #f3efe7;
     }
 
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --primary: #818cf8;
-        --primary-dark: #c7d2fe;
-        --primary-light: #1e1b4b;
-        --accent: #f87171;
-        --success: #4ade80;
-        --bg: #0f172a;
-        --surface: #1e293b;
-        --surface2: #293548;
-        --text: #f1f5f9;
-        --muted: #94a3b8;
-        --border: #334155;
-        --shadow: 0 1px 4px rgba(0,0,0,.4);
+        --primary: #3fb0ab;
+        --primary-dark: #8fd3ce;
+        --primary-light: #123a38;
+        --primary-tint: #123a38;
+        --accent: #e07a5a;
+        --gold: #e6a24f;
+        --gold-deep: #f0b876;
+        --gold-tint: #2a2114;
+        --success: #4cbf8c;
+        --bg: #12100e;
+        --surface: #1c1a16;
+        --surface2: #26231e;
+        --text: #f3efe7;
+        --muted: #a49b8b;
+        --border: #332f28;
+        --border-2: #413c33;
+        --shadow: 0 1px 3px rgba(0,0,0,.5);
+        --shadow-lg: 0 12px 34px -14px rgba(0,0,0,.6);
+        --header-bg: #0b1e1d;
+        --header-fg: #f3efe7;
       }
     }
 
@@ -398,9 +427,73 @@
         justify-content: space-between;
       }
     }
+
+    /* ══════════════════════════════════════════════════════════
+       CAMADA PREMIUM — redesign editorial v1 (só apresentação)
+       ══════════════════════════════════════════════════════════ */
+    body{font-family:var(--sans);-webkit-font-smoothing:antialiased;letter-spacing:-.005em;}
+    .ic{width:1em;height:1em;display:inline-block;vertical-align:-.125em;flex-shrink:0;}
+    .header{background:var(--header-bg);box-shadow:none;border-bottom:1px solid rgba(255,255,255,.08);}
+    .header-left{gap:14px;}
+    .header-title{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;display:inline-flex;align-items:center;gap:8px;}
+    .header-title .ic{width:18px;height:18px;}
+    .header-brand-mk{width:30px;height:30px;border-radius:9px;background:var(--gold);color:#241203;display:inline-flex;align-items:center;justify-content:center;}
+    .header-brand-mk .ic{width:18px;height:18px;}
+    .btn-logout,.theme-toggle{border-radius:10px;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);}
+    .theme-toggle .ic{width:16px;height:16px;color:#fff;}
+    .metric-card{border-radius:var(--r,14px);border-radius:14px;box-shadow:var(--shadow);padding:18px;}
+    .metric-label{display:flex;align-items:center;gap:7px;letter-spacing:.06em;}
+    .metric-label .ic{width:15px;height:15px;color:var(--primary);}
+    .metric-value{font-family:var(--serif);font-weight:600;font-size:30px;letter-spacing:-.02em;color:var(--text);font-variant-numeric:tabular-nums;}
+    .filters{border-radius:14px;box-shadow:var(--shadow);}
+    .filter-input,.filter-select{border-radius:10px;border:1px solid var(--border-2);}
+    .filter-input:focus,.filter-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-tint);}
+    .events-section{border-radius:14px;box-shadow:var(--shadow);}
+    .events-title{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:-.01em;}
+    .events-scroll{overflow-x:auto;}
+    .events-table th{letter-spacing:.06em;border-right:none;}
+    .events-table td{border-right:none;font-variant-numeric:tabular-nums;}
+    .event-name{color:var(--primary-dark);font-weight:700;}
+    .no-events-mk{width:60px;height:60px;border-radius:18px;background:var(--surface2);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;}
+    .no-events-mk .ic{width:28px;height:28px;}
+
+    /* No celular, a tabela de 7 colunas vira CARTÕES (cada linha = um cartão) */
+    @media (max-width: 720px){
+      .events-scroll{ overflow-x:visible; }
+      .events-table, .events-table thead, .events-table tbody,
+      .events-table tr, .events-table td { display:block; width:auto; }
+      .events-table thead { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+      .events-table tr.event-row{
+        border:1px solid var(--border); border-radius:12px; margin:12px 14px;
+        background:var(--surface); box-shadow:var(--shadow); overflow:hidden;
+      }
+      .events-table td{
+        display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+        padding:10px 14px; border-bottom:1px solid var(--border); text-align:right;
+        min-width:0; overflow-wrap:anywhere; word-break:break-word;
+      }
+      .events-table td:last-child{ border-bottom:none; }
+      .events-table td::before{
+        content:attr(data-label); text-align:left; flex:0 0 auto; max-width:42%;
+        font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);
+      }
+      .events-table td > *{ min-width:0; overflow-wrap:anywhere; word-break:break-word; }
+      .events-table td .event-name{ font-size:15px; }
+    }
   </style>
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.2A2 2 0 0 1 8.4 5.5h7.2a2 2 0 0 1 1.9 1.3L19 11"/><path d="M3 11h18v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="14" r="1"/><circle cx="17" cy="14" r="1"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 3v3M16 3v3"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19c0-2.8 3-4.3 6.5-4.3s6.5 1.5 6.5 4.3"/><path d="M16 5.2A3.2 3.2 0 0 1 16 11.2"/><path d="M18 14.9c2.3.5 3.5 1.9 3.5 4.1"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13l2.5-8h11L20 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 13h4l1.5 2.5h5L16 13h4"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-3 8-7 10-4-2-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+</defs></svg>
 
 <!-- Portão de autenticação: nada é mostrado até confirmar que é o admin -->
 <div id="authGate" class="gate">
@@ -412,14 +505,13 @@
   <!-- Header -->
   <div class="header">
     <div class="header-left">
-      <a href="/" class="header-title" style="text-decoration: none; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px;">← Caronas Fácil</a>
-      <div class="header-title">📊 Dashboard Admin</div>
+      <a href="/" class="header-title" style="text-decoration:none;color:var(--header-fg);cursor:pointer"><svg class="ic"><use href="#i-back"/></svg> <span class="header-brand-mk"><svg class="ic"><use href="#i-shield"/></svg></span> Painel Admin</a>
     </div>
     <div class="header-right">
       <div class="user-info">
         Logado como: <strong id="adminUser">-</strong>
       </div>
-      <button class="theme-toggle" onclick="window.toggleAdminTheme()" title="Alternar tema">☀️🌙</button>
+      <button class="theme-toggle" onclick="window.toggleAdminTheme()" title="Alternar tema"><svg class="ic"><use href="#i-sun"/></svg></button>
       <button class="btn-logout" id="logoutBtn">Sair</button>
     </div>
   </div>
@@ -429,22 +521,22 @@
     <!-- Métricas -->
     <div class="metrics">
       <div class="metric-card">
-        <div class="metric-label">📅 Total de Eventos</div>
+        <div class="metric-label"><svg class="ic"><use href="#i-cal"/></svg> Total de Eventos</div>
         <div class="metric-value" id="totalEvents">0</div>
         <div class="metric-sub">eventos criados</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">👥 Total de Criadores</div>
+        <div class="metric-label"><svg class="ic"><use href="#i-user"/></svg> Total de Criadores</div>
         <div class="metric-value" id="totalCreators">0</div>
         <div class="metric-sub">usuários únicos</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">🚗 Total de Caronas</div>
+        <div class="metric-label"><svg class="ic"><use href="#i-car"/></svg> Total de Caronas</div>
         <div class="metric-value" id="totalRides">0</div>
         <div class="metric-sub">ofertas de carona</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">👫 Total de Participantes</div>
+        <div class="metric-label"><svg class="ic"><use href="#i-users"/></svg> Total de Participantes</div>
         <div class="metric-value" id="totalParticipants">0</div>
         <div class="metric-sub">pessoas em eventos</div>
       </div>
@@ -471,7 +563,7 @@
     <!-- Tabela de Eventos -->
     <div class="events-section">
       <div class="events-header">
-        <div class="events-title">📋 Eventos Criados</div>
+        <div class="events-title">Eventos Criados</div>
       </div>
       <div id="eventsContainer">
         <div class="loading">
@@ -655,6 +747,7 @@ function renderEvents(events) {
   }
 
   const html = `
+    <div class="events-scroll">
     <table class="events-table">
       <thead>
         <tr>
@@ -670,17 +763,18 @@ function renderEvents(events) {
       <tbody>
         ${events.map(event => `
           <tr data-id="${escapeHtml(event.id)}" class="event-row">
-            <td><span class="event-name">${escapeHtml(event.name)}</span></td>
-            <td><span class="creator-name">${escapeHtml(event.creatorName)}</span></td>
-            <td><span class="creator-email">${escapeHtml(event.creatorEmail)}</span></td>
-            <td><span class="creator-contact">${escapeHtml(event.creatorPhone || '-')}</span></td>
-            <td>${escapeHtml(event.destination || '-')}</td>
-            <td>${Object.keys(event.cars).length}</td>
-            <td><span class="event-date">${formatDate(event.createdAt)}</span></td>
+            <td data-label="Evento"><span class="event-name">${escapeHtml(event.name)}</span></td>
+            <td data-label="Criador"><span class="creator-name">${escapeHtml(event.creatorName)}</span></td>
+            <td data-label="E-mail"><span class="creator-email">${escapeHtml(event.creatorEmail)}</span></td>
+            <td data-label="Contato"><span class="creator-contact">${escapeHtml(event.creatorPhone || '-')}</span></td>
+            <td data-label="Destino">${escapeHtml(event.destination || '-')}</td>
+            <td data-label="Caronas">${Object.keys(event.cars).length}</td>
+            <td data-label="Criado em"><span class="event-date">${formatDate(event.createdAt)}</span></td>
           </tr>
         `).join('')}
       </tbody>
     </table>
+    </div>
   `;
 
   container.innerHTML = html;
@@ -695,7 +789,7 @@ function renderNoEvents() {
   const container = document.getElementById('eventsContainer');
   container.innerHTML = `
     <div class="no-events">
-      <div class="no-events-icon">📭</div>
+      <div class="no-events-icon"><span class="no-events-mk"><svg class="ic"><use href="#i-inbox"/></svg></span></div>
       <div>Nenhum evento encontrado</div>
     </div>
   `;
