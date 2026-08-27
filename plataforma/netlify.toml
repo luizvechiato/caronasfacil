@@ -14,6 +14,14 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
+# /admin é um arquivo sem extensão e era servido como texto puro pelo navegador.
+# Renderiza a tela de login do admin (mesmo conteúdo, agora como HTML).
+[[redirects]]
+  from = "/admin"
+  to = "/admin-login.html"
+  status = 200
+  force = true
+
 # Redirecionar tudo para index.html (SPA)
 [[redirects]]
   from = "/*"
