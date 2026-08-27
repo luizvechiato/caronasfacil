@@ -1,4 +1,44 @@
 // Caronas Fácil — Service Worker v1.0
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey:            "AIzaSyBLiObW7HniFnJGcGt5xPFQNdtSXuZxQjw",
+  authDomain:        "caronas-lhpv.firebaseapp.com",
+  databaseURL:       "https://caronas-lhpv-default-rtdb.firebaseio.com",
+  projectId:         "caronas-lhpv",
+  storageBucket:     "caronas-lhpv.firebasestorage.app",
+  messagingSenderId: "159548357201",
+  appId:             "1:159548357201:web:91b0a892071daef103d670"
+});
+
+// Recebe pushes do FCM quando o app está fechado/em background
+try {
+  const messaging = firebase.messaging();
+  messaging.onBackgroundMessage((payload) => {
+    const title = payload?.notification?.title || payload?.data?.title || 'Caronas Fácil';
+    const body  = payload?.notification?.body  || payload?.data?.body  || '';
+    const url   = payload?.data?.url || '/index.html';
+    self.registration.showNotification(title, {
+      body,
+      icon: 'icon-192.png',
+      badge: 'icon-192.png',
+      data: { url }
+    });
+  });
+} catch (e) { /* messaging indisponível (ex: navegador sem suporte) */ }
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = event.notification?.data?.url || '/index.html';
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then(list => {
+      for (const c of list) { if (c.url.includes(url) && 'focus' in c) return c.focus(); }
+      if (clients.openWindow) return clients.openWindow(url);
+    })
+  );
+});
+
 const CACHE = 'caronas-v1';
 const ASSETS = [
   '/index.html',

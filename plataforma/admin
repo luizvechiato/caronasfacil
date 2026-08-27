@@ -108,7 +108,7 @@
       margin-bottom: 6px;
     }
 
-    input[type="text"],
+    input[type="email"],
     input[type="password"] {
       width: 100%;
       padding: 10px 12px;
@@ -121,7 +121,7 @@
       transition: border-color 0.15s;
     }
 
-    input[type="text"]:focus,
+    input[type="email"]:focus,
     input[type="password"]:focus {
       outline: none;
       border-color: var(--primary);
@@ -144,25 +144,20 @@
       display: block;
     }
 
-    .loading {
-      display: none;
-      text-align: center;
-      color: var(--muted);
+    .success-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 12px;
       font-size: 13px;
+      color: #15803d;
+      margin-bottom: 16px;
+      display: none;
+      line-height: 1.5;
     }
 
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 3px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin: 0 auto 8px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .success-box.show {
+      display: block;
     }
 
     .btn {
@@ -206,6 +201,40 @@
       background: var(--border);
     }
 
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: none;
+      padding: 0;
+    }
+
+    .btn-link:hover {
+      text-decoration: underline;
+    }
+
+    .forgot-row {
+      text-align: right;
+      margin: -12px 0 20px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     .login-footer {
       text-align: center;
       margin-top: 24px;
@@ -224,9 +253,6 @@
     }
 
     .theme-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -241,32 +267,11 @@
     .theme-toggle:hover {
       background: var(--border);
     }
-
-    .info-box {
-      background: var(--primary-light);
-      border: 1px solid #c7d2fe;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 12px;
-      color: var(--primary-dark);
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-
-    .demo-credentials {
-      font-family: monospace;
-      background: var(--surface2);
-      padding: 6px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      margin-top: 4px;
-    }
   </style>
 </head>
 <body>
 
 <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px;">
-  <a href="/admin-dashboard" class="theme-toggle" style="text-decoration: none; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 16px; font-family: monospace; color: var(--muted); transition: all 0.15s;" title="Ir para Dashboard">🛡️</a>
   <button class="theme-toggle" onclick="window.toggleAdminTheme()" title="Alternar tema">☀️🌙</button>
 </div>
 
@@ -277,13 +282,13 @@
     <div class="login-subtitle">Portal de Gerenciamento Caronas Fácil</div>
   </div>
 
-
   <div id="errorBox" class="error-box"></div>
+  <div id="successBox" class="success-box"></div>
 
-  <form onsubmit="handleLogin(event)">
+  <form id="loginForm">
     <div class="form-group">
-      <label for="username">Usuário</label>
-      <input type="text" id="username" placeholder="Ex: Admin" required autocomplete="username"/>
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="seu@email.com" required autocomplete="username"/>
     </div>
 
     <div class="form-group">
@@ -291,11 +296,13 @@
       <input type="password" id="password" placeholder="Sua senha" required autocomplete="current-password"/>
     </div>
 
+    <div class="forgot-row">
+      <button type="button" class="btn-link" id="forgotBtn">Esqueci minha senha</button>
+    </div>
+
     <button type="submit" class="btn btn-primary" id="loginBtn">
       <span id="btnText">Entrar como Admin</span>
-      <span id="btnSpinner" style="display:none">
-        <span class="spinner" style="width:16px;height:16px;border-width:2px;margin:0"></span>
-      </span>
+      <span id="btnSpinner" style="display:none"><span class="spinner"></span></span>
     </button>
 
     <button type="button" class="btn btn-secondary" onclick="goBackToEvent()">
@@ -308,8 +315,146 @@
   </div>
 </div>
 
+<script type="module">
+import { initializeApp }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail,
+         onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyBLiObW7HniFnJGcGt5xPFQNdtSXuZxQjw",
+  authDomain:        "caronas-lhpv.firebaseapp.com",
+  databaseURL:       "https://caronas-lhpv-default-rtdb.firebaseio.com",
+  projectId:         "caronas-lhpv",
+  storageBucket:     "caronas-lhpv.firebasestorage.app",
+  messagingSenderId: "159548357201",
+  appId:             "1:159548357201:web:91b8a892071daef103d670",
+  measurementId:     "G-QNNJN6WTCW"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Lista de e-mails com acesso ao painel administrativo.
+// Adicione outros e-mails aqui se precisar dar acesso a mais pessoas no futuro.
+const ADMIN_EMAILS = ['lhvechiato@gmail.com'];
+
+function isAdminEmail(email) {
+  return !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
+function showError(msg) {
+  hideSuccess();
+  const el = document.getElementById('errorBox');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideError() {
+  document.getElementById('errorBox').classList.remove('show');
+}
+function showSuccess(msg) {
+  hideError();
+  const el = document.getElementById('successBox');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideSuccess() {
+  document.getElementById('successBox').classList.remove('show');
+}
+
+function setLoading(loading) {
+  const btn = document.getElementById('loginBtn');
+  const text = document.getElementById('btnText');
+  const spinner = document.getElementById('btnSpinner');
+  btn.disabled = loading;
+  text.style.display = loading ? 'none' : 'inline';
+  spinner.style.display = loading ? 'inline-flex' : 'none';
+}
+
+function friendlyAuthError(code) {
+  switch (code) {
+    case 'auth/invalid-email':       return 'E-mail inválido.';
+    case 'auth/user-not-found':
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':      return 'E-mail ou senha incorretos.';
+    case 'auth/too-many-requests':   return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+    default:                         return 'Não foi possível entrar. Tente novamente.';
+  }
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideError();
+  hideSuccess();
+
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!email || !password) {
+    showError('Informe e-mail e senha.');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    if (!isAdminEmail(cred.user.email)) {
+      await signOut(auth);
+      setLoading(false);
+      showError('Este acesso é restrito ao administrador do sistema.');
+      return;
+    }
+    window.location.href = './admin-dashboard.html';
+  } catch (err) {
+    setLoading(false);
+    showError(friendlyAuthError(err.code));
+  }
+});
+
+document.getElementById('forgotBtn').addEventListener('click', async () => {
+  hideError();
+  hideSuccess();
+  const email = document.getElementById('email').value.trim();
+  if (!email) {
+    showError('Digite seu e-mail no campo acima e clique de novo em "Esqueci minha senha".');
+    return;
+  }
+  if (!isAdminEmail(email)) {
+    showError('Este acesso é restrito ao administrador do sistema.');
+    return;
+  }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showSuccess('Enviamos um e-mail com um link para redefinir sua senha.');
+  } catch (err) {
+    showError(friendlyAuthError(err.code));
+  }
+});
+
+function goBackToEvent() {
+  const eventId = new URLSearchParams(window.location.search).get('eventId');
+  if (eventId) {
+    window.location.href = `./event.html?id=${eventId}`;
+  } else {
+    window.location.href = './index.html';
+  }
+}
+window.goBackToEvent = goBackToEvent;
+
+// Se já estiver logado como admin, pula direto pro dashboard.
+onAuthStateChanged(auth, (user) => {
+  if (user && isAdminEmail(user.email)) {
+    window.location.href = './admin-dashboard.html';
+  }
+});
+
+// Enter no campo de senha envia o form
+document.getElementById('password').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') document.getElementById('loginForm').requestSubmit();
+});
+</script>
+
 <script>
-  // Dark mode
+  // Dark mode (fora do module para ficar disponível já no primeiro paint)
   (function() {
     const THEME_KEY = 'adminTheme';
     const root = document.documentElement;
@@ -333,88 +478,6 @@
       else applyTheme('dark');
     };
   })();
-
-  // Credenciais de admin (em produção, usar Firebase Auth)
-  const ADMIN_USERNAME = 'Admin';
-  const ADMIN_PASSWORD = 'Luiz@2026!';
-
-  function showError(msg) {
-    const el = document.getElementById('errorBox');
-    el.textContent = msg;
-    el.classList.add('show');
-  }
-
-  function hideError() {
-    const el = document.getElementById('errorBox');
-    el.classList.remove('show');
-  }
-
-  function setLoading(loading) {
-    const btn = document.getElementById('loginBtn');
-    const text = document.getElementById('btnText');
-    const spinner = document.getElementById('btnSpinner');
-    btn.disabled = loading;
-    text.style.display = loading ? 'none' : 'inline';
-    spinner.style.display = loading ? 'inline' : 'none';
-  }
-
-  async function handleLogin(e) {
-    e.preventDefault();
-    hideError();
-
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-
-    if (!username || !password) {
-      showError('Informe usuário e senha.');
-      return;
-    }
-
-    setLoading(true);
-
-    // Simular delay de rede
-    await new Promise(r => setTimeout(r, 800));
-
-    // Validar credenciais
-    if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-      setLoading(false);
-      showError('Usuário ou senha incorretos.');
-      return;
-    }
-
-    // Login bem-sucedido
-    const token = btoa(`${username}:${Date.now()}`); // Token simples (em prod usar JWT)
-    localStorage.setItem('adminToken', token);
-    localStorage.setItem('adminUser', username);
-    localStorage.setItem('adminLoginTime', Date.now());
-
-    // Redirecionar para dashboard
-    window.location.href = './admin-dashboard.html';
-  }
-
-  function goBackToEvent() {
-    const eventId = new URLSearchParams(window.location.search).get('eventId');
-    if (eventId) {
-      window.location.href = `./event.html?id=${eventId}`;
-    } else {
-      window.location.href = './index.html';
-    }
-  }
-
-  // Verificar se já está logado
-  function checkAdminSession() {
-    const token = localStorage.getItem('adminToken');
-    if (token) {
-      window.location.href = './admin-dashboard.html';
-    }
-  }
-
-  checkAdminSession();
-
-  // Enter para enviar form
-  document.getElementById('password').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') document.querySelector('form').dispatchEvent(new Event('submit'));
-  });
 </script>
 
 </body>

@@ -154,6 +154,13 @@
       background:var(--primary-light);
     }
     .tab:hover:not(.active){color:var(--text);border-color:#94a3b8;background:var(--surface2);}
+    .tab-add{
+      padding:7px 14px;font-size:15px;font-weight:700;
+      color:var(--primary);cursor:pointer;white-space:nowrap;
+      border:1.5px dashed var(--primary);border-radius:8px;
+      background:var(--primary-light);flex-shrink:0;
+    }
+    .tab-add:hover{filter:brightness(0.96);}
 
     /* ── CONTENT ── */
     .content{padding:16px;max-width:620px;margin:0 auto;padding-bottom:90px;}
@@ -880,6 +887,7 @@
   <div class="header-row1">
     <div style="display:flex;align-items:center;gap:10px">
       <a class='btn-back' href='/'>← Viagens</a>
+      <img id="eventLogo" src="" alt="Logo do evento" style="display:none;height:28px;max-width:120px;object-fit:contain;border-radius:6px" />
       <div class="header-appname" id="headerAppname" onclick="adminTap()">Caronas Fácil</div>
     </div>
     <div>
@@ -960,6 +968,60 @@
   </div>
 </div>
 
+<!-- ── MODAL: Adicionar trajeto (ida/volta) ── -->
+<div class="overlay hidden" id="overlayTripAdd">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Criar trajeto</div>
+    <div class="modal-sub">Crie o seu trajeto de ida ou volta — cada motorista cuida do seu</div>
+    <div id="tripAddError" class="error-box"></div>
+    <div class="fg">
+      <label class="fl">Data do trajeto *</label>
+      <input class="fi" id="tripAddDate" type="date"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Direção *</label>
+      <select class="fi" id="tripAddDir">
+        <option value="ida">Ida (→ Destino)</option>
+        <option value="volta">Volta (← Origem)</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Ponto de saída padrão (opcional)</label>
+      <div style="position:relative">
+        <input class="fi" id="tripAddPoint" type="text" placeholder="Ex: São Paulo (aceita só o nome da cidade)"
+               autocomplete="off" oninput="window.acSearchEv(this,'tripAddPointList')"/>
+        <div id="tripAddPointList" class="ac-list" style="display:none"></div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Horário padrão (opcional)</label>
+      <input class="fi" id="tripAddTime" type="time"/>
+    </div>
+    <button class="btn btn-primary btn-full" id="btnSaveTripAdd" onclick="window.saveTripAdd()">Criar trajeto</button>
+    <button class="btn btn-outline btn-full" onclick="closeModal('overlayTripAdd')">Cancelar</button>
+  </div>
+</div>
+
+<!-- ── MODAL: Avise-me (interesse) ── -->
+<div class="overlay hidden" id="overlayInterest">
+  <div class="modal">
+    <h3>🔔 Avise-me sobre este trajeto</h3>
+    <p style="font-size:13px;color:var(--muted);margin:-4px 0 12px">Cadastre seu nome e WhatsApp. Assim que alguém oferecer um carro para este trajeto, você recebe uma notificação — mesmo com o app fechado.</p>
+    <div class="fg">
+      <label class="fl">Seu nome</label>
+      <input class="fi" id="interestName" placeholder="Nome"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Seu WhatsApp</label>
+      <input class="fi" id="interestPhone" placeholder="(11) 99999-9999"/>
+    </div>
+    <div id="interestError" class="error-box"></div>
+    <button class="btn btn-primary btn-full" id="btnSaveInterest" onclick="window.saveInterest()">Quero ser avisado(a)</button>
+    <button class="btn btn-outline btn-full" onclick="closeModal('overlayInterest')">Cancelar</button>
+  </div>
+</div>
+
 <!-- ── MODAL: Adicionar / Editar carro ── -->
 <div class="overlay hidden" id="overlayCar">
   <div class="modal">
@@ -983,10 +1045,11 @@
       <div class="fg">
         <label class="fl">Ponto de saída</label>
         <div style="position:relative">
-          <input class="fi" id="carOrigin" type="text" placeholder="Ex: R. Martim Buchard"
+          <input class="fi" id="carOrigin" type="text" placeholder="Ex: R. Martim Buchard, ou apenas 'São Paulo'"
                  autocomplete="off" oninput="window.acSearchEv(this,'carOriginList')"/>
           <div id="carOriginList" class="ac-list" style="display:none"></div>
         </div>
+        <div class="field-hint" style="font-size:11px;color:var(--muted);margin-top:4px">Não sabe o endereço exato? Só o nome da cidade já funciona.</div>
         <button type="button" class="ac-geo-btn" onclick="window.geoFillEv('carOrigin','carOriginList')">
           📍 Usar minha localização
         </button>
@@ -1149,6 +1212,25 @@
       <button type="button" class="ac-geo-btn" onclick="window.geoFillEv('editEvOrigin','editEvOriginList')">
         📍 Usar minha localização
       </button>
+    </div>
+
+    <div class="fg" style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
+      <label class="fl">🎨 Personalização visual deste evento</label>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+        Opcional. Deixe cada evento com a cara da sua própria festa.
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Logo no topo da página (URL da imagem)</label>
+      <input class="fi" id="editEvLogoUrl" type="text" placeholder="Ex: https://.../logo.png"/>
+      <div class="field-hint" style="font-size:11px;color:var(--muted);margin-top:4px">Cole o link de uma imagem já hospedada (ex: Google Drive, Imgur). Fica pequena, ao lado do nome do app.</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Cor principal do evento</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input id="editEvColor" type="color" value="#4f46e5" style="width:44px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface)"/>
+        <button type="button" class="btn btn-outline" style="padding:8px 12px;font-size:12px" onclick="document.getElementById('editEvColor').value='#4f46e5'">Restaurar padrão</button>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-primary btn-full" id="btnSaveEvent" onclick="window.saveEventEdit()">✅ Atualizar evento</button>
@@ -1331,6 +1413,8 @@
 import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, get, set, push, remove, onValue, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getMessaging, getToken, isSupported as isMessagingSupported }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js';
 
 const firebaseConfig = {
   apiKey:            "AIzaSyBLiObW7HniFnJGcGt5xPFQNdtSXuZxQjw",
@@ -1345,6 +1429,45 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
+
+/* ── PUSH NOTIFICATIONS (FCM) — notificações reais, mesmo com o app fechado ── */
+const VAPID_KEY = 'BIBT6bbieWZeDneTbxuSCUzYt4lheicN8eN5XlGNnQtDsmrzPUi2LRY5P2t4hy-QjfpeHPerf10lfnZmbJbD4oY';
+let _messaging = null;
+async function registerPushToken(phone) {
+  if (!phone) return;
+  try {
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+    if (!(await isMessagingSupported().catch(()=>false))) return;
+    if (!_messaging) _messaging = getMessaging(app);
+    if (Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return;
+    }
+    if (Notification.permission !== 'granted') return;
+    const reg = await navigator.serviceWorker.ready.catch(()=>undefined);
+    const token = await getToken(_messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if (token) await set(ref(db, `fcmTokens/${normPhone(phone)}`), { token, updatedAt: Date.now() });
+  } catch(e) { /* navegador sem suporte, ou usuário negou permissão */ }
+}
+async function getTokensForPhones(phones) {
+  const out = [];
+  for (const p of (phones||[])) {
+    if (!p) continue;
+    try {
+      const snap = await get(ref(db, `fcmTokens/${normPhone(p)}`));
+      if (snap.exists() && snap.val()?.token) out.push(snap.val().token);
+    } catch(e) {}
+  }
+  return out;
+}
+function sendPush(tokens, title, body) {
+  const list = (tokens||[]).filter(Boolean);
+  if (!list.length) return;
+  fetch('/.netlify/functions/notify-push', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ tokens:list, title, body, url: location.href })
+  }).catch(()=>{});
+}
 
 /* ── ESTADO ── */
 const params      = new URLSearchParams(location.search);
@@ -1376,6 +1499,70 @@ function saveIdentLocal(n,p) { localStorage.setItem(IDENT_KEY, JSON.stringify({n
 
 /* ── NORMALIZAR TELEFONE (fix: comparação robusta) ── */
 function normPhone(p) { return String(p||'').replace(/\D/g,''); }
+
+/* ════════════════════════════════════════
+   GEOCODING GENÉRICO (endereço completo OU só cidade)
+   Mesmo padrão usado na criação do evento (index.html) e no
+   geocodeCard() dos mini-mapas: tenta do endereço completo até
+   restar só o nome da cidade — funciona para qualquer cidade, de
+   qualquer lugar, sem exigir endereço com número. Sem custo extra,
+   usa o mesmo Nominatim/OSM já usado no resto do app.
+════════════════════════════════════════ */
+function cleanAddrGeneric(s) {
+  return String(s || '').replace(/[–—]/g, ',').replace(/\bAp(to)?\b\s*\d*\s*/gi, '')
+          .replace(/\bSala\b\s*\d*\s*/gi, '').replace(/,\s*,/g, ',').replace(/,\s*$/, '').trim();
+}
+function addrVariantsGeneric(s) {
+  const c = cleanAddrGeneric(s);
+  const parts = c.split(',').map(p => p.trim()).filter(Boolean);
+  const noNum = c.replace(/,?\s*\b\d+\b/, '').replace(/,\s*,/g, ',').trim();
+  const city = parts.length > 1 ? parts.slice(-2).join(', ') : c;
+  const onlyCity = parts.length > 0 ? parts[parts.length - 1] : c;
+  return [c, noNum, city, onlyCity].filter((v, i, a) => v && a.indexOf(v) === i);
+}
+/* ════════════════════════════════════════
+   PERSONALIZAÇÃO VISUAL POR EVENTO (logo + cor)
+════════════════════════════════════════ */
+function hexToRgbGeneric(hex) {
+  let h = String(hex||'').replace('#','');
+  if (h.length === 3) h = h.split('').map(c => c+c).join('');
+  const num = parseInt(h, 16);
+  if (isNaN(num)) return null;
+  return [(num>>16)&255, (num>>8)&255, num&255];
+}
+function mixColorGeneric(hex, target, amount) {
+  const rgb = hexToRgbGeneric(hex);
+  if (!rgb) return hex;
+  const m = (a,t) => Math.round(a + (t-a)*amount);
+  return `rgb(${m(rgb[0],target[0])},${m(rgb[1],target[1])},${m(rgb[2],target[2])})`;
+}
+function applyEventTheme(theme) {
+  const root = document.documentElement;
+  if (theme?.primaryColor) {
+    root.style.setProperty('--primary', theme.primaryColor);
+    root.style.setProperty('--primary-dark', mixColorGeneric(theme.primaryColor, [0,0,0], 0.35));
+    root.style.setProperty('--primary-light', mixColorGeneric(theme.primaryColor, [255,255,255], 0.88));
+  }
+  const logoEl = document.getElementById('eventLogo');
+  if (logoEl) {
+    if (theme?.logoUrl) { logoEl.src = theme.logoUrl; logoEl.style.display = 'inline-block'; }
+    else { logoEl.style.display = 'none'; }
+  }
+}
+
+async function resolveLatLon(text) {
+  if (!text || !text.trim()) return null;
+  for (const q of addrVariantsGeneric(text)) {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}&countrycodes=br`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+      const data = await res.json();
+      if (data[0]) return { lat: +data[0].lat, lon: +data[0].lon, display_name: data[0].display_name };
+      await new Promise(r => setTimeout(r, 250));
+    } catch (e) { /* tenta a próxima variação */ }
+  }
+  return null;
+}
 
 /* ── SNAPSHOT ── */
 const SNAP_KEY = `caronaSnap_${eventId}`;
@@ -1605,6 +1792,7 @@ async function loadEvent() {
     eventData = snap.val();
     trips = Array.isArray(eventData.trips) ? eventData.trips : Object.values(eventData.trips||{});
     cars  = eventData.cars||{};
+    applyEventTheme(eventData.theme);
 
     // Header
     document.title = `Caronas Fácil · ${eventData.name}`;
@@ -1639,9 +1827,12 @@ async function loadEvent() {
       document.getElementById('btnEditEvent').style.display = 'inline-flex';
     }
 
+    // Se já sabemos quem é (identidade salva localmente), registra o token de push
+    const ident0 = getIdent();
+    if (ident0?.phone) registerPushToken(ident0.phone);
+
     renderTabs();
-    renderCars();
-    document.getElementById('fabAddCar').style.display = 'flex';
+    renderCars(); // já cuida de mostrar/esconder o FAB conforme existir ou não um trajeto ativo
 
     let carsFirstCall = true;
     onValue(ref(db,`events/${eventId}/cars`), (s) => {
@@ -1682,16 +1873,29 @@ async function loadEvent() {
 
 /* ══ TABS ══ */
 function renderTabs() {
-  document.getElementById('tabs').innerHTML = trips.map((t,i) => `
+  const tabsHtml = trips.map((t,i) => `
     <div class="tab ${i===activeTripIdx?'active':''}" onclick="window.switchTab(${i})">${escHtml(t.label)}</div>
   `).join('');
+  document.getElementById('tabs').innerHTML = tabsHtml +
+    `<div class="tab-add" onclick="window.openTripAddModal()" title="Criar um novo trajeto (ida ou volta)">+ Trajeto</div>` +
+    (trips.length ? `<div class="tab-add" onclick="window.openInterestModal()" title="Avisar quando surgir um carro neste trajeto">🔔</div>` : '');
 }
 window.switchTab = function(i) { activeTripIdx=i; renderTabs(); renderCars(); };
 
 /* ══ RENDER CARS ══ */
 function renderCars() {
   const trip = trips[activeTripIdx];
-  if (!trip) return;
+  if (!trip) {
+    document.getElementById('mainContent').innerHTML = `<div class="content">
+      <div class="empty">
+        <div class="empty-icon">🗓️</div>
+        <div class="empty-title">Nenhum trajeto criado ainda</div>
+        <div class="empty-sub">Cada motorista pode criar seu próprio trajeto de ida ou volta.<br>Toque em "+ Trajeto" acima para começar.</div>
+      </div></div>`;
+    document.getElementById('fabAddCar').style.display = 'none';
+    return;
+  }
+  document.getElementById('fabAddCar').style.display = 'flex';
   const ident    = getIdent();
   const tripCars = cars[trip.id]||{};
   const carList  = Object.entries(tripCars);
@@ -1707,6 +1911,7 @@ function renderCars() {
         <div class="empty-icon">🚗</div>
         <div class="empty-title">Nenhum carro ainda</div>
         <div class="empty-sub">Seja o primeiro a oferecer uma carona para este trajeto!</div>
+        <button class="btn btn-secondary" style="margin-top:16px" onclick="window.openInterestModal()">🔔 Avise-me quando surgir um carro</button>
       </div></div>`;
     return;
   }
@@ -2033,8 +2238,8 @@ window.saveCar = async function() {
   const desc   = document.getElementById('carDesc').value.trim();
   const originEl = document.getElementById('carOrigin');
   const origin   = originEl.value.trim();
-  const originLat = originEl.dataset.lat || null;
-  const originLon = originEl.dataset.lon || null;
+  let originLat = originEl.dataset.lat || null;
+  let originLon = originEl.dataset.lon || null;
   const time   = document.getElementById('carTime').value;
   const seats  = Number(document.getElementById('carSeats').value)||3;
   const obs    = document.getElementById('carObs').value.trim().slice(0,250);
@@ -2053,6 +2258,16 @@ window.saveCar = async function() {
 
   btn.disabled=true; btn.textContent='Salvando…';
   try {
+    // Se não veio lat/lon do autocomplete (ex: usuário digitou só o nome
+    // da cidade, tipo "São Paulo", e não clicou numa sugestão), resolve
+    // agora — funciona para qualquer cidade, de qualquer lugar.
+    if ((!originLat || !originLon) && origin) {
+      btn.textContent = '🔎 Localizando…';
+      const resolved = await resolveLatLon(origin);
+      if (resolved) { originLat = resolved.lat; originLon = resolved.lon; }
+      btn.textContent = 'Salvando…';
+    }
+
     const carData = { driverName:driver, driverPhone:phone, carDesc:desc, origin, time, seats, obs, updatedAt:serverTimestamp() };
     if (originLat && originLon) { carData.originLat = +originLat; carData.originLon = +originLon; }
     if (pixKey) carData.pixKey = pixKey;
@@ -2068,7 +2283,9 @@ window.saveCar = async function() {
       await push(ref(db,`events/${eventId}/cars/${trip.id}`), carData);
       showToast('Carona adicionada!','ok');
       saveIdentLocal(driver, phone);
+      notifyInterestedForTrip(trip.id, driver);
     }
+    registerPushToken(phone);
     closeModal('overlayCar');
   } catch(e) {
     errEl.textContent='Erro ao salvar. Tente novamente.'; errEl.classList.add('show');
@@ -2110,9 +2327,12 @@ window.confirmJoin = async function() {
   try {
     await push(ref(db,`events/${eventId}/cars/${trip.id}/${joiningCarId}/passengers`),{name,phone});
     saveIdentLocal(name, phone);
+    registerPushToken(phone);
     closeModal('overlayJoin');
     showToast('Você entrou na carona!','ok');
     notifyLocal('🚗 Nova entrada na carona', `${name} entrou no carro de ${car.driverName||''}.`);
+    getTokensForPhones([car.driverPhone]).then(tokens =>
+      sendPush(tokens, '🚗 Nova entrada na carona', `${name} entrou no seu carro.`));
   } catch(e) { errEl.textContent='Erro ao entrar.'; errEl.classList.add('show'); }
 };
 
@@ -2120,8 +2340,14 @@ window.confirmJoin = async function() {
 window.leaveCar = async function(tripId, carId, paxId) {
   if (!confirm('Sair desta carona?')) return;
   try {
+    const car = cars[tripId]?.[carId];
+    const pax = car?.passengers?.[paxId];
     await remove(ref(db,`events/${eventId}/cars/${tripId}/${carId}/passengers/${paxId}`));
     showToast('Você saiu da carona.','');
+    if (car?.driverPhone) {
+      getTokensForPhones([car.driverPhone]).then(tokens =>
+        sendPush(tokens, '👋 Passageiro saiu', `${pax?.name||'Um passageiro'} saiu do seu carro.`));
+    }
   } catch(e) { showToast('Erro ao sair.',''); }
 };
 window.removePax = async function(tripId, carId, paxId, paxName) {
@@ -2131,6 +2357,10 @@ window.removePax = async function(tripId, carId, paxId, paxName) {
     await remove(ref(db,`events/${eventId}/cars/${tripId}/${carId}/passengers/${paxId}`));
     showToast(`${paxName} removido(a).`,'');
     notifyLocal('❌ Passageiro removido', `${paxName} foi removido(a) da carona.`);
+    if (pax?.phone) {
+      getTokensForPhones([pax.phone]).then(tokens =>
+        sendPush(tokens, '❌ Você foi removido(a)', `Você foi removido(a) da carona.`));
+    }
   } catch(e) { showToast('Erro ao remover.',''); }
 };
 
@@ -2152,6 +2382,7 @@ window.confirmAddPax = async function() {
   if (!name) { errEl.textContent='Informe o nome.'; errEl.classList.add('show'); return; }
   try {
     await push(ref(db,`events/${eventId}/cars/${trip.id}/${addPaxCarId}/passengers`),{name,phone:phone||'–'});
+    if (phone) registerPushToken(phone);
     closeModal('overlayAddPax');
     showToast(`${name} adicionado(a)!`,'ok');
   } catch(e) { errEl.textContent='Erro ao adicionar.'; errEl.classList.add('show'); }
@@ -2549,15 +2780,58 @@ window.endTrip = async function(tripId, carId, end) {
   } catch(e) { showToast('Erro ao atualizar viagem.','err'); }
 };
 
-/* ══ NOTIFY PAX (notificação local no app, sem WhatsApp) ══ */
+/* ══ NOTIFY PAX (notificação local + push real, sem WhatsApp) ══ */
 function notifyPax(passengers, driverName, action) {
   const count = Object.keys(passengers||{}).length;
   if (!count) return;
-  notifyLocal(
-    '🚗 Atualização na carona',
-    `O motorista ${driverName} ${action} o carro. ${count} passageiro${count!==1?'s':''} afetado${count!==1?'s':''}.`
-  );
+  const title = '🚗 Atualização na carona';
+  const body  = `O motorista ${driverName} ${action} o carro. ${count} passageiro${count!==1?'s':''} afetado${count!==1?'s':''}.`;
+  notifyLocal(title, body);
+  const phones = Object.values(passengers).map(p=>p.phone).filter(Boolean);
+  getTokensForPhones(phones).then(tokens => sendPush(tokens, title, body));
 }
+
+/* ══ NOTIFICA QUEM SE CADASTROU COMO "INTERESSADO" NESTE TRAJETO ══ */
+async function notifyInterestedForTrip(tripId, driverName) {
+  try {
+    const snap = await get(ref(db, `events/${eventId}/interests/${tripId}`));
+    if (!snap.exists()) return;
+    const interests = Object.values(snap.val()||{});
+    const phones = interests.map(i=>i.phone).filter(Boolean);
+    if (!phones.length) return;
+    const title = '🚗 Novo carro disponível!';
+    const body  = `${driverName} ofereceu uma carona para o trajeto que você está acompanhando.`;
+    notifyLocal(title, body);
+    const tokens = await getTokensForPhones(phones);
+    sendPush(tokens, title, body);
+  } catch(e) {}
+}
+
+/* ══ MODAL "AVISE-ME" (interesse pré-cadastrado, antes de existir carro) ══ */
+window.openInterestModal = function() {
+  const ident = getIdent();
+  document.getElementById('interestName').value  = ident?.name||'';
+  document.getElementById('interestPhone').value = ident?.phone||'';
+  document.getElementById('interestError').classList.remove('show');
+  openModal('overlayInterest');
+};
+window.saveInterest = async function() {
+  const trip  = trips[activeTripIdx];
+  const name  = document.getElementById('interestName').value.trim();
+  const phone = document.getElementById('interestPhone').value.trim();
+  const errEl = document.getElementById('interestError');
+  errEl.classList.remove('show');
+  if (!trip)  { errEl.textContent='Crie ou selecione um trajeto primeiro.'; errEl.classList.add('show'); return; }
+  if (!name)  { errEl.textContent='Informe seu nome.'; errEl.classList.add('show'); return; }
+  if (!phone) { errEl.textContent='Informe seu WhatsApp.'; errEl.classList.add('show'); return; }
+  try {
+    await push(ref(db,`events/${eventId}/interests/${trip.id}`), { name, phone, createdAt: serverTimestamp() });
+    saveIdentLocal(name, phone);
+    await registerPushToken(phone);
+    closeModal('overlayInterest');
+    showToast('Você será avisado(a) quando surgir um carro!','ok');
+  } catch(e) { errEl.textContent='Erro ao salvar. Tente novamente.'; errEl.classList.add('show'); }
+};
 
 /* ══ NOTIFICAÇÃO LOCAL (Notification API + Service Worker, sem plataforma externa) ══ */
 function notifyLocal(title, body) {
@@ -2679,6 +2953,8 @@ window.openEditEvent = function() {
   document.getElementById('editEvDest').value     = eventData.destination || '';
   document.getElementById('editEvDestAddr').value = eventData.destinationAddress || '';
   document.getElementById('editEvOrigin').value   = eventData.defaultOrigin || '';
+  document.getElementById('editEvLogoUrl').value  = eventData.theme?.logoUrl || '';
+  document.getElementById('editEvColor').value    = eventData.theme?.primaryColor || '#4f46e5';
   document.getElementById('editEventError').classList.remove('show');
   openModal('overlayEditEvent');
 };
@@ -2688,6 +2964,8 @@ window.saveEventEdit = async function() {
   const dest     = document.getElementById('editEvDest').value.trim();
   const destAddr = document.getElementById('editEvDestAddr').value.trim();
   const origin   = document.getElementById('editEvOrigin').value.trim();
+  const logoUrl  = document.getElementById('editEvLogoUrl').value.trim();
+  const primaryColor = document.getElementById('editEvColor').value;
   const errEl    = document.getElementById('editEventError');
   const btn      = document.getElementById('btnSaveEvent');
   errEl.classList.remove('show');
@@ -2697,13 +2975,30 @@ window.saveEventEdit = async function() {
   // Coordenadas salvas pelo autocomplete
   const destAddrEl = document.getElementById('editEvDestAddr');
   const destEl     = document.getElementById('editEvDest');
-  const destLat    = parseFloat(destAddrEl.dataset.lat || destEl.dataset.lat) || null;
-  const destLon    = parseFloat(destAddrEl.dataset.lon || destEl.dataset.lon) || null;
+  const originEl2  = document.getElementById('editEvOrigin');
+  let destLat    = parseFloat(destAddrEl.dataset.lat || destEl.dataset.lat) || null;
+  let destLon    = parseFloat(destAddrEl.dataset.lon || destEl.dataset.lon) || null;
+  let originLat2 = parseFloat(originEl2.dataset.lat) || null;
+  let originLon2 = parseFloat(originEl2.dataset.lon) || null;
 
   btn.disabled = true; btn.textContent = '⏳ Salvando…';
   try {
+    // Fallback: cidade/endereço digitado sem escolher sugestão do autocomplete
+    if (!destLat || !destLon) {
+      btn.textContent = '🔎 Localizando destino…';
+      const r = await resolveLatLon(destAddr || dest);
+      if (r) { destLat = r.lat; destLon = r.lon; }
+    }
+    if ((!originLat2 || !originLon2) && origin) {
+      btn.textContent = '🔎 Localizando origem…';
+      const r2 = await resolveLatLon(origin);
+      if (r2) { originLat2 = r2.lat; originLon2 = r2.lon; }
+    }
+    btn.textContent = '⏳ Salvando…';
+
     const updates = { name, destination: dest, destinationAddress: destAddr, defaultOrigin: origin };
     if (destLat && destLon) { updates.destLat = destLat; updates.destLon = destLon; }
+    if (originLat2 && originLon2) { updates.originLat = originLat2; updates.originLon = originLon2; }
     await set(ref(db, `events/${eventId}/name`),                 name);
     await set(ref(db, `events/${eventId}/destination`),          dest);
     await set(ref(db, `events/${eventId}/destinationAddress`),   destAddr);
@@ -2712,6 +3007,14 @@ window.saveEventEdit = async function() {
       await set(ref(db, `events/${eventId}/destLat`), destLat);
       await set(ref(db, `events/${eventId}/destLon`), destLon);
     }
+    if (originLat2 && originLon2) {
+      await set(ref(db, `events/${eventId}/originLat`), originLat2);
+      await set(ref(db, `events/${eventId}/originLon`), originLon2);
+    }
+    const theme = { logoUrl: logoUrl || '', primaryColor: primaryColor || '' };
+    updates.theme = theme;
+    await set(ref(db, `events/${eventId}/theme`), theme);
+    applyEventTheme(theme);
     // Atualizar cópia local
     if (eventData) Object.assign(eventData, updates);
     closeModal('overlayEditEvent');
@@ -2725,6 +3028,65 @@ window.saveEventEdit = async function() {
     errEl.classList.add('show');
   } finally {
     btn.disabled = false; btn.textContent = '✅ Atualizar evento';
+  }
+};
+
+/* ══════════════════════════════════════════════════
+   CRIAR TRAJETO (ida/volta) — feito pelo próprio usuário,
+   já dentro do evento. Não é mais obrigatório na criação do
+   evento: cada motorista cria o trajeto que precisar aqui.
+═══════════════════════════════════════════════════ */
+const PT_DAYS_EV = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+function formatTripDateEv(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  return `${PT_DAYS_EV[dt.getDay()]} - ${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+}
+
+window.openTripAddModal = function() {
+  document.getElementById('tripAddDate').value = '';
+  document.getElementById('tripAddDate').min = new Date().toISOString().split('T')[0];
+  document.getElementById('tripAddDir').value = 'ida';
+  document.getElementById('tripAddPoint').value = eventData?.defaultOrigin || '';
+  document.getElementById('tripAddTime').value = '';
+  document.getElementById('tripAddError').classList.remove('show');
+  openModal('overlayTripAdd');
+};
+
+window.saveTripAdd = async function() {
+  const dateVal = document.getElementById('tripAddDate').value;
+  const dir     = document.getElementById('tripAddDir').value;
+  const pointEl = document.getElementById('tripAddPoint');
+  const point   = pointEl.value.trim();
+  const time    = document.getElementById('tripAddTime').value;
+  const errEl   = document.getElementById('tripAddError');
+  const btn     = document.getElementById('btnSaveTripAdd');
+
+  errEl.classList.remove('show');
+  const label = formatTripDateEv(dateVal);
+  if (!label) { errEl.textContent = 'Selecione a data do trajeto.'; errEl.classList.add('show'); return; }
+
+  btn.disabled = true; btn.textContent = '⏳ Criando…';
+  try {
+    const newTripData = {
+      label,
+      direction: dir,
+      defaultPoint: point,
+      defaultTime: time || ''
+    };
+    const newRef = await push(ref(db, `events/${eventId}/trips`), newTripData);
+    trips.push({ id: newRef.key, ...newTripData });
+    closeModal('overlayTripAdd');
+    renderTabs();
+    window.switchTab(trips.length - 1);
+    showToast('🗓️ Trajeto criado! Agora você já pode oferecer sua carona.', 'ok');
+  } catch(e) {
+    console.error(e);
+    errEl.textContent = 'Erro ao criar trajeto. Tente novamente.';
+    errEl.classList.add('show');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Criar trajeto';
   }
 };
 

@@ -177,6 +177,7 @@
     .fg { margin-bottom: 14px; }
     .fl { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
           letter-spacing: .5px; color: var(--muted); margin-bottom: 5px; }
+    .field-hint { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
     .fi {
       width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
       border-radius: var(--r-sm); font-size: 14px; color: var(--text);
@@ -784,10 +785,11 @@
       <div class="fg">
         <label class="fl">Local de destino *</label>
         <div class="ac-wrap">
-          <input type="text" id="evDest" class="fi" placeholder="Ex: Sítio FMB Recanto dos Duendes"
+          <input type="text" id="evDest" class="fi" placeholder="Ex: Sítio FMB Recanto dos Duendes, ou apenas 'Barretos'"
                  autocomplete="off" oninput="acSearch(this,'evDestList')">
           <div class="ac-list" id="evDestList" style="display:none"></div>
         </div>
+        <div class="field-hint">Não sabe o endereço exato? Pode digitar só o nome da cidade (ex: "Barretos") — usamos o centro da cidade automaticamente.</div>
       </div>
       <div class="fg">
         <label class="fl">Endereço completo do destino</label>
@@ -800,10 +802,11 @@
       <div class="fg">
         <label class="fl">Endereço de saída principal (opcional)</label>
         <div class="ac-wrap">
-          <input type="text" id="evOrigin" class="fi" placeholder="Ex: R. Martim Buchard, 187 – São Paulo"
+          <input type="text" id="evOrigin" class="fi" placeholder="Ex: R. Martim Buchard, 187 – São Paulo, ou apenas 'São Paulo'"
                  autocomplete="off" oninput="acSearch(this,'evOriginList')">
           <div class="ac-list" id="evOriginList" style="display:none"></div>
         </div>
+        <div class="field-hint">Também aceita só o nome da cidade de origem (ex: "São Paulo") como referência genérica.</div>
         <button type="button" class="ac-geo-btn" onclick="geoFill('evOrigin','evOriginList')">
           📍 Usar minha localização atual
         </button>
@@ -836,9 +839,12 @@
 
     <!-- Trajetos -->
     <div class="section-card">
-      <div class="section-card-title">🗓️ Trajetos</div>
+      <div class="section-card-title">🗓️ Trajetos (opcional)</div>
       <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5">
-        Adicione quantos trajetos precisar — ida, volta, dias diferentes. Cada um terá seus próprios carros.
+        Você não precisa definir os trajetos agora. Se não souber de onde cada convidado vai sair,
+        deixe em branco — assim que o evento for criado, cada motorista poderá criar seu próprio
+        trajeto de ida e de volta ao entrar no evento. Use esta seção só se já quiser deixar
+        alguns trajetos prontos (ida, volta, dias diferentes).
       </p>
       <div id="tripsList"></div>
       <button class="btn-add-trip" onclick="addTrip()">+ Adicionar trajeto</button>
@@ -1323,9 +1329,11 @@ window.createEvent = async function() {
   const dest      = destEl.value.trim();
   const destAddr  = destAddrEl.value.trim();
   const origin    = originEl.value.trim();
-  // Coordenadas pré-salvas do autocomplete
-  const destLat   = parseFloat(destAddrEl.dataset.lat || destEl.dataset.lat) || null;
-  const destLon   = parseFloat(destAddrEl.dataset.lon || destEl.dataset.lon) || null;
+  // Coordenadas pré-salvas do autocomplete (quando o usuário clicou numa sugestão)
+  let destLat   = parseFloat(destAddrEl.dataset.lat || destEl.dataset.lat) || null;
+  let destLon   = parseFloat(destAddrEl.dataset.lon || destEl.dataset.lon) || null;
+  let originLat = parseFloat(originEl.dataset.lat) || null;
+  let originLon = parseFloat(originEl.dataset.lon) || null;
   const pin      = document.getElementById('evAdminPin').value.trim();
   const pin2     = document.getElementById('evAdminPin2').value.trim();
   const errEl    = document.getElementById('createError');
@@ -1344,9 +1352,8 @@ window.createEvent = async function() {
   if (pin.length < 4)     { showValidationErr('O PIN deve ter pelo menos 4 caracteres.'); return; }
   if (pin !== pin2)       { showValidationErr('Os PINs de admin não conferem.'); return; }
 
-  // Coletar trajetos
+  // Coletar trajetos (opcional — cada motorista pode criar o dele depois, já dentro do evento)
   const tripEls = document.querySelectorAll('.trip-item');
-  if (!tripEls.length) { showValidationErr('Adicione pelo menos 1 trajeto.'); return; }
   const trips = [];
   let valid = true;
   tripEls.forEach((el, i) => {
@@ -1369,6 +1376,24 @@ window.createEvent = async function() {
 
   btn.disabled = true; btn.textContent = '⏳ Criando evento…';
   try {
+    // Se o usuário não clicou numa sugestão do autocomplete (por exemplo,
+    // digitou só o nome da cidade e seguiu em frente), resolvemos a
+    // cidade/endereço digitado agora, antes de salvar — funciona pra
+    // qualquer cidade, de qualquer lugar, não só os exemplos usados aqui.
+    if (!destLat || !destLon) {
+      btn.textContent = '🔎 Localizando destino…';
+      const resolved = await window.resolveLatLon(destAddr || dest);
+      if (resolved) { destLat = resolved.lat; destLon = resolved.lon; }
+    }
+    if (!originLat || !originLon) {
+      if (origin) {
+        btn.textContent = '🔎 Localizando origem…';
+        const resolvedOrigin = await window.resolveLatLon(origin);
+        if (resolvedOrigin) { originLat = resolvedOrigin.lat; originLon = resolvedOrigin.lon; }
+      }
+    }
+    btn.textContent = '⏳ Criando evento…';
+
     const eventData = {
       name, destination: dest, destinationAddress: destAddr,
       defaultOrigin: origin, adminPin: pin,
@@ -1380,6 +1405,7 @@ window.createEvent = async function() {
       createdAt: serverTimestamp()
     };
     if (destLat && destLon) { eventData.destLat = destLat; eventData.destLon = destLon; }
+    if (originLat && originLon) { eventData.originLat = originLat; eventData.originLon = originLon; }
     const newRef = await push(ref(db, 'events'), eventData);
     const eventId = newRef.key;
 
@@ -1598,6 +1624,42 @@ window.geoFill = function(inputId, listId) {
     input.placeholder = 'Ex: R. Martim Buchard, 187 – São Paulo';
     alert('Permissão de localização negada. Ative nas configurações do navegador.');
   });
+};
+
+/* ════════════════════════════════════════
+   GEOCODING GENÉRICO (endereço completo OU só cidade)
+   Padrão usado em todo o app: se o texto digitado não tiver
+   um endereço completo (ex: "Barretos", "São Paulo"), a busca
+   ao Nominatim/OSM já retorna o centro da cidade automaticamente.
+   Isso não exige nenhuma integração nova nem custo adicional.
+════════════════════════════════════════ */
+function cleanAddrGeneric(s) {
+  return String(s || '').replace(/[–—]/g, ',').replace(/\bAp(to)?\b\s*\d*\s*/gi, '')
+          .replace(/\bSala\b\s*\d*\s*/gi, '').replace(/,\s*,/g, ',').replace(/,\s*$/, '').trim();
+}
+function addrVariantsGeneric(s) {
+  const c = cleanAddrGeneric(s);
+  const parts = c.split(',').map(p => p.trim()).filter(Boolean);
+  const noNum = c.replace(/,?\s*\b\d+\b/, '').replace(/,\s*,/g, ',').trim();
+  const city = parts.length > 1 ? parts.slice(-2).join(', ') : c;
+  const onlyCity = parts.length > 0 ? parts[parts.length - 1] : c;
+  return [c, noNum, city, onlyCity].filter((v, i, a) => v && a.indexOf(v) === i);
+}
+// Resolve QUALQUER texto (endereço completo, bairro, ou apenas o nome de
+// uma cidade de qualquer lugar) em coordenadas. Tenta do mais específico
+// pro mais genérico, até achar algo — funciona para qualquer evento futuro.
+window.resolveLatLon = async function resolveLatLon(text) {
+  if (!text || !text.trim()) return null;
+  for (const q of addrVariantsGeneric(text)) {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}&countrycodes=br`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+      const data = await res.json();
+      if (data[0]) return { lat: +data[0].lat, lon: +data[0].lon, display_name: data[0].display_name };
+      await new Promise(r => setTimeout(r, 250));
+    } catch (e) { /* tenta a próxima variação */ }
+  }
+  return null;
 };
 
 function escHtml(s) {
