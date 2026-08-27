@@ -3,10 +3,14 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🚗 Caronas Fácil – Organize caronas para seus eventos</title>
+  <title>Caronas Fácil – Organize caronas para seus eventos</title>
   <!-- PWA -->
   <link rel="manifest" href="manifest.json"/>
-  <meta name="theme-color" content="#4f46e5"/>
+  <meta name="theme-color" content="#0e2b2a"/>
+  <!-- Tipografia premium -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap">
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -14,49 +18,76 @@
   <link rel="apple-touch-icon" href="icon-192.png"/>
   <style>
     :root {
-      --primary:       #4f46e5;
-      --primary-dark:  #3730a3;
-      --primary-light: #eef2ff;
-      --accent:        #dc2626;
-      --success:       #16a34a;
-      --bg:            #f8fafc;
+      --primary:       #0c6e6b;
+      --primary-dark:  #08514f;
+      --primary-light: #dbeceb;
+      --primary-tint:  #dbeceb;
+      --accent:        #c24a2c;
+      --gold:          #e0913a;
+      --gold-deep:     #b06c1c;
+      --gold-tint:     #fbedd7;
+      --success:       #12855a;
+      --bg:            #f6f4ef;
       --surface:       #ffffff;
-      --surface2:      #f1f5f9;
-      --text:          #0f172a;
-      --muted:         #64748b;
-      --border:        #e2e8f0;
-      --r:             12px;
-      --r-sm:          8px;
-      --shadow:        0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+      --surface2:      #efece4;
+      --text:          #16211f;
+      --muted:         #5b6763;
+      --border:        #e4dfd6;
+      --border-2:      #d7d0c4;
+      --r:             14px;
+      --r-sm:          10px;
+      --r-lg:          20px;
+      --shadow:        0 1px 2px rgba(24,30,28,.06),0 6px 18px -10px rgba(24,30,28,.20);
+      --shadow-lg:     0 12px 34px -14px rgba(14,43,42,.34);
+      --header-bg:     #0e2b2a;
+      --header-fg:     #f4f1ea;
+      --sans:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      --serif:'Fraunces',Georgia,'Times New Roman',serif;
     }
     [data-theme="dark"] {
-      --primary:       #818cf8;
-      --primary-dark:  #c7d2fe;
-      --primary-light: #1e1b4b;
-      --accent:        #f87171;
-      --success:       #4ade80;
-      --bg:            #0f172a;
-      --surface:       #1e293b;
-      --surface2:      #293548;
-      --text:          #f1f5f9;
-      --muted:         #94a3b8;
-      --border:        #334155;
-      --shadow:        0 1px 4px rgba(0,0,0,.4);
+      --primary:       #3fb0ab;
+      --primary-dark:  #8fd3ce;
+      --primary-light: #123a38;
+      --primary-tint:  #123a38;
+      --accent:        #e07a5a;
+      --gold:          #e6a24f;
+      --gold-deep:     #f0b876;
+      --gold-tint:     #2a2114;
+      --success:       #4cbf8c;
+      --bg:            #12100e;
+      --surface:       #1c1a16;
+      --surface2:      #26231e;
+      --text:          #f3efe7;
+      --muted:         #a49b8b;
+      --border:        #332f28;
+      --border-2:      #413c33;
+      --shadow:        0 1px 3px rgba(0,0,0,.5);
+      --shadow-lg:     0 12px 34px -14px rgba(0,0,0,.6);
+      --header-bg:     #0b1e1d;
+      --header-fg:     #f3efe7;
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --primary:       #818cf8;
-        --primary-dark:  #c7d2fe;
-        --primary-light: #1e1b4b;
-        --accent:        #f87171;
-        --success:       #4ade80;
-        --bg:            #0f172a;
-        --surface:       #1e293b;
-        --surface2:      #293548;
-        --text:          #f1f5f9;
-        --muted:         #94a3b8;
-        --border:        #334155;
-        --shadow:        0 1px 4px rgba(0,0,0,.4);
+        --primary:       #3fb0ab;
+        --primary-dark:  #8fd3ce;
+        --primary-light: #123a38;
+        --primary-tint:  #123a38;
+        --accent:        #e07a5a;
+        --gold:          #e6a24f;
+        --gold-deep:     #f0b876;
+        --gold-tint:     #2a2114;
+        --success:       #4cbf8c;
+        --bg:            #12100e;
+        --surface:       #1c1a16;
+        --surface2:      #26231e;
+        --text:          #f3efe7;
+        --muted:         #a49b8b;
+        --border:        #332f28;
+        --border-2:      #413c33;
+        --shadow:        0 1px 3px rgba(0,0,0,.5);
+        --shadow-lg:     0 12px 34px -14px rgba(0,0,0,.6);
+        --header-bg:     #0b1e1d;
+        --header-fg:     #f3efe7;
       }
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -433,21 +464,140 @@
       cursor: pointer; margin-top: 6px; width: fit-content;
     }
     .ac-geo-btn:hover { background: var(--primary-light); }
+
+    /* ══════════════════════════════════════════════════════════
+       CAMADA PREMIUM — redesign editorial v1 (só apresentação)
+       ══════════════════════════════════════════════════════════ */
+    body{font-family:var(--sans);-webkit-font-smoothing:antialiased;letter-spacing:-.005em;}
+    .ic{width:1em;height:1em;display:inline-block;vertical-align:-.125em;flex-shrink:0;}
+    .landing-title,.auth-title,.dash-logo-txt,.success-title,.event-card-name,
+    .empty-title,.forgot-sent-title,.dash-section-title{
+      font-family:var(--serif);font-weight:600;letter-spacing:-.01em;
+    }
+
+    /* Header fixo */
+    .sticky-header{background:var(--header-bg);backdrop-filter:none;border-bottom:1px solid rgba(255,255,255,.08);}
+    .brand-lockup{display:flex;align-items:center;gap:9px;color:var(--header-fg);font-weight:700;}
+    .brand-lockup .mk{width:26px;height:26px;border-radius:8px;background:var(--gold);color:#241203;display:flex;align-items:center;justify-content:center;}
+    .brand-lockup .mk .ic{width:16px;height:16px;}
+    .brand-lockup .nm{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:-.01em;}
+    .admin-button{border-radius:10px;font-weight:600;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);}
+    .pin-display{border-radius:999px;background:rgba(224,145,58,.18);border:1px solid rgba(224,145,58,.3);color:var(--gold);}
+
+    /* Landing */
+    .landing-hero{background:var(--header-bg);padding:64px 24px 52px;}
+    .landing-logo{width:64px;height:64px;margin:0 auto 18px;border-radius:18px;background:var(--gold);color:#241203;display:flex;align-items:center;justify-content:center;font-size:0;}
+    .landing-logo .ic{width:34px;height:34px;}
+    .landing-title{font-size:clamp(30px,7vw,40px);font-weight:600;line-height:1.02;text-wrap:balance;}
+    .landing-sub{opacity:.7;font-size:15.5px;}
+    .feature-card{border-radius:var(--r);box-shadow:var(--shadow);gap:14px;padding:18px;}
+    .feature-icon{width:42px;height:42px;border-radius:12px;background:var(--primary-tint);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:0;margin-top:0;}
+    .feature-icon .ic{width:21px;height:21px;}
+    .feature-title{font-size:15px;font-weight:700;letter-spacing:-.01em;}
+
+    /* Auth */
+    .auth-card{border-radius:var(--r-lg);box-shadow:var(--shadow-lg);}
+    .auth-logo{font-size:0;}
+    .auth-mk{width:52px;height:52px;border-radius:15px;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;}
+    .auth-mk .ic{width:26px;height:26px;}
+    .auth-title{font-size:22px;}
+    .fl{letter-spacing:.06em;}
+    .fi{border-radius:11px;border:1.5px solid var(--border-2);}
+    .fi:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-tint);}
+
+    /* Botões */
+    .btn{border-radius:12px;font-weight:700;letter-spacing:-.01em;transition:filter .15s,background .15s;}
+    .btn-primary{background:var(--primary);color:#fff;box-shadow:0 6px 16px -9px rgba(12,110,107,.7);}
+    .btn-gold{background:var(--gold);color:#2a1503;box-shadow:0 6px 16px -9px rgba(224,145,58,.75);}
+    .btn-secondary{background:var(--primary-tint);color:var(--primary-dark);}
+    .btn-outline{border:1.5px solid var(--primary);color:var(--primary);background:transparent;}
+    .btn-white{background:#fff;color:var(--primary-dark);}
+    .btn-sm{border-radius:10px;}
+
+    /* Dashboard */
+    .dash-header{background:var(--header-bg);box-shadow:none;border-bottom:1px solid rgba(255,255,255,.08);padding:16px 20px;}
+    .dash-logo-area{gap:11px;}
+    .dash-logo-mk{width:30px;height:30px;border-radius:9px;background:var(--gold);color:#241203;display:flex;align-items:center;justify-content:center;}
+    .dash-logo-mk .ic{width:18px;height:18px;}
+    .dash-logo-txt{font-size:18px;}
+    .dash-user{opacity:.6;}
+    .dash-logout{border-radius:10px;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);}
+    .dash-section-title{font-size:18px;}
+
+    /* Cartão de evento */
+    .event-card{border-radius:var(--r);box-shadow:var(--shadow);padding:16px;}
+    .event-card:hover{border-color:var(--primary);box-shadow:var(--shadow-lg);}
+    .event-card-name{font-size:16px;}
+    .event-card-dest{display:flex;align-items:center;gap:6px;}
+    .event-card-dest .ic{width:13px;height:13px;color:var(--primary);}
+    .meta-chip{background:var(--primary-tint);color:var(--primary-dark);border-radius:999px;padding:4px 10px;font-weight:700;}
+    .event-status-active{background:var(--primary-tint);color:var(--primary-dark);}
+    .event-status-ended{background:var(--surface2);color:var(--muted);}
+    .btn-card{border-radius:10px;font-weight:700;}
+    .btn-card-primary{background:var(--primary);color:#fff;}
+    .btn-card-outline{background:var(--surface);color:var(--text);border:1px solid var(--border-2);}
+
+    /* Evento criado / sucesso */
+    .success-mk{width:66px;height:66px;border-radius:20px;background:var(--primary-tint);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;}
+    .success-mk .ic{width:34px;height:34px;}
+    .success-title{font-size:24px;}
+    .btn-copy-link{border-radius:12px;font-weight:700;background:var(--primary);}
+    .link-box{border-radius:var(--r);border:1.5px solid var(--border-2);background:var(--surface2);}
+
+    /* Empty */
+    .empty-mk{width:66px;height:66px;border-radius:20px;background:var(--primary-tint);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;}
+    .empty-mk .ic{width:32px;height:32px;}
+
+    /* Criar evento */
+    .create-header{background:var(--header-bg);box-shadow:none;border-bottom:1px solid rgba(255,255,255,.08);}
+    .create-header .create-h-title{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--header-fg);letter-spacing:-.01em;}
+    .back-btn{border-radius:10px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);}
+    .back-btn .ic{width:18px;height:18px;}
+    .section-card{border-radius:var(--r);box-shadow:var(--shadow);}
+    .section-card-title{color:var(--muted);letter-spacing:.08em;display:flex;align-items:center;gap:7px;}
+    .section-card-title .ic{width:15px;height:15px;color:var(--primary);}
+    .btn-add-trip{border-radius:11px;border:2px dashed var(--border-2);color:var(--primary);}
+    .btn-add-trip:hover{border-color:var(--primary);background:var(--primary-tint);}
+    .trip-item{border-radius:12px;}
+
+    /* Toast */
+    .toast{border-radius:12px;font-weight:700;}
   </style>
 </head>
 <body>
 
+<!-- ÍCONES (sprite) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.2A2 2 0 0 1 8.4 5.5h7.2a2 2 0 0 1 1.9 1.3L19 11"/><path d="M3 11h18v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="14" r="1"/><circle cx="17" cy="14" r="1"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-3 8-7 10-4-2-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.7-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.3 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 3v3M16 3v3"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5 11-11"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"/><circle cx="17" cy="6" r="2.5"/><circle cx="17" cy="18" r="2.5"/><path d="M8.2 10.8l6.6-3.6M8.2 13.2l6.6 3.6"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L5 13h6l-1 8 8-10h-6z"/></symbol>
+<symbol id="i-route" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H15a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h6.5"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></symbol>
+<symbol id="i-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></symbol>
+<symbol id="i-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="4" rx="1"/><path d="M5 8.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5M10 12h4"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/></symbol>
+<symbol id="i-clip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2.5"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h4"/></symbol>
+</defs></svg>
+
 <!-- ══ HEADER FIXO ══ -->
 <div class="sticky-header">
   <div class="sticky-header-left">
-    <span style="color: #fff; font-weight: 800; font-size: 16px;">🚗 Caronas Fácil</span>
+    <span class="brand-lockup"><span class="mk"><svg class="ic"><use href="#i-car"/></svg></span><span class="nm">Caronas Fácil</span></span>
   </div>
   <div class="sticky-header-right">
     <div id="pinContainer" class="pin-display" style="display:none">
       PIN: <span id="pinValue"></span>
     </div>
     <a href="/admin" class="admin-button" title="Painel administrativo">
-      🛡️ Superadmin
+      <svg class="ic"><use href="#i-shield"/></svg> Superadmin
     </a>
   </div>
 </div>
@@ -490,7 +640,7 @@
 
 <!-- ══ LOADING INICIAL ══ -->
 <div id="pageLoading" class="page-loading">
-  <div style="font-size:42px">🚗</div>
+  <div style="width:52px;height:52px;border-radius:15px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center"><svg class="ic" style="width:28px;height:28px"><use href="#i-car"/></svg></div>
   <div class="spin"></div>
   <div style="color:var(--muted);font-size:14px">Carregando…</div>
 </div>
@@ -501,7 +651,7 @@
 ════════════════════════════════════════ -->
 <div id="pageLanding" class="page">
   <div class="landing-hero">
-    <div class="landing-logo">🚗</div>
+    <div class="landing-logo"><svg class="ic"><use href="#i-car"/></svg></div>
     <div class="landing-title">Caronas Fácil</div>
     <div class="landing-sub">Organize caronas para seus eventos em minutos. Sem complicação, sem custo.</div>
     <div class="landing-btns">
@@ -512,35 +662,35 @@
 
   <div class="landing-features">
     <div class="feature-card">
-      <div class="feature-icon">🎉</div>
+      <div class="feature-icon"><svg class="ic"><use href="#i-cal"/></svg></div>
       <div>
         <div class="feature-title">Crie seu evento em 2 minutos</div>
         <div class="feature-desc">Dê um nome, defina o destino e configure quantos dias de ida e volta precisar — sem limite.</div>
       </div>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">📲</div>
+      <div class="feature-icon"><svg class="ic"><use href="#i-share"/></svg></div>
       <div>
         <div class="feature-title">Compartilhe um link no WhatsApp</div>
         <div class="feature-desc">Cada evento tem seu próprio link. Todos do grupo acessam, se cadastram e escolhem suas caronas.</div>
       </div>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">🚙</div>
+      <div class="feature-icon"><svg class="ic"><use href="#i-car"/></svg></div>
       <div>
         <div class="feature-title">Controle total de vagas</div>
         <div class="feature-desc">Motoristas oferecem vagas, passageiros entram. Tudo atualizado em tempo real para todo o grupo.</div>
       </div>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">⚡</div>
+      <div class="feature-icon"><svg class="ic"><use href="#i-bolt"/></svg></div>
       <div>
         <div class="feature-title">Você é o admin do seu evento</div>
         <div class="feature-desc">Quem cria o evento tem controle total: editar qualquer carro, adicionar ou remover pessoas, ajustar detalhes.</div>
       </div>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">🔒</div>
+      <div class="feature-icon"><svg class="ic"><use href="#i-lock"/></svg></div>
       <div>
         <div class="feature-title">Conta segura com reset de senha</div>
         <div class="feature-desc">Cadastro com e-mail e senha. Se esquecer a senha, basta clicar em "Esqueci minha senha" e redefinir pelo e-mail.</div>
@@ -560,7 +710,7 @@
 <div id="pageLogin" class="page">
   <div class="auth-wrap">
     <div class="auth-card">
-      <div class="auth-logo">🚗</div>
+      <div class="auth-logo"><span class="auth-mk"><svg class="ic"><use href="#i-car"/></svg></span></div>
       <div class="auth-title">Entrar</div>
       <div class="auth-sub">Bem-vindo de volta ao Caronas Fácil</div>
 
@@ -601,7 +751,7 @@
 <div id="pageRegister" class="page">
   <div class="auth-wrap">
     <div class="auth-card">
-      <div class="auth-logo">🚗</div>
+      <div class="auth-logo"><span class="auth-mk"><svg class="ic"><use href="#i-car"/></svg></span></div>
       <div class="auth-title">Criar conta</div>
       <div class="auth-sub">Grátis para sempre. Comece a organizar caronas agora.</div>
 
@@ -648,7 +798,7 @@
 <div id="pageForgot" class="page">
   <div class="auth-wrap">
     <div class="auth-card">
-      <div class="auth-logo">🔑</div>
+      <div class="auth-logo"><span class="auth-mk"><svg class="ic"><use href="#i-lock"/></svg></span></div>
       <div class="auth-title">Redefinir senha</div>
       <div class="auth-sub">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div>
 
@@ -667,7 +817,7 @@
       <!-- ESTADO 2: e-mail enviado -->
       <div id="forgotSent" style="display:none">
         <div class="forgot-sent-box">
-          <div class="forgot-sent-icon">📬</div>
+          <div class="forgot-sent-icon"><span class="success-mk" style="width:50px;height:50px;border-radius:14px;margin:0"><svg class="ic"><use href="#i-check"/></svg></span></div>
           <div class="forgot-sent-title">Link enviado!</div>
           <div class="forgot-sent-desc">Enviamos um e-mail para <strong id="forgotSentEmail"></strong> com o link para redefinir sua senha.</div>
           <div class="forgot-spam-tip">
@@ -696,24 +846,24 @@
 ════════════════════════════════════════ -->
 <div id="pageEventCreated" class="page">
   <div class="success-page">
-    <div class="success-icon">🎉</div>
+    <div class="success-icon"><span class="success-mk"><svg class="ic"><use href="#i-check"/></svg></span></div>
     <div class="success-title">Evento criado!</div>
     <div class="success-sub">Compartilhe o link abaixo com os participantes para que eles possam se inscrever nas caronas.</div>
 
     <div class="link-box">
-      <div class="link-box-label">🔗 Link do evento</div>
+      <div class="link-box-label">Link do evento</div>
       <div class="link-box-url" id="createdEventUrl"></div>
     </div>
 
     <div class="link-actions">
       <button class="btn-copy-link" id="btnCopyCreated" onclick="copyCreatedLink()">
-        📋 Copiar link
+        <svg class="ic"><use href="#i-copy"/></svg> Copiar link
       </button>
       <a id="btnOpenCreated" href="#" target="_blank"
         style="padding:13px;border-radius:8px;font-size:15px;font-weight:700;
                background:var(--surface2);color:var(--text);text-decoration:none;
                display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border)">
-        ↗ Abrir evento
+        <svg class="ic"><use href="#i-open"/></svg> Abrir evento
       </a>
     </div>
 
@@ -729,7 +879,7 @@
 <div id="pageDashboard" class="page">
   <div class="dash-header">
     <div class="dash-logo-area">
-      <div style="font-size:28px">🚗</div>
+      <div class="dash-logo-mk"><svg class="ic"><use href="#i-car"/></svg></div>
       <div>
         <div class="dash-logo-txt">Caronas Fácil</div>
         <div class="dash-user" id="dashUserName">Olá!</div>
@@ -745,15 +895,15 @@
   <div class="dash-content">
     <div class="dash-section-title">
       Meus eventos
-      <button class="btn btn-primary btn-sm" onclick="showPage('pageCreateEvent')" style="font-size:13px">+ Novo evento</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('pageCreateEvent')" style="font-size:13px"><svg class="ic"><use href="#i-plus"/></svg> Novo evento</button>
     </div>
 
     <div id="eventsList">
       <div class="empty-state">
-        <div class="empty-ico">🎉</div>
+        <div class="empty-ico"><span class="empty-mk"><svg class="ic"><use href="#i-cal"/></svg></span></div>
         <div class="empty-title">Nenhum evento ainda</div>
         <div class="empty-sub">Crie seu primeiro evento e compartilhe o link com o grupo!</div>
-        <button class="btn btn-primary" onclick="showPage('pageCreateEvent')" style="max-width:220px;margin:0 auto">+ Criar primeiro evento</button>
+        <button class="btn btn-primary" onclick="showPage('pageCreateEvent')" style="max-width:240px;margin:0 auto"><svg class="ic"><use href="#i-plus"/></svg> Criar primeiro evento</button>
       </div>
     </div>
   </div>
@@ -765,10 +915,10 @@
 ════════════════════════════════════════ -->
 <div id="pageCreateEvent" class="page">
   <div class="create-header">
-    <button class="back-btn" onclick="showPage('pageDashboard')">←</button>
+    <button class="back-btn" onclick="showPage('pageDashboard')"><svg class="ic"><use href="#i-back"/></svg></button>
     <div>
-      <div style="font-size:17px;font-weight:800">Criar novo evento</div>
-      <div style="font-size:13px;opacity:.8">Configure os detalhes da sua carona</div>
+      <div class="create-h-title">Criar novo evento</div>
+      <div style="font-size:13px;opacity:.8;color:var(--header-fg)">Configure os detalhes da sua carona</div>
     </div>
   </div>
 
@@ -777,7 +927,7 @@
 
     <!-- Informações básicas -->
     <div class="section-card">
-      <div class="section-card-title">📋 Informações básicas</div>
+      <div class="section-card-title"><svg class="ic"><use href="#i-clip"/></svg> Informações básicas</div>
       <div class="fg">
         <label class="fl">Nome do evento *</label>
         <input type="text" id="evName" class="fi" placeholder="Ex: Aniversário na Fazenda – Mai/25">
@@ -808,14 +958,14 @@
         </div>
         <div class="field-hint">Também aceita só o nome da cidade de origem (ex: "São Paulo") como referência genérica.</div>
         <button type="button" class="ac-geo-btn" onclick="geoFill('evOrigin','evOriginList')">
-          📍 Usar minha localização atual
+          <svg class="ic"><use href="#i-pin"/></svg> Usar minha localização atual
         </button>
       </div>
     </div>
 
     <!-- PIN do admin -->
     <div class="section-card">
-      <div class="section-card-title">🔐 Senha de administrador do evento</div>
+      <div class="section-card-title"><svg class="ic"><use href="#i-lock"/></svg> Senha de administrador do evento</div>
       <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5">
         Esta senha dá acesso total ao evento (editar qualquer carro, adicionar/remover pessoas). Compartilhe apenas com co-organizadores.
       </p>
@@ -839,7 +989,7 @@
 
     <!-- Trajetos -->
     <div class="section-card">
-      <div class="section-card-title">🗓️ Trajetos (opcional)</div>
+      <div class="section-card-title"><svg class="ic"><use href="#i-route"/></svg> Trajetos (opcional)</div>
       <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5">
         Você não precisa definir os trajetos agora. Se não souber de onde cada convidado vai sair,
         deixe em branco — assim que o evento for criado, cada motorista poderá criar seu próprio
@@ -847,11 +997,11 @@
         alguns trajetos prontos (ida, volta, dias diferentes).
       </p>
       <div id="tripsList"></div>
-      <button class="btn-add-trip" onclick="addTrip()">+ Adicionar trajeto</button>
+      <button class="btn-add-trip" onclick="addTrip()"><svg class="ic"><use href="#i-plus"/></svg> Adicionar trajeto</button>
     </div>
 
     <button class="btn btn-primary" onclick="window.createEvent()" id="btnCreateEvent" style="margin-bottom:32px">
-      🎉 Criar evento e gerar link
+      <svg class="ic"><use href="#i-check"/></svg> Criar evento e gerar link
     </button>
   </div>
 </div>
@@ -1092,20 +1242,20 @@ function renderEventsList() {
   const toggleBtn = showArchived
     ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
          <button onclick="window.toggleArchived()" class="btn btn-outline btn-sm" style="font-size:12px">← Voltar para ativos</button>
-         <span style="font-size:13px;font-weight:600;color:var(--muted)">📦 Arquivados</span>
+         <span style="font-size:13px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px"><svg class="ic"><use href="#i-archive"/></svg> Arquivados</span>
        </div>`
     : (archived.length > 0
         ? `<button onclick="window.toggleArchived()" class="btn btn-outline btn-sm"
-             style="margin-bottom:12px;font-size:12px">📦 Arquivados (${archived.length})</button>`
+             style="margin-bottom:12px;font-size:12px"><svg class="ic"><use href="#i-archive"/></svg> Arquivados (${archived.length})</button>`
         : '');
 
   if (!list.length && !showArchived) {
     container.innerHTML = toggleBtn + `
       <div class="empty-state">
-        <div class="empty-ico">🎉</div>
+        <div class="empty-ico"><span class="empty-mk"><svg class="ic"><use href="#i-cal"/></svg></span></div>
         <div class="empty-title">Nenhum evento ainda</div>
         <div class="empty-sub">Crie seu primeiro evento e compartilhe o link com o grupo!</div>
-        <button class="btn btn-primary" onclick="showPage('pageCreateEvent')" style="max-width:220px;margin:0 auto">+ Criar primeiro evento</button>
+        <button class="btn btn-primary" onclick="showPage('pageCreateEvent')" style="max-width:240px;margin:0 auto"><svg class="ic"><use href="#i-plus"/></svg> Criar primeiro evento</button>
       </div>`;
     return;
   }
@@ -1123,23 +1273,23 @@ function renderEventsList() {
       <div class="event-card-top">
         <div>
           <div class="event-card-name">${ev.name}</div>
-          <div class="event-card-dest">📍 ${ev.destination}</div>
+          <div class="event-card-dest"><svg class="ic"><use href="#i-pin"/></svg> ${ev.destination}</div>
         </div>
-        <span class="meta-chip ${isArch?'':'event-status-active'}">${isArch?'📦 Arquivado':'Ativo'}</span>
+        <span class="meta-chip ${isArch?'event-status-ended':'event-status-active'}">${isArch?'Arquivado':'Ativo'}</span>
       </div>
       <div class="event-card-meta">
         <span class="meta-chip">${trips} trajeto${trips !== 1 ? 's' : ''}</span>
       </div>
       <div class="event-card-actions">
-        <button class="btn-card btn-card-primary" onclick="openEvent('${id}')">↗ Abrir evento</button>
-        <button class="btn-card btn-card-outline" onclick="copyEventLink('${id}', this)">🔗 Copiar link</button>
+        <button class="btn-card btn-card-primary" onclick="openEvent('${id}')"><svg class="ic"><use href="#i-open"/></svg> Abrir evento</button>
+        <button class="btn-card btn-card-outline" onclick="copyEventLink('${id}', this)"><svg class="ic"><use href="#i-copy"/></svg> Copiar link</button>
       </div>
       <div class="event-card-actions" style="margin-top:4px;gap:6px">
         ${isArch
-          ? `<button class="btn-card" style="flex:1;color:var(--primary);border-color:var(--primary)" onclick="window.archiveEvent('${id}',false)">↩ Reativar</button>`
-          : `<button class="btn-card" style="flex:1;color:var(--muted)" onclick="window.archiveEvent('${id}',true)">📦 Arquivar</button>`
+          ? `<button class="btn-card" style="flex:1;color:var(--primary);border-color:var(--primary)" onclick="window.archiveEvent('${id}',false)">Reativar</button>`
+          : `<button class="btn-card" style="flex:1;color:var(--muted)" onclick="window.archiveEvent('${id}',true)"><svg class="ic"><use href="#i-archive"/></svg> Arquivar</button>`
         }
-        <button class="btn-card" style="flex:1;color:var(--accent)" onclick="window.confirmDeleteEvent('${id}','${ev.name.replace(/'/g,"\\'")}')">🗑 Excluir</button>
+        <button class="btn-card" style="flex:1;color:var(--accent)" onclick="window.confirmDeleteEvent('${id}','${ev.name.replace(/'/g,"\\'")}')"><svg class="ic"><use href="#i-trash"/></svg> Excluir</button>
       </div>
     </div>`;
   }).join('');
@@ -1192,8 +1342,8 @@ window.openEvent = function(id) {
 window.copyEventLink = function(id, btn) {
   const link = `${window.location.origin}/event.html?id=${id}`;
   navigator.clipboard?.writeText(link).then(() => {
-    btn.textContent = '✅ Copiado!';
-    setTimeout(() => btn.textContent = '🔗 Copiar link', 2000);
+    btn.innerHTML = '<svg class="ic"><use href="#i-check"/></svg> Copiado!';
+    setTimeout(() => btn.innerHTML = '<svg class="ic"><use href="#i-copy"/></svg> Copiar link', 2000);
   }).catch(() => {
     // fallback: selecionar texto
     prompt('Copie o link abaixo:', link);
@@ -1204,10 +1354,10 @@ window.copyCreatedLink = function() {
   const link = document.getElementById('createdEventUrl').textContent;
   const btn  = document.getElementById('btnCopyCreated');
   navigator.clipboard?.writeText(link).then(() => {
-    btn.textContent = '✅ Link copiado!';
+    btn.innerHTML = '<svg class="ic"><use href="#i-check"/></svg> Link copiado!';
     btn.classList.add('copied');
     setTimeout(() => {
-      btn.textContent = '📋 Copiar link';
+      btn.innerHTML = '<svg class="ic"><use href="#i-copy"/></svg> Copiar link';
       btn.classList.remove('copied');
     }, 3000);
   }).catch(() => {
@@ -1425,7 +1575,7 @@ window.createEvent = async function() {
     // Mostrar página de sucesso com o link em destaque
     document.getElementById('createdEventUrl').textContent = link;
     document.getElementById('btnOpenCreated').href = link;
-    document.getElementById('btnCopyCreated').textContent = '📋 Copiar link';
+    document.getElementById('btnCopyCreated').innerHTML = '<svg class="ic"><use href="#i-copy"/></svg> Copiar link';
     document.getElementById('btnCopyCreated').classList.remove('copied');
     showPage('pageEventCreated');
 
@@ -1437,7 +1587,7 @@ window.createEvent = async function() {
     showErr(errEl, msg);
     errEl.style.display = 'block';
   } finally {
-    btn.disabled = false; btn.textContent = '🎉 Criar evento e gerar link';
+    btn.disabled = false; btn.innerHTML = '<svg class="ic"><use href="#i-check"/></svg> Criar evento e gerar link';
   }
 };
 
@@ -1729,8 +1879,8 @@ function escHtmlAttr(str) {
      background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--surface);border-radius:var(--r);padding:24px;max-width:360px;width:100%;
               box-shadow:0 8px 32px rgba(0,0,0,.25)">
-    <div style="font-size:22px;margin-bottom:8px">🗑️</div>
-    <div style="font-size:16px;font-weight:700;margin-bottom:6px">Excluir evento?</div>
+    <div style="width:44px;height:44px;border-radius:12px;background:var(--gold-tint);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:12px"><svg class="ic" style="width:22px;height:22px"><use href="#i-trash"/></svg></div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:6px;font-family:var(--serif);letter-spacing:-.01em">Excluir evento?</div>
     <div style="font-size:14px;color:var(--muted);margin-bottom:6px">
       <strong id="deleteEventName"></strong>
     </div>
