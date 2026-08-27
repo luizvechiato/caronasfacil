@@ -895,10 +895,13 @@
         <span class="admin-badge">Admin</span>
         <button class="btn-admin-small" onclick="window.openIdentAdmin()" title="Definir minha identidade de motorista">👤 Sou motorista</button>
         <button class="btn-admin-small" onclick="window.openEditEvent()" title="Editar dados do evento">✏️ Editar</button>
+        <button class="btn-admin-small" onclick="window.openCustomize()" title="Personalizar aparência da página">🎨 Personalizar</button>
       </div>
-      <!-- Botão editar visível para o dono mesmo sem modo admin -->
+      <!-- Botões visíveis para o dono mesmo sem modo admin -->
       <button class="btn-admin-small" id="btnEditEvent" onclick="window.openEditEvent()"
               style="display:none" title="Editar evento">✏️ Editar evento</button>
+      <button class="btn-admin-small" id="btnCustomize" onclick="window.openCustomize()"
+              style="display:none" title="Personalizar aparência da página">🎨 Personalizar</button>
 
       <!-- PIN do Evento -->
       <div id="pinDisplay" style="display:none;background:rgba(79,70,229,.15);border:1px solid rgba(79,70,229,.3);padding:5px 12px;border-radius:6px;font-size:12px;color:var(--text);font-family:monospace;font-weight:600;white-space:nowrap">
@@ -1214,27 +1217,66 @@
       </button>
     </div>
 
-    <div class="fg" style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
-      <label class="fl">🎨 Personalização visual deste evento</label>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.4">
-        Opcional. Deixe cada evento com a cara da sua própria festa.
-      </div>
-    </div>
-    <div class="fg">
-      <label class="fl">Logo no topo da página (URL da imagem)</label>
-      <input class="fi" id="editEvLogoUrl" type="text" placeholder="Ex: https://.../logo.png"/>
-      <div class="field-hint" style="font-size:11px;color:var(--muted);margin-top:4px">Cole o link de uma imagem já hospedada (ex: Google Drive, Imgur). Fica pequena, ao lado do nome do app.</div>
-    </div>
-    <div class="fg">
-      <label class="fl">Cor principal do evento</label>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input id="editEvColor" type="color" value="#4f46e5" style="width:44px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface)"/>
-        <button type="button" class="btn btn-outline" style="padding:8px 12px;font-size:12px" onclick="document.getElementById('editEvColor').value='#4f46e5'">Restaurar padrão</button>
-      </div>
-    </div>
     <div class="modal-actions">
       <button class="btn btn-primary btn-full" id="btnSaveEvent" onclick="window.saveEventEdit()">✅ Atualizar evento</button>
       <button class="btn btn-outline btn-full" onclick="closeModal('overlayEditEvent')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Personalizar aparência da página (separado dos dados do evento) ── -->
+<div class="overlay hidden" id="overlayCustomize">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🎨 Personalizar página do evento</div>
+    <div class="modal-sub">Opcional. Deixa a página deste evento com a cara da sua festa — não mexe nos dados do evento.</div>
+    <div id="customizeError" class="error-box"></div>
+
+    <div class="fg">
+      <label class="fl">Logo</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+        <div id="customizeLogoPreviewWrap" style="width:56px;height:56px;border:1.5px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface2);flex-shrink:0">
+          <img id="customizeLogoPreview" src="" alt="" style="display:none;max-width:100%;max-height:100%;object-fit:contain"/>
+          <span id="customizeLogoPlaceholder" style="font-size:22px">🖼️</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label class="btn btn-outline" style="padding:8px 12px;font-size:12px;cursor:pointer;width:fit-content;margin:0">
+            📤 Escolher arquivo
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" id="customizeLogoFile" style="display:none" onchange="window.onCustomizeLogoPicked(this)"/>
+          </label>
+          <button type="button" class="btn btn-outline" style="padding:6px 12px;font-size:11px" onclick="window.removeCustomizeLogo()">🗑️ Remover logo</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Envie o arquivo direto do computador ou celular (PNG, JPG, WEBP ou SVG). Aparece pequena, ao lado do nome do app.</div>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Cor da faixa superior (cabeçalho)</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input id="customizeHeaderColor" type="color" value="#0f172a" style="width:44px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface)"/>
+        <button type="button" class="btn btn-outline" style="padding:8px 12px;font-size:12px" onclick="window.resetCustomizeField('header')">Restaurar padrão</button>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Cor de fundo da página</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input id="customizeBgColor" type="color" value="#f8fafc" style="width:44px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface)"/>
+        <button type="button" class="btn btn-outline" style="padding:8px 12px;font-size:12px" onclick="window.resetCustomizeField('bg')">Restaurar padrão</button>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Cor de destaque (botões e links)</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input id="customizeAccentColor" type="color" value="#4f46e5" style="width:44px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface)"/>
+        <button type="button" class="btn btn-outline" style="padding:8px 12px;font-size:12px" onclick="window.resetCustomizeField('accent')">Restaurar padrão</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-full" id="btnSaveCustomize" onclick="window.saveCustomize()">✅ Salvar personalização</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('overlayCustomize')">Cancelar</button>
     </div>
   </div>
 </div>
@@ -1543,12 +1585,138 @@ function applyEventTheme(theme) {
     root.style.setProperty('--primary-dark', mixColorGeneric(theme.primaryColor, [0,0,0], 0.35));
     root.style.setProperty('--primary-light', mixColorGeneric(theme.primaryColor, [255,255,255], 0.88));
   }
+  if (theme?.headerColor) {
+    root.style.setProperty('--header-bg', theme.headerColor);
+  }
+  if (theme?.bgColor) {
+    root.style.setProperty('--bg', theme.bgColor);
+  }
   const logoEl = document.getElementById('eventLogo');
   if (logoEl) {
-    if (theme?.logoUrl) { logoEl.src = theme.logoUrl; logoEl.style.display = 'inline-block'; }
+    const logo = theme?.logoData || theme?.logoUrl || '';
+    if (logo) { logoEl.src = logo; logoEl.style.display = 'inline-block'; }
     else { logoEl.style.display = 'none'; }
   }
 }
+
+/* ── Redimensiona/comprime a imagem no navegador antes de guardar no banco,
+      já que o upload é o arquivo em si (não um link) e precisa ficar pequeno. ── */
+function compressImageFile(file, maxDim, mime) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Arquivo de imagem inválido'));
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL(mime || 'image/png'));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ══ PERSONALIZAÇÃO VISUAL DA PÁGINA (menu próprio, separado da edição de dados) ══ */
+let customizeLogoData = null; // null = sem alteração pendente; '' = remover; string = novo logo
+
+window.onCustomizeLogoPicked = async function(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Imagem muito grande (máx. 5MB).', 'err');
+    input.value = '';
+    return;
+  }
+  try {
+    const isSvg = file.type === 'image/svg+xml';
+    const dataUrl = isSvg
+      ? await new Promise((resolve, reject) => {
+          const r = new FileReader();
+          r.onload = () => resolve(r.result);
+          r.onerror = reject;
+          r.readAsDataURL(file);
+        })
+      : await compressImageFile(file, 240, 'image/png');
+    customizeLogoData = dataUrl;
+    const prev = document.getElementById('customizeLogoPreview');
+    const ph   = document.getElementById('customizeLogoPlaceholder');
+    prev.src = dataUrl; prev.style.display = 'block';
+    ph.style.display = 'none';
+  } catch (e) {
+    console.error(e);
+    showToast('Não foi possível ler essa imagem.', 'err');
+  } finally {
+    input.value = '';
+  }
+};
+
+window.removeCustomizeLogo = function() {
+  customizeLogoData = '';
+  const prev = document.getElementById('customizeLogoPreview');
+  const ph   = document.getElementById('customizeLogoPlaceholder');
+  prev.src = ''; prev.style.display = 'none';
+  ph.style.display = 'block';
+};
+
+window.resetCustomizeField = function(which) {
+  const defaults = { header: '#0f172a', bg: '#f8fafc', accent: '#4f46e5' };
+  const ids      = { header: 'customizeHeaderColor', bg: 'customizeBgColor', accent: 'customizeAccentColor' };
+  document.getElementById(ids[which]).value = defaults[which];
+};
+
+window.openCustomize = function() {
+  if (!isAdmin || !eventData) return;
+  const theme = eventData.theme || {};
+  customizeLogoData = null;
+  const prev = document.getElementById('customizeLogoPreview');
+  const ph   = document.getElementById('customizeLogoPlaceholder');
+  const logo = theme.logoData || theme.logoUrl || '';
+  if (logo) { prev.src = logo; prev.style.display = 'block'; ph.style.display = 'none'; }
+  else      { prev.src = '';   prev.style.display = 'none';  ph.style.display = 'block'; }
+  document.getElementById('customizeHeaderColor').value  = theme.headerColor  || '#0f172a';
+  document.getElementById('customizeBgColor').value      = theme.bgColor     || '#f8fafc';
+  document.getElementById('customizeAccentColor').value  = theme.primaryColor|| '#4f46e5';
+  const errEl = document.getElementById('customizeError');
+  errEl.textContent = ''; errEl.classList.remove('show');
+  openModal('overlayCustomize');
+};
+
+window.saveCustomize = async function() {
+  const headerColor  = document.getElementById('customizeHeaderColor').value;
+  const bgColor      = document.getElementById('customizeBgColor').value;
+  const primaryColor = document.getElementById('customizeAccentColor').value;
+  const errEl = document.getElementById('customizeError');
+  const btn   = document.getElementById('btnSaveCustomize');
+  errEl.textContent = ''; errEl.classList.remove('show');
+  btn.disabled = true; btn.textContent = '⏳ Salvando…';
+  try {
+    const theme = Object.assign({}, eventData.theme || {}, { headerColor, bgColor, primaryColor });
+    delete theme.logoUrl; // este campo antigo (link) foi substituído pelo upload de arquivo
+    if (customizeLogoData !== null) theme.logoData = customizeLogoData; // '' remove o logo, string = novo logo
+    await set(ref(db, `events/${eventId}/theme`), theme);
+    if (eventData) eventData.theme = theme;
+    applyEventTheme(theme);
+    closeModal('overlayCustomize');
+    showToast('✅ Personalização salva!', 'ok');
+  } catch (e) {
+    console.error(e);
+    errEl.textContent = 'Erro ao salvar. Tente novamente.';
+    errEl.classList.add('show');
+  } finally {
+    btn.disabled = false; btn.textContent = '✅ Salvar personalização';
+  }
+};
 
 async function resolveLatLon(text) {
   if (!text || !text.trim()) return null;
@@ -1825,6 +1993,7 @@ async function loadEvent() {
     // Botão de editar evento sempre visível para o dono (mesmo sem admin PIN)
     if (isOwner && !isAdmin) {
       document.getElementById('btnEditEvent').style.display = 'inline-flex';
+      document.getElementById('btnCustomize').style.display = 'inline-flex';
     }
 
     // Se já sabemos quem é (identidade salva localmente), registra o token de push
@@ -2893,6 +3062,7 @@ window.confirmAdmin = function() {
   document.getElementById('adminControls').style.display='flex';
   document.getElementById('btnAdminLogin').style.display='none';
   document.getElementById('btnEditEvent').style.display='none'; // já fica dentro do adminControls
+  document.getElementById('btnCustomize').style.display='none'; // já fica dentro do adminControls
   renderCars();
 
   if (!getIdent()) {
@@ -2953,8 +3123,6 @@ window.openEditEvent = function() {
   document.getElementById('editEvDest').value     = eventData.destination || '';
   document.getElementById('editEvDestAddr').value = eventData.destinationAddress || '';
   document.getElementById('editEvOrigin').value   = eventData.defaultOrigin || '';
-  document.getElementById('editEvLogoUrl').value  = eventData.theme?.logoUrl || '';
-  document.getElementById('editEvColor').value    = eventData.theme?.primaryColor || '#4f46e5';
   document.getElementById('editEventError').classList.remove('show');
   openModal('overlayEditEvent');
 };
@@ -2964,8 +3132,6 @@ window.saveEventEdit = async function() {
   const dest     = document.getElementById('editEvDest').value.trim();
   const destAddr = document.getElementById('editEvDestAddr').value.trim();
   const origin   = document.getElementById('editEvOrigin').value.trim();
-  const logoUrl  = document.getElementById('editEvLogoUrl').value.trim();
-  const primaryColor = document.getElementById('editEvColor').value;
   const errEl    = document.getElementById('editEventError');
   const btn      = document.getElementById('btnSaveEvent');
   errEl.classList.remove('show');
@@ -3011,10 +3177,6 @@ window.saveEventEdit = async function() {
       await set(ref(db, `events/${eventId}/originLat`), originLat2);
       await set(ref(db, `events/${eventId}/originLon`), originLon2);
     }
-    const theme = { logoUrl: logoUrl || '', primaryColor: primaryColor || '' };
-    updates.theme = theme;
-    await set(ref(db, `events/${eventId}/theme`), theme);
-    applyEventTheme(theme);
     // Atualizar cópia local
     if (eventData) Object.assign(eventData, updates);
     closeModal('overlayEditEvent');
