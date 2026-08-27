@@ -6,7 +6,11 @@
   <title>Caronas Fácil</title>
   <!-- PWA -->
   <link rel="manifest" href="manifest.json"/>
-  <meta name="theme-color" content="#4f46e5"/>
+  <meta name="theme-color" content="#0e2b2a"/>
+  <!-- Tipografia premium -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap">
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -17,56 +21,88 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <style>
     :root {
-      --primary:       #4f46e5;
-      --primary-dark:  #3730a3;
-      --primary-light: #eef2ff;
-      --accent:        #dc2626;
-      --success:       #16a34a;
-      --bg:            #f8fafc;
+      /* Identidade premium — petróleo + âmbar + neutro quente */
+      --primary:       #0c6e6b;
+      --primary-dark:  #08514f;
+      --primary-light: #dbeceb;
+      --primary-tint:  #dbeceb;
+      --accent:        #c24a2c;   /* vermelho quente = perigo/excluir */
+      --gold:          #e0913a;   /* âmbar = destaque + controles de personalização */
+      --gold-deep:     #b06c1c;
+      --gold-tint:     #fbedd7;
+      --success:       #12855a;
+      --bg:            #f6f4ef;
       --surface:       #ffffff;
-      --surface2:      #f1f5f9;
-      --text:          #0f172a;
-      --muted:         #64748b;
-      --border:        #e2e8f0;
-      --r:             12px;
-      --r-sm:          8px;
-      --shadow:        0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
-      --header-bg:     #0f172a;
-      --header-fg:     #ffffff;
-      --header-fg-rgb: 255,255,255;
+      --surface2:      #efece4;
+      --text:          #16211f;
+      --muted:         #5b6763;
+      --border:        #e4dfd6;
+      --border-2:      #d7d0c4;
+      --r:             14px;
+      --r-sm:          10px;
+      --r-lg:          20px;
+      --shadow:        0 1px 2px rgba(24,30,28,.06),0 6px 18px -10px rgba(24,30,28,.20);
+      --shadow-lg:     0 12px 34px -14px rgba(14,43,42,.34);
+      --header-bg:     #0e2b2a;
+      --header-fg:     #f4f1ea;
+      --header-fg-rgb: 244,241,234;
+      --band:          #ffffff;
+      --band-fg:       #16211f;
+      --sans:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      --serif:'Fraunces',Georgia,'Times New Roman',serif;
     }
     /* Dark mode — via toggle manual */
     [data-theme="dark"] {
-      --primary:       #818cf8;
-      --primary-dark:  #c7d2fe;
-      --primary-light: #1e1b4b;
-      --accent:        #f87171;
-      --success:       #4ade80;
-      --bg:            #0f172a;
-      --surface:       #1e293b;
-      --surface2:      #293548;
-      --text:          #f1f5f9;
-      --muted:         #94a3b8;
-      --border:        #334155;
-      --shadow:        0 1px 4px rgba(0,0,0,.4);
-      --header-bg:     #020617;
+      --primary:       #3fb0ab;
+      --primary-dark:  #8fd3ce;
+      --primary-light: #123a38;
+      --primary-tint:  #123a38;
+      --accent:        #e07a5a;
+      --gold:          #e6a24f;
+      --gold-deep:     #f0b876;
+      --gold-tint:     #2a2114;
+      --success:       #4cbf8c;
+      --bg:            #12100e;
+      --surface:       #1c1a16;
+      --surface2:      #26231e;
+      --text:          #f3efe7;
+      --muted:         #a49b8b;
+      --border:        #332f28;
+      --border-2:      #413c33;
+      --shadow:        0 1px 3px rgba(0,0,0,.5);
+      --shadow-lg:     0 12px 34px -14px rgba(0,0,0,.6);
+      --header-bg:     #0b1e1d;
+      --header-fg:     #f3efe7;
+      --header-fg-rgb: 243,239,231;
+      --band:          #1c1a16;
+      --band-fg:       #f3efe7;
     }
     /* Dark mode — automático pelo SO (se usuário não escolheu manualmente) */
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --primary:       #818cf8;
-        --primary-dark:  #c7d2fe;
-        --primary-light: #1e1b4b;
-        --accent:        #f87171;
-        --success:       #4ade80;
-        --bg:            #0f172a;
-        --surface:       #1e293b;
-        --surface2:      #293548;
-        --text:          #f1f5f9;
-        --muted:         #94a3b8;
-        --border:        #334155;
-        --shadow:        0 1px 4px rgba(0,0,0,.4);
-        --header-bg:     #020617;
+        --primary:       #3fb0ab;
+        --primary-dark:  #8fd3ce;
+        --primary-light: #123a38;
+        --primary-tint:  #123a38;
+        --accent:        #e07a5a;
+        --gold:          #e6a24f;
+        --gold-deep:     #f0b876;
+        --gold-tint:     #2a2114;
+        --success:       #4cbf8c;
+        --bg:            #12100e;
+        --surface:       #1c1a16;
+        --surface2:      #26231e;
+        --text:          #f3efe7;
+        --muted:         #a49b8b;
+        --border:        #332f28;
+        --border-2:      #413c33;
+        --shadow:        0 1px 3px rgba(0,0,0,.5);
+        --shadow-lg:     0 12px 34px -14px rgba(0,0,0,.6);
+        --header-bg:     #0b1e1d;
+        --header-fg:     #f3efe7;
+        --header-fg-rgb: 243,239,231;
+        --band:          #1c1a16;
+        --band-fg:       #f3efe7;
       }
     }
     *{box-sizing:border-box;margin:0;padding:0;}
@@ -877,9 +913,194 @@
       cursor:pointer;margin-top:6px;
     }
     .ac-geo-btn:hover{background:var(--primary-light);}
+
+    /* ══════════════════════════════════════════════════════════
+       CAMADA PREMIUM — redesign editorial v1 (só apresentação)
+       Reestiliza as classes existentes; não altera markup nem lógica.
+       ══════════════════════════════════════════════════════════ */
+    body{font-family:var(--sans);-webkit-font-smoothing:antialiased;letter-spacing:-.005em;}
+    .ic{width:1em;height:1em;display:inline-block;vertical-align:-.125em;flex-shrink:0;}
+
+    /* Tipografia de títulos → Fraunces */
+    .header-appname,.empty-title,.modal-title,.modal-title-lg,.cost-bar-value{
+      font-family:var(--serif);font-weight:600;letter-spacing:-.01em;
+    }
+
+    /* ── HEADER (Zona 1) ── */
+    .header{padding:12px 16px 0;box-shadow:0 1px 0 rgba(0,0,0,.04);}
+    .header-row1{padding-bottom:12px;gap:10px;}
+    .header-appname{font-size:17px;}
+    .header-row1 > div:last-child{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end;}
+    #adminControls{gap:7px !important;flex-wrap:wrap;justify-content:flex-end;}
+    .btn-back{
+      display:inline-flex;align-items:center;gap:5px;background:rgba(var(--header-fg-rgb),.08);
+      border:1px solid rgba(var(--header-fg-rgb),.16);color:rgba(var(--header-fg-rgb),.9);
+      border-radius:10px;padding:6px 11px;font-size:12.5px;font-weight:600;text-decoration:none;
+    }
+    .btn-back:hover{background:rgba(var(--header-fg-rgb),.16);}
+    .btn-admin-small{
+      border-radius:10px;font-size:12px;font-weight:600;padding:7px 11px;
+      display:inline-flex;align-items:center;gap:6px;line-height:1;
+    }
+    .admin-badge{
+      background:var(--gold);color:#2a1503;border-radius:999px;padding:5px 11px;
+      font-size:11px;font-weight:800;letter-spacing:.02em;
+    }
+    #eventLogo{height:30px !important;max-width:110px !important;border-radius:8px !important;}
+    .header-event-label{color:rgba(var(--header-fg-rgb),.5);letter-spacing:.1em;}
+    .header-event-name{font-weight:700;}
+    .header-event-section + .header-event-section{border-top-color:rgba(var(--header-fg-rgb),.12);}
+
+    /* ── TABS = faixa intermediária (Zona 2) ── */
+    .tabs{
+      background:var(--band);border-bottom:1px solid var(--border);
+      padding:11px 12px;gap:8px;
+    }
+    .tab{
+      border:1px solid var(--border-2);border-radius:999px;background:var(--surface);
+      color:var(--muted);font-weight:600;font-size:12.5px;padding:8px 14px;
+      display:inline-flex;align-items:center;gap:6px;
+    }
+    .tab.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .tab-add{
+      border:1px dashed var(--primary);color:var(--primary);border-radius:999px;
+      background:transparent;font-weight:700;font-size:12.5px;padding:8px 13px;
+      display:inline-flex;align-items:center;gap:6px;
+    }
+
+    /* ── BOTÕES — sistema único ── */
+    .btn{
+      font-family:inherit;font-weight:700;letter-spacing:-.01em;border-radius:12px;
+      border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .btn-primary{background:var(--primary);color:#fff;box-shadow:0 6px 16px -9px rgba(12,110,107,.7);}
+    .btn-primary:hover{background:var(--primary-dark);}
+    .btn-secondary{background:var(--primary-tint);color:var(--primary-dark);border-color:transparent;}
+    .btn-outline{background:var(--surface);color:var(--text);border-color:var(--border-2);}
+    .btn-danger{background:var(--accent);color:#fff;}
+    .btn-gold{background:var(--gold);color:#2a1503;}
+    .btn-sm{border-radius:10px;font-weight:700;}
+
+    /* ── FAB / Oferecer carona ── */
+    .fab{
+      border-radius:14px;font-weight:700;letter-spacing:-.01em;
+      background:var(--primary);color:#fff;box-shadow:var(--shadow-lg);
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    }
+
+    /* ── CARD DE CARONA ── */
+    .car-card{
+      border:1px solid var(--border);border-radius:var(--r);background:var(--surface);
+      box-shadow:var(--shadow);overflow:hidden;
+    }
+    .car-header{padding:14px 15px 12px;gap:10px;}
+    .badge-motorista{
+      background:var(--primary-tint);color:var(--primary-dark);border-radius:7px;
+      font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;
+      display:inline-flex;align-items:center;gap:5px;
+    }
+    .car-driver-name{font-size:15px;font-weight:700;letter-spacing:-.01em;margin-top:5px;}
+    .car-driver-desc{font-size:12.5px;color:var(--muted);}
+    .badge{border-radius:8px;font-size:11.5px;font-weight:600;padding:5px 9px;display:inline-flex;align-items:center;gap:5px;}
+    .badge-neutral{background:var(--surface2);color:var(--muted);}
+    .my-car-banner{background:var(--primary);color:#fff;font-weight:700;letter-spacing:-.01em;}
+    .pax-row{border-radius:10px;}
+    .pax-row-driver{background:var(--primary-tint);}
+    .pax-row-me{outline:2px solid var(--primary);outline-offset:-2px;}
+    .pax-row-name{font-weight:600;color:var(--text);}
+    .pax-you-tag{background:var(--gold);color:#2a1503;border-radius:6px;font-size:10px;font-weight:800;padding:1px 6px;}
+    .pax-cost-tag{background:var(--gold-tint);color:var(--gold-deep);border-radius:7px;font-weight:700;font-size:12px;padding:3px 8px;}
+    .pax-row-phone{color:var(--primary-dark);font-weight:600;}
+    .btn-remove-pax{color:var(--accent);border-radius:8px;}
+    .action-placeholder{color:var(--muted);font-weight:600;}
+    .chat-badge{background:var(--gold);color:#2a1503;font-weight:800;}
+
+    /* ── BARRA DE CUSTO ── */
+    .cost-bar{background:var(--primary-tint);border-radius:var(--r-sm);}
+    .cost-bar-label{color:var(--primary-dark);font-weight:700;letter-spacing:.02em;}
+    .cost-bar-value{color:var(--primary-dark);font-size:20px;}
+    .cost-bar-btn{background:var(--primary);color:#fff;border-radius:9px;font-weight:700;}
+    .cost-bar-pending{background:var(--gold-tint);color:var(--gold-deep);border-radius:var(--r-sm);font-weight:600;}
+
+    /* ── ESTADO VAZIO / HERO ── */
+    .empty{padding:30px 22px;}
+    .empty-title{font-size:20px;}
+    .empty-sub{color:var(--muted);}
+    .logo-hero{
+      width:112px;height:112px;margin:0 auto 4px;border-radius:22px;
+      background:var(--primary-tint);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--primary);
+    }
+    .logo-hero img{width:100%;height:100%;object-fit:contain;padding:14px;}
+    .logo-hero .ic{width:42px;height:42px;}
+
+    /* ── MODAIS ── */
+    .modal{border-radius:22px 22px 0 0;}
+    .modal-title{font-size:19px;}
+    .fi,.fl{font-family:inherit;}
+    .fi{border-radius:11px;border:1px solid var(--border-2);}
+    .fi:focus{border-color:var(--primary);outline:2px solid var(--primary-tint);}
+    .fl{font-weight:700;letter-spacing:.02em;color:var(--muted);text-transform:uppercase;font-size:11px;}
+
+    /* ── PERSONALIZAÇÃO: controles sobrepostos (Zona editável) ── */
+    .z-editable{position:relative;}
+    .z-outline{position:absolute;inset:4px;border:2px dashed var(--gold);border-radius:14px;pointer-events:none;z-index:25;}
+    .z-badge{
+      position:absolute;z-index:30;display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+      font-size:11px;font-weight:800;letter-spacing:.02em;white-space:nowrap;
+      background:var(--gold);color:#2a1503;border-radius:999px;padding:6px 11px 6px 9px;border:0;
+      box-shadow:0 6px 16px -6px rgba(224,145,58,.8),0 0 0 3px rgba(224,145,58,.25);
+    }
+    .z-badge .ic{width:14px;height:14px;}
+    .z-badge.tr{top:10px;right:12px;} .z-badge.c{top:50%;left:50%;transform:translate(-50%,-50%);}
+    body:not(.perso-edit) .z-outline,
+    body:not(.perso-edit) .z-badge{display:none !important;}
+
+    /* upload de logo no menu de personalização */
+    .cz-upload{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+    .cz-box{width:54px;height:54px;border-radius:12px;border:1.5px dashed var(--border-2);display:flex;align-items:center;justify-content:center;color:var(--muted);background:var(--surface2);overflow:hidden;flex-shrink:0;}
+    .cz-box img{width:100%;height:100%;object-fit:contain;padding:6px;}
+    .cz-box .ic{width:22px;height:22px;}
+    .cz-row{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--border);}
+    .cz-row:last-of-type{border-bottom:0;}
+    .cz-dot{width:36px;height:36px;border-radius:10px;border:1px solid var(--border-2);flex-shrink:0;cursor:pointer;padding:0;}
+    .cz-txt{flex:1;min-width:0;}
+    .cz-txt b{font-size:13px;font-weight:700;display:block;}
+    .cz-txt small{font-size:11px;color:var(--muted);}
+    .cz-hex{font-size:11px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.02em;}
+    .cz-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}
+    .ic-wrap{display:inline-flex;align-items:center;justify-content:center;}
+
+    /* Personalização: painel não-bloqueante, deixando as zonas de cima visíveis/clicáveis */
+    #overlayCustomize{background:transparent;pointer-events:none;}
+    #overlayCustomize .modal{pointer-events:auto;max-height:70dvh;box-shadow:0 -16px 44px -14px rgba(0,0,0,.45);}
+    body.perso-edit .fab{display:none !important;}
+    @media(min-width:540px){
+      #overlayCustomize{align-items:flex-end;}
+      #overlayCustomize .modal{margin:0 0 0 0;border-radius:16px 16px 0 0;max-width:540px;}
+    }
   </style>
 </head>
 <body>
+
+<!-- ÍCONES (sprite) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.2A2 2 0 0 1 8.4 5.5h7.2a2 2 0 0 1 1.9 1.3L19 11"/><path d="M3 11h18v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="14" r="1"/><circle cx="17" cy="14" r="1"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.7-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.3 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 3v3M16 3v3"/></symbol>
+<symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.7 0 2.2-1.3 1.2-2.5-.9-1.1-.3-2.5 1.1-2.5H17a4 4 0 0 0 4-4c0-4.4-4-7-9-7z"/><circle cx="7.5" cy="11" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="11" r="1"/></symbol>
+<symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M4 17l4.5-4.2a2 2 0 0 1 2.7 0L20 20"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4m0 0L8 8m4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5 11-11"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-3 8-7 10-4-2-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16z"/></symbol>
+<symbol id="i-route" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H15a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h6.5"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></symbol>
+</defs></svg>
 
 <!-- STICKY WRAPPER -->
 <div class="sticky-top">
@@ -888,22 +1109,22 @@
 <div class="header">
   <div class="header-row1">
     <div style="display:flex;align-items:center;gap:10px">
-      <a class='btn-back' href='/'>← Viagens</a>
+      <a class='btn-back' href='/'><svg class="ic"><use href="#i-back"/></svg> Viagens</a>
       <img id="eventLogo" src="" alt="Logo do evento" style="display:none;height:28px;max-width:120px;object-fit:contain;border-radius:6px" />
       <div class="header-appname" id="headerAppname" onclick="adminTap()">Caronas Fácil</div>
     </div>
     <div>
       <div id="adminControls" style="display:none;align-items:center;gap:8px">
         <span class="admin-badge">Admin</span>
-        <button class="btn-admin-small" onclick="window.openIdentAdmin()" title="Definir minha identidade de motorista">👤 Sou motorista</button>
-        <button class="btn-admin-small" onclick="window.openEditEvent()" title="Editar dados do evento">✏️ Editar</button>
-        <button class="btn-admin-small" onclick="window.openCustomize()" title="Personalizar aparência da página">🎨 Personalizar</button>
+        <button class="btn-admin-small" onclick="window.openIdentAdmin()" title="Definir minha identidade de motorista"><svg class="ic"><use href="#i-user"/></svg> Sou motorista</button>
+        <button class="btn-admin-small" onclick="window.openEditEvent()" title="Editar dados do evento"><svg class="ic"><use href="#i-edit"/></svg> Editar</button>
+        <button class="btn-admin-small" onclick="window.openCustomize()" title="Personalizar aparência da página"><svg class="ic"><use href="#i-palette"/></svg> Personalizar</button>
       </div>
       <!-- Botões visíveis para o dono mesmo sem modo admin -->
       <button class="btn-admin-small" id="btnEditEvent" onclick="window.openEditEvent()"
-              style="display:none" title="Editar evento">✏️ Editar evento</button>
+              style="display:none" title="Editar evento"><svg class="ic"><use href="#i-edit"/></svg> Editar evento</button>
       <button class="btn-admin-small" id="btnCustomize" onclick="window.openCustomize()"
-              style="display:none" title="Personalizar aparência da página">🎨 Personalizar</button>
+              style="display:none" title="Personalizar aparência da página"><svg class="ic"><use href="#i-palette"/></svg> Personalizar</button>
 
       <!-- PIN do Evento -->
       <div id="pinDisplay" style="display:none;background:rgba(79,70,229,.15);border:1px solid rgba(79,70,229,.3);padding:5px 12px;border-radius:6px;font-size:12px;color:var(--text);font-family:monospace;font-weight:600;white-space:nowrap">
@@ -912,12 +1133,12 @@
 
       <!-- Botão do Portal Admin (sempre visível) -->
       <a href="/admin" class="btn-admin-small" title="Acessar painel administrativo">
-        🛡️ Admin
+        <svg class="ic"><use href="#i-shield"/></svg> Admin
       </a>
 
       <!-- Toggle dark/light mode -->
       <button class="btn-admin-small" id="btnThemeToggle" onclick="window.toggleTheme()"
-              title="Alternar modo claro/escuro" style="font-size:13px;padding:5px 9px;letter-spacing:1px">☀️🌙</button>
+              title="Alternar modo claro/escuro" style="padding:7px 9px"><svg class="ic"><use href="#i-sun"/></svg></button>
       <button class="btn-admin-small" id="btnAdminLogin" onclick="openAdminModal()" style="display:none">
         Acesso admin
       </button>
@@ -948,7 +1169,7 @@
 
 <!-- FAB -->
 <button class="fab" id="fabAddCar" onclick="openCarModal()" style="display:none">
-  + Oferecer carona
+  <svg class="ic"><use href="#i-car"/></svg> Oferecer carona
 </button>
 
 <!-- ── MODAL: Identificação ── -->
@@ -1230,55 +1451,52 @@
 <div class="overlay hidden" id="overlayCustomize">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">🎨 Personalizar página do evento</div>
-    <div class="modal-sub">Opcional. Deixa a página deste evento com a cara da sua festa — não mexe nos dados do evento.</div>
+    <div class="modal-title"><svg class="ic" style="color:var(--gold-deep)"><use href="#i-palette"/></svg> Personalizar página</div>
+    <div class="modal-sub">Opcional. Deixa a página deste evento com a cara da sua festa — não altera os dados do evento. Toque numa área destacada da tela ou ajuste aqui.</div>
     <div id="customizeError" class="error-box"></div>
 
-    <div class="fg">
-      <label class="fl">Logo</label>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
-        <div id="customizeLogoPreviewWrap" style="width:56px;height:56px;border:1.5px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface2);flex-shrink:0">
-          <img id="customizeLogoPreview" src="" alt="" style="display:none;max-width:100%;max-height:100%;object-fit:contain"/>
-          <span id="customizeLogoPlaceholder" style="font-size:22px">🖼️</span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <label class="btn btn-outline" style="padding:8px 12px;font-size:12px;cursor:pointer;width:fit-content;margin:0">
-            📤 Escolher arquivo
-            <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" id="customizeLogoFile" style="display:none" onchange="window.onCustomizeLogoPicked(this)"/>
-          </label>
-          <button type="button" class="btn btn-outline" style="padding:6px 12px;font-size:11px" onclick="window.removeCustomizeLogo()">🗑️ Remover logo</button>
-        </div>
+    <!-- LOGO -->
+    <div class="cz-upload">
+      <div class="cz-box" id="customizeLogoPreviewWrap">
+        <img id="customizeLogoPreview" src="" alt="" style="display:none"/>
+        <span id="customizeLogoPlaceholder" class="ic-wrap"><svg class="ic"><use href="#i-image"/></svg></span>
       </div>
-      <div style="font-size:11px;color:var(--muted)">Envie o arquivo direto do computador ou celular (PNG, JPG, WEBP ou SVG). Aparece pequena, ao lado do nome do app.</div>
-    </div>
-
-    <div class="fg">
-      <label class="fl">Cor da faixa superior (cabeçalho)</label>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input id="customizeHeaderColor" type="color" value="#0f172a" style="width:44px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface)"/>
-        <button type="button" class="btn btn-outline" style="padding:8px 12px;font-size:12px" onclick="window.resetCustomizeField('header')">Restaurar padrão</button>
+      <div class="cz-txt" style="flex:1">
+        <b>Logo do evento</b>
+        <small>Enviar arquivo (PNG, JPG, WEBP, SVG). Auto-dimensionado.</small>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+        <label class="btn btn-secondary btn-sm" style="cursor:pointer;margin:0"><svg class="ic"><use href="#i-upload"/></svg> Escolher
+          <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" id="customizeLogoFile" class="cz-file" onchange="window.onCustomizeLogoPicked(this)"/>
+        </label>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:11px;padding:6px 10px" onclick="window.removeCustomizeLogo()">Remover</button>
       </div>
     </div>
 
-    <div class="fg">
-      <label class="fl">Cor de fundo da página</label>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input id="customizeBgColor" type="color" value="#f8fafc" style="width:44px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface)"/>
-        <button type="button" class="btn btn-outline" style="padding:8px 12px;font-size:12px" onclick="window.resetCustomizeField('bg')">Restaurar padrão</button>
-      </div>
+    <!-- 3 ZONAS DE COR -->
+    <div class="cz-row">
+      <input id="customizeHeaderColor" class="cz-dot" type="color" value="#0e2b2a" oninput="window.previewCustomize()"/>
+      <div class="cz-txt"><b>Zona 1 · Header</b><small>Faixa superior</small></div>
+      <span class="cz-hex" id="hexHeader">#0E2B2A</span>
+    </div>
+    <div class="cz-row">
+      <input id="customizeBandColor" class="cz-dot" type="color" value="#ffffff" oninput="window.previewCustomize()"/>
+      <div class="cz-txt"><b>Zona 2 · Faixa intermediária</b><small>Barra de datas e trajetos</small></div>
+      <span class="cz-hex" id="hexBand">#FFFFFF</span>
+    </div>
+    <div class="cz-row">
+      <input id="customizeBgColor" class="cz-dot" type="color" value="#f6f4ef" oninput="window.previewCustomize()"/>
+      <div class="cz-txt"><b>Zona 3 · Fundo da página</b><small>Área de conteúdo</small></div>
+      <span class="cz-hex" id="hexBg">#F6F4EF</span>
     </div>
 
-    <div class="fg">
-      <label class="fl">Cor de destaque (botões e links)</label>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input id="customizeAccentColor" type="color" value="#4f46e5" style="width:44px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface)"/>
-        <button type="button" class="btn btn-outline" style="padding:8px 12px;font-size:12px" onclick="window.resetCustomizeField('accent')">Restaurar padrão</button>
-      </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:8px">
+      <button type="button" class="btn btn-outline btn-sm" onclick="window.resetCustomizeAll()">Restaurar padrão</button>
     </div>
 
     <div class="modal-actions">
-      <button class="btn btn-primary btn-full" id="btnSaveCustomize" onclick="window.saveCustomize()">✅ Salvar personalização</button>
-      <button class="btn btn-outline btn-full" onclick="closeModal('overlayCustomize')">Cancelar</button>
+      <button class="btn btn-primary btn-full" id="btnSaveCustomize" onclick="window.saveCustomize()"><svg class="ic"><use href="#i-check"/></svg> Salvar personalização</button>
+      <button class="btn btn-outline btn-full" onclick="window.cancelCustomize()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -1594,22 +1812,32 @@ function luminanceGeneric(hex) {
 }
 function applyEventTheme(theme) {
   const root = document.documentElement;
+  // compat: cor de destaque antiga (opcional) continua sendo respeitada se existir
   if (theme?.primaryColor) {
     root.style.setProperty('--primary', theme.primaryColor);
     root.style.setProperty('--primary-dark', mixColorGeneric(theme.primaryColor, [0,0,0], 0.35));
     root.style.setProperty('--primary-light', mixColorGeneric(theme.primaryColor, [255,255,255], 0.88));
   }
+  // ZONA 1 — header
   if (theme?.headerColor) {
     root.style.setProperty('--header-bg', theme.headerColor);
     const claro = luminanceGeneric(theme.headerColor) > 0.55;
-    root.style.setProperty('--header-fg', claro ? '#0f172a' : '#ffffff');
-    root.style.setProperty('--header-fg-rgb', claro ? '15,23,42' : '255,255,255');
+    root.style.setProperty('--header-fg', claro ? '#16211f' : '#f4f1ea');
+    root.style.setProperty('--header-fg-rgb', claro ? '22,33,31' : '244,241,234');
   }
+  // ZONA 2 — faixa intermediária (barra de datas/trajetos)
+  if (theme?.bandColor) {
+    root.style.setProperty('--band', theme.bandColor);
+    const claro = luminanceGeneric(theme.bandColor) > 0.55;
+    root.style.setProperty('--band-fg', claro ? '#16211f' : '#f4f1ea');
+  }
+  // ZONA 3 — fundo da página
   if (theme?.bgColor) {
     root.style.setProperty('--bg', theme.bgColor);
     const claro = luminanceGeneric(theme.bgColor) > 0.55;
-    root.style.setProperty('--text', claro ? '#0f172a' : '#f1f5f9');
+    root.style.setProperty('--text', claro ? '#16211f' : '#f3efe7');
   }
+  // logo no topo (pequeno) — o hero grande usa o mesmo logo via renderCars()
   const logoEl = document.getElementById('eventLogo');
   if (logoEl) {
     const logo = theme?.logoData || theme?.logoUrl || '';
@@ -1672,6 +1900,14 @@ window.onCustomizeLogoPicked = async function(input) {
     const ph   = document.getElementById('customizeLogoPlaceholder');
     prev.src = dataUrl; prev.style.display = 'block';
     ph.style.display = 'none';
+    // pré-visualiza no hero também, se estiver visível
+    const heroSlot = document.querySelector('.logo-hero');
+    if (heroSlot) {
+      let heroImg = heroSlot.querySelector('img');
+      if (!heroImg) { heroImg = document.createElement('img'); heroImg.alt='Logo do evento'; heroSlot.insertBefore(heroImg, heroSlot.firstChild); }
+      const ico = heroSlot.querySelector('.ic'); if (ico) ico.style.display = 'none';
+      heroImg.src = dataUrl;
+    }
   } catch (e) {
     console.error(e);
     showToast('Não foi possível ler essa imagem.', 'err');
@@ -1685,14 +1921,65 @@ window.removeCustomizeLogo = function() {
   const prev = document.getElementById('customizeLogoPreview');
   const ph   = document.getElementById('customizeLogoPlaceholder');
   prev.src = ''; prev.style.display = 'none';
-  ph.style.display = 'block';
+  ph.style.display = 'flex';
+  syncHeroBadgeLogo();
 };
 
-window.resetCustomizeField = function(which) {
-  const defaults = { header: '#0f172a', bg: '#f8fafc', accent: '#4f46e5' };
-  const ids      = { header: 'customizeHeaderColor', bg: 'customizeBgColor', accent: 'customizeAccentColor' };
-  document.getElementById(ids[which]).value = defaults[which];
+const CZ_DEFAULTS = { header: '#0e2b2a', band: '#ffffff', bg: '#f6f4ef' };
+
+// Atualiza rótulos hex + aplica pré-visualização ao vivo
+window.previewCustomize = function() {
+  const h = document.getElementById('customizeHeaderColor').value;
+  const b = document.getElementById('customizeBandColor').value;
+  const g = document.getElementById('customizeBgColor').value;
+  document.getElementById('hexHeader').textContent = h.toUpperCase();
+  document.getElementById('hexBand').textContent   = b.toUpperCase();
+  document.getElementById('hexBg').textContent     = g.toUpperCase();
+  applyEventTheme({ headerColor:h, bandColor:b, bgColor:g });
 };
+
+window.resetCustomizeAll = function() {
+  document.getElementById('customizeHeaderColor').value = CZ_DEFAULTS.header;
+  document.getElementById('customizeBandColor').value   = CZ_DEFAULTS.band;
+  document.getElementById('customizeBgColor').value     = CZ_DEFAULTS.bg;
+  window.previewCustomize();
+};
+
+// ── Controles sobrepostos (badges âmbar) nas zonas editáveis ──
+function injectPersoBadges() {
+  document.body.classList.add('perso-edit');
+  const add = (host, cls, label, icon, onclick, position) => {
+    if (!host || host.querySelector(':scope > .z-badge')) return;
+    host.classList.add('z-editable');
+    const out = document.createElement('div'); out.className = 'z-outline';
+    const b = document.createElement('button'); b.type='button';
+    b.className = 'z-badge ' + position;
+    b.innerHTML = `<svg class="ic"><use href="#${icon}"/></svg> ${label}`;
+    b.onclick = onclick;
+    host.appendChild(out); host.appendChild(b);
+  };
+  add(document.querySelector('.header'), 'hdr', 'Cor do header', 'i-edit',
+      () => document.getElementById('customizeHeaderColor').click(), 'tr');
+  add(document.getElementById('tabs'), 'band', 'Cor da faixa', 'i-edit',
+      () => document.getElementById('customizeBandColor').click(), 'tr');
+  syncHeroBadgeLogo();
+}
+function syncHeroBadgeLogo() {
+  const slot = document.querySelector('.logo-hero');
+  if (!slot) return;
+  if (document.body.classList.contains('perso-edit') && !slot.querySelector('.z-badge')) {
+    slot.classList.add('z-editable');
+    const b = document.createElement('button'); b.type='button';
+    b.className = 'z-badge c';
+    b.innerHTML = `<svg class="ic"><use href="#i-image"/></svg> Trocar logo`;
+    b.onclick = () => document.getElementById('customizeLogoFile').click();
+    slot.appendChild(b);
+  }
+}
+function removePersoBadges() {
+  document.body.classList.remove('perso-edit');
+  document.querySelectorAll('.z-badge, .z-outline').forEach(el => el.remove());
+}
 
 window.openCustomize = function() {
   if (!isAdmin || !eventData) return;
@@ -1702,38 +1989,50 @@ window.openCustomize = function() {
   const ph   = document.getElementById('customizeLogoPlaceholder');
   const logo = theme.logoData || theme.logoUrl || '';
   if (logo) { prev.src = logo; prev.style.display = 'block'; ph.style.display = 'none'; }
-  else      { prev.src = '';   prev.style.display = 'none';  ph.style.display = 'block'; }
-  document.getElementById('customizeHeaderColor').value  = theme.headerColor  || '#0f172a';
-  document.getElementById('customizeBgColor').value      = theme.bgColor     || '#f8fafc';
-  document.getElementById('customizeAccentColor').value  = theme.primaryColor|| '#4f46e5';
+  else      { prev.src = '';   prev.style.display = 'none';  ph.style.display = 'flex'; }
+  document.getElementById('customizeHeaderColor').value = theme.headerColor || CZ_DEFAULTS.header;
+  document.getElementById('customizeBandColor').value   = theme.bandColor   || CZ_DEFAULTS.band;
+  document.getElementById('customizeBgColor').value     = theme.bgColor     || CZ_DEFAULTS.bg;
+  window.previewCustomize();
   const errEl = document.getElementById('customizeError');
   errEl.textContent = ''; errEl.classList.remove('show');
+  injectPersoBadges();
   openModal('overlayCustomize');
 };
 
+// Cancelar: descarta a pré-visualização e volta ao tema salvo
+window.cancelCustomize = function() {
+  removePersoBadges();
+  closeModal('overlayCustomize');
+  applyEventTheme(eventData?.theme || {});
+  renderCars();
+};
+
 window.saveCustomize = async function() {
-  const headerColor  = document.getElementById('customizeHeaderColor').value;
-  const bgColor      = document.getElementById('customizeBgColor').value;
-  const primaryColor = document.getElementById('customizeAccentColor').value;
+  const headerColor = document.getElementById('customizeHeaderColor').value;
+  const bandColor   = document.getElementById('customizeBandColor').value;
+  const bgColor     = document.getElementById('customizeBgColor').value;
   const errEl = document.getElementById('customizeError');
   const btn   = document.getElementById('btnSaveCustomize');
   errEl.textContent = ''; errEl.classList.remove('show');
-  btn.disabled = true; btn.textContent = '⏳ Salvando…';
+  btn.disabled = true; btn.innerHTML = 'Salvando…';
   try {
-    const theme = Object.assign({}, eventData.theme || {}, { headerColor, bgColor, primaryColor });
-    delete theme.logoUrl; // este campo antigo (link) foi substituído pelo upload de arquivo
-    if (customizeLogoData !== null) theme.logoData = customizeLogoData; // '' remove o logo, string = novo logo
+    const theme = Object.assign({}, eventData.theme || {}, { headerColor, bandColor, bgColor });
+    delete theme.logoUrl; // campo antigo (link) substituído pelo upload de arquivo
+    if (customizeLogoData !== null) theme.logoData = customizeLogoData; // '' remove, string = novo logo
     await set(ref(db, `events/${eventId}/theme`), theme);
     if (eventData) eventData.theme = theme;
+    removePersoBadges();
     applyEventTheme(theme);
+    renderCars(); // atualiza o logo do hero
     closeModal('overlayCustomize');
-    showToast('✅ Personalização salva!', 'ok');
+    showToast('Personalização salva!', 'ok');
   } catch (e) {
     console.error(e);
     errEl.textContent = 'Erro ao salvar. Tente novamente.';
     errEl.classList.add('show');
   } finally {
-    btn.disabled = false; btn.textContent = '✅ Salvar personalização';
+    btn.disabled = false; btn.innerHTML = '<svg class="ic"><use href="#i-check"/></svg> Salvar personalização';
   }
 };
 
@@ -2062,11 +2361,11 @@ async function loadEvent() {
 /* ══ TABS ══ */
 function renderTabs() {
   const tabsHtml = trips.map((t,i) => `
-    <div class="tab ${i===activeTripIdx?'active':''}" onclick="window.switchTab(${i})">${escHtml(t.label)}</div>
+    <div class="tab ${i===activeTripIdx?'active':''}" onclick="window.switchTab(${i})"><svg class="ic"><use href="#i-cal"/></svg> ${escHtml(t.label)}</div>
   `).join('');
   document.getElementById('tabs').innerHTML = tabsHtml +
-    `<div class="tab-add" onclick="window.openTripAddModal()" title="Criar um novo trajeto (ida ou volta)">+ Trajeto</div>` +
-    (trips.length ? `<div class="tab-add" onclick="window.openInterestModal()" title="Avisar quando surgir um carro neste trajeto">🔔</div>` : '');
+    `<div class="tab-add" onclick="window.openTripAddModal()" title="Criar um novo trajeto (ida ou volta)"><svg class="ic"><use href="#i-route"/></svg> Trajeto</div>` +
+    (trips.length ? `<div class="tab-add" onclick="window.openInterestModal()" title="Avisar quando surgir um carro neste trajeto"><svg class="ic"><use href="#i-bell"/></svg></div>` : '');
 }
 window.switchTab = function(i) { activeTripIdx=i; renderTabs(); renderCars(); };
 
@@ -2076,7 +2375,7 @@ function renderCars() {
   if (!trip) {
     document.getElementById('mainContent').innerHTML = `<div class="content">
       <div class="empty">
-        <div class="empty-icon">🗓️</div>
+        <div class="logo-hero"><svg class="ic"><use href="#i-route"/></svg></div>
         <div class="empty-title">Nenhum trajeto criado ainda</div>
         <div class="empty-sub">Cada motorista pode criar seu próprio trajeto de ida ou volta.<br>Toque em "+ Trajeto" acima para começar.</div>
       </div></div>`;
@@ -2094,12 +2393,16 @@ function renderCars() {
   </div>`;
 
   if (!carList.length) {
+    const heroLogo = eventData?.theme?.logoData || eventData?.theme?.logoUrl || '';
+    const heroSlot = heroLogo
+      ? `<div class="logo-hero"><img src="${heroLogo}" alt="Logo do evento"></div>`
+      : `<div class="logo-hero"><svg class="ic"><use href="#i-car"/></svg></div>`;
     content.innerHTML = alertHtml + `<div class="content">
       <div class="empty">
-        <div class="empty-icon">🚗</div>
+        ${heroSlot}
         <div class="empty-title">Nenhum carro ainda</div>
         <div class="empty-sub">Seja o primeiro a oferecer uma carona para este trajeto!</div>
-        <button class="btn btn-secondary" style="margin-top:16px" onclick="window.openInterestModal()">🔔 Avise-me quando surgir um carro</button>
+        <button class="btn btn-secondary" style="margin-top:16px" onclick="window.openInterestModal()"><svg class="ic"><use href="#i-bell"/></svg> Avise-me quando surgir um carro</button>
       </div></div>`;
     return;
   }
